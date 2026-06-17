@@ -13,6 +13,7 @@ export type Block =
 export interface Article {
   slug: string;
   icon: string; // resolved in ArticleIcon
+  cover: string; // hero cover image in /public/cover
   color: "amber" | "coral" | "violet" | "blue" | "teal" | "green" | "gold" | "rose";
   minutes: number;
   title: { de: string; uk: string };
@@ -28,6 +29,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "lebenslauf-deutschland",
     icon: "doc",
+    cover: "/cover/lebenslauf-deutschland.jpg",
     color: "amber",
     minutes: 6,
     title: {
@@ -96,6 +98,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "anschreiben-schreiben",
     icon: "pen",
+    cover: "/cover/anschreiben-schreiben.jpg",
     color: "violet",
     minutes: 5,
     title: {
@@ -162,6 +165,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "vorstellungsgespraech",
     icon: "chat",
+    cover: "/cover/vorstellungsgespraech.jpg",
     color: "teal",
     minutes: 7,
     title: {
@@ -218,6 +222,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "anerkennung-abschluss",
     icon: "badge",
+    cover: "/cover/anerkennung-abschluss.jpg",
     color: "blue",
     minutes: 6,
     title: {
@@ -266,6 +271,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "deutsch-fuer-den-job",
     icon: "lang",
+    cover: "/cover/deutsch-fuer-den-job.jpg",
     color: "rose",
     minutes: 5,
     title: {
@@ -312,6 +318,7 @@ export const ARTICLES: Article[] = [
   {
     slug: "ausbildung-vs-arbeit",
     icon: "compass",
+    cover: "/cover/ausbildung-vs-arbeit.jpg",
     color: "green",
     minutes: 5,
     title: {

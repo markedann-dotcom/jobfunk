@@ -38,17 +38,28 @@ export function WikiIndex() {
             <Reveal key={a.slug} delay={i * 60}>
               <Link
                 href={`/ratgeber/${a.slug}`}
-                className="group flex h-full flex-col rounded-3xl border border-border bg-surface/85 p-6 shadow-sm backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
+                className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-surface/85 shadow-sm backdrop-blur-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
                 style={{ ["--cc" as string]: cc }}
               >
-                <span
-                  className="grid h-12 w-12 place-items-center rounded-2xl transition group-hover:scale-110"
-                  style={{ background: soft, color: cc }}
-                >
-                  <ArticleIcon name={a.icon} className="h-6 w-6" />
-                </span>
+                {/* Cover */}
+                <div className="relative aspect-[3/2] overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={a.cover}
+                    alt=""
+                    loading="lazy"
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                  <span
+                    className="absolute left-4 top-4 grid h-9 w-9 place-items-center rounded-xl bg-surface/90 shadow-sm backdrop-blur-sm"
+                    style={{ color: cc }}
+                  >
+                    <ArticleIcon name={a.icon} className="h-5 w-5" />
+                  </span>
+                </div>
+                <div className="flex flex-1 flex-col p-6">
                 <h2
-                  className="mt-5 text-lg font-extrabold leading-snug text-ink transition group-hover:text-[var(--cc)]"
+                  className="text-lg font-extrabold leading-snug text-ink transition group-hover:text-[var(--cc)]"
                   style={{ fontFamily: "var(--font-fraunces)" }}
                 >
                   {pick(a.title, lang)}
@@ -74,6 +85,7 @@ export function WikiIndex() {
                       <path d="M5 12h14M13 6l6 6-6 6" />
                     </svg>
                   </span>
+                </div>
                 </div>
               </Link>
             </Reveal>

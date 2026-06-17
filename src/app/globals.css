@@ -266,12 +266,18 @@ html.dark .site-bg::after {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: url("/jobs-bg.jpg");
+  background-image: url("/jobs-bg-wide.jpg");
   background-size: cover;
-  background-position: center top;
+  background-position: center 20%;
   background-repeat: no-repeat;
   opacity: 1;
-  filter: saturate(1.12) contrast(1.04) brightness(1.02);
+  filter: saturate(1.08) contrast(1.02) brightness(1.01);
+}
+/* On phones the portrait crop reads better focused near the top */
+@media (max-width: 640px) {
+  .jobs-bg {
+    background-position: 70% top;
+  }
 }
 .jobs-bg ~ * .site-bg,
 body:has(.jobs-bg) .site-bg {

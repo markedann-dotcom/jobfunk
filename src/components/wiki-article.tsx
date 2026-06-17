@@ -23,28 +23,36 @@ export function WikiArticle({ article }: { article: Article }) {
         ← {t("wiki.back")}
       </Link>
 
-      {/* Header */}
-      <div className="flex items-start gap-4">
+      {/* Cover */}
+      <div className="relative overflow-hidden rounded-3xl border border-border shadow-sm">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={article.cover}
+          alt=""
+          className="aspect-[16/9] w-full object-cover sm:aspect-[2/1]"
+        />
         <span
-          className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl"
-          style={{ background: soft, color: cc }}
+          className="absolute left-5 top-5 grid h-11 w-11 place-items-center rounded-2xl bg-surface/90 shadow-sm backdrop-blur-sm"
+          style={{ color: cc }}
         >
-          <ArticleIcon name={article.icon} className="h-7 w-7" />
+          <ArticleIcon name={article.icon} className="h-6 w-6" />
         </span>
-        <div>
-          <span className="text-xs font-semibold text-muted">
-            {article.minutes} {t("wiki.minutes")}
-          </span>
-          <h1
-            className="mt-1 text-3xl font-black leading-tight tracking-tight text-ink sm:text-4xl"
-            style={{ fontFamily: "var(--font-fraunces)" }}
-          >
-            {pick(article.title, lang)}
-          </h1>
-        </div>
       </div>
 
-      <p className="mt-5 text-lg leading-relaxed text-muted">
+      {/* Header */}
+      <div className="mt-7">
+        <span className="text-xs font-semibold text-muted">
+          {article.minutes} {t("wiki.minutes")}
+        </span>
+        <h1
+          className="mt-1.5 text-3xl font-black leading-tight tracking-tight text-ink sm:text-4xl"
+          style={{ fontFamily: "var(--font-fraunces)" }}
+        >
+          {pick(article.title, lang)}
+        </h1>
+      </div>
+
+      <p className="mt-4 text-lg leading-relaxed text-muted">
         {pick(article.excerpt, lang)}
       </p>
 
