@@ -29,9 +29,11 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
       className="fade-up group relative flex w-full min-w-0 flex-col rounded-2xl border border-border bg-surface/90 shadow-[0_2px_10px_-4px_rgba(60,40,20,0.08)] backdrop-blur-sm transition hover:-translate-y-1 hover:[border-color:color-mix(in_srgb,var(--cc)_50%,transparent)] hover:shadow-[0_22px_48px_-18px_rgba(120,72,20,0.32)]"
       style={{ ...toneStyle, animationDelay: `${Math.min(idx, 8) * 0.04}s` }}
     >
+      {/* Full-card click target — covers the whole card, sits below interactive controls */}
       <Link
         href={`/job/${encodeURIComponent(job.refnr)}`}
         aria-label={job.titel}
+        title={`${job.titel}${job.arbeitgeber ? ` — ${job.arbeitgeber}` : ""}`}
         className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
       />
       <span className="pointer-events-none absolute inset-y-0 left-0 z-10 w-1.5 rounded-l-2xl" style={{ background: "var(--cc)" }} />
@@ -61,7 +63,6 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
               )}
             </div>
             <h3
-              title={job.titel}
               className="mt-2 line-clamp-2 text-[17px] font-bold leading-snug text-ink"
               style={{ fontFamily: "var(--font-fraunces)" }}
             >
@@ -89,14 +90,14 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
           {job.arbeitgeber && (
             <p className="flex items-center gap-2">
               <BuildingIcon />
-              <span className="truncate font-medium text-ink/80" title={job.arbeitgeber}>
+              <span className="truncate font-medium text-ink/80">
                 {job.arbeitgeber}
               </span>
             </p>
           )}
           <p className="flex items-center gap-2">
             <PinIcon />
-            <span className="truncate" title={location}>{location}</span>
+            <span className="truncate">{location}</span>
           </p>
           <p className="flex items-center gap-2">
             <ClockIcon />
