@@ -30,7 +30,7 @@ export function HomeRecent() {
   if (recent.length === 0 && saved.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-6xl px-4 pt-12 sm:px-6">
+    <section className="mx-auto w-full max-w-6xl overflow-hidden px-4 pt-12 sm:px-6">
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recently viewed */}
         {recent.length > 0 && (
