@@ -60,7 +60,7 @@ export function HomeRecent() {
                 <li key={r.refnr} className="min-w-0">
                   <Link
                     href={`/job/${encodeURIComponent(r.refnr)}`}
-                    className="group flex min-w-0 items-center gap-3 rounded-xl border border-transparent px-2.5 py-2 transition hover:border-border hover:bg-page/60"
+                    className="group flex min-w-0 overflow-hidden items-center gap-3 rounded-xl border border-transparent px-2.5 py-2 transition hover:border-border hover:bg-page/60"
                   >
                     <span
                       className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border bg-page text-sm font-black text-ink/70"
