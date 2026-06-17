@@ -36,6 +36,10 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
         title={`${job.titel}${job.arbeitgeber ? ` — ${job.arbeitgeber}` : ""}`}
         className="absolute inset-0 z-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
       />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-0 rounded-2xl bg-[url('/card-texture.png')] bg-[length:48%] bg-right-top bg-no-repeat opacity-[0.42] mix-blend-multiply [mask-image:radial-gradient(120%_120%_at_100%_0%,#000_0%,transparent_62%)] dark:opacity-[0.18] dark:mix-blend-screen"
+      />
       <span className="pointer-events-none absolute inset-y-0 left-0 z-10 w-1.5 rounded-l-2xl" style={{ background: "var(--cc)" }} />
       <div className="pointer-events-none relative z-10 flex flex-1 flex-col p-5 pl-6 sm:p-6 sm:pl-7">
         <div className="flex items-start gap-3">
