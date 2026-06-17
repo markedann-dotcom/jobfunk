@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useT } from "@/lib/i18n";
@@ -22,8 +23,20 @@ export function SiteHeader() {
   const { count } = useFavorites();
   const pathname = usePathname();
 
-  // Количество вакансий (в будущем можно брать из API или контекста)
-  const totalJobs = 15432;
+  // Состояние для счетчика вакансий
+  const [totalJobs, setTotalJobs] = useState<number | null>(null);
+
+  // Загружаем число из нашего нового API-роута при монтировании
+  useEffect(() => {
+    fetch("/api/jobs/count")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.total) {
+          setTotalJobs(data.total);
+        }
+      })
+      .catch((err) => console.error("Не удалось загрузить счетчик", err));
+  }, []);
 
   const navLink = (href: string, label: string) => {
     const active = pathname === href;
@@ -45,7 +58,6 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/70 bg-page/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
         
-        {/* Группа: Логотип + Бейдж */}
         <div className="flex shrink-0 items-center gap-4">
           <Link href="/" className="flex items-center gap-2.5">
             <Spark />
@@ -57,16 +69,18 @@ export function SiteHeader() {
             </span>
           </Link>
 
-          {/* Пульсирующий бейдж с количеством вакансий */}
-          <div className="hidden md:flex items-center gap-2 rounded-full border border-border/50 bg-surface px-3 py-1.5 text-xs font-semibold text-muted shadow-sm transition-colors hover:border-accent/30">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
-            </span>
-            <span>
-              <span className="text-ink">{totalJobs.toLocaleString("ru-RU")}</span> {t("nav.active_jobs") || "Jobs online"}
-            </span>
-          </div>
+          {/* Показываем бейдж, только если totalJobs загрузился и больше нуля */}
+          {totalJobs !== null && totalJobs > 0 && (
+            <div className="hidden md:flex items-center gap-2 rounded-full border border-border/50 bg-surface px-3 py-1.5 text-xs font-semibold text-muted shadow-sm transition-colors hover:border-accent/30 animate-in fade-in zoom-in duration-500">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
+              </span>
+              <span>
+                <span className="text-ink">{totalJobs.toLocaleString("de-DE")}</span> Jobs online
+              </span>
+            </div>
+          )}
         </div>
 
         <nav className="hidden items-center gap-1 sm:flex">
