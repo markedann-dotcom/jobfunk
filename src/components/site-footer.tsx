@@ -7,12 +7,15 @@ import { openCookieSettings } from "./cookie-banner";
 
 export function SiteFooter() {
   const { t } = useT();
+  const year = new Date().getFullYear();
+
   return (
     <footer className="relative mt-20 overflow-hidden border-t border-border/60 bg-surface">
       <div className="footer-bg" aria-hidden />
       <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {/* brand */}
+          
+          {/* Brand */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2.5">
               <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent text-white">
@@ -31,14 +34,13 @@ export function SiteFooter() {
               {t("footer.disclaimer")}
             </p>
 
-            {/* PWA install */}
             <div className="mt-5">
               <PwaInstallButton />
               <p className="mt-2 text-xs text-muted">{t("pwa.footer.hint")}</p>
             </div>
           </div>
 
-          {/* nav */}
+          {/* Nav */}
           <div>
             <p className="text-xs font-bold uppercase tracking-wide text-ink">
               {t("nav.search")}
@@ -62,9 +64,11 @@ export function SiteFooter() {
             </ul>
           </div>
 
-          {/* legal */}
+          {/* Legal */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-wide text-ink">Rechtliches</p>
+            <p className="text-xs font-bold uppercase tracking-wide text-ink">
+              {t("legal.title") || "Rechtliches"}
+            </p>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
                 <Link href="/impressum" className="text-muted transition hover:text-accent">
@@ -94,37 +98,48 @@ export function SiteFooter() {
                   href="https://www.arbeitsagentur.de/jobsuche/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-muted transition hover:text-accent"
+                  className="text-muted transition hover:text-accent inline-flex items-center gap-1"
                 >
                   {t("footer.data")}
+                  <ExternalLinkIcon />
                 </a>
               </li>
             </ul>
           </div>
         </div>
 
-        {/* independence disclaimer strip */}
+        {/* Independence disclaimer */}
         <div className="mt-10 rounded-2xl border border-border bg-page/60 px-4 py-3 text-xs leading-relaxed text-muted">
           {t("footer.independence")}
         </div>
 
-        <div className="mt-6 flex flex-col gap-2 border-t border-border pt-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
+        {/* Copyright & Source */}
+        <div className="mt-6 flex flex-col gap-4 border-t border-border pt-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} JobFunke. {t("footer.rights")}
+            © {year} JobFunke. {t("footer.rights")}
           </p>
-          <p>
+          <p className="flex items-center gap-1">
             Datenquelle:{" "}
             <a
               href="https://www.arbeitsagentur.de/jobsuche/"
               target="_blank"
               rel="noopener noreferrer"
-              className="font-semibold text-accent hover:underline"
+              className="inline-flex items-center gap-1 font-semibold text-accent hover:underline"
             >
               Bundesagentur für Arbeit
+              <ExternalLinkIcon />
             </a>
           </p>
         </div>
       </div>
     </footer>
+  );
+}
+
+function ExternalLinkIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
   );
 }
