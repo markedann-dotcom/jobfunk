@@ -34,7 +34,7 @@ export function HomeRecent() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recently viewed */}
         {recent.length > 0 && (
-          <div className="rounded-2xl border border-border bg-surface/85 p-5 shadow-[0_2px_10px_-4px_rgba(60,40,20,0.06)] backdrop-blur-sm sm:p-6">
+          <div className="w-full max-w-full overflow-hidden rounded-2xl border border-border bg-surface/85 p-5 shadow-[0_2px_10px_-4px_rgba(60,40,20,0.06)] backdrop-blur-sm sm:p-6">
             <div className="mb-4 flex items-center justify-between gap-3">
               <h2
                 className="flex items-center gap-2 text-lg font-bold text-ink"
