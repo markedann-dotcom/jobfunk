@@ -38,11 +38,11 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
       />
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-0 rounded-2xl bg-[url('/card-photo.jpg')] bg-cover bg-center bg-no-repeat opacity-[0.55] dark:opacity-[0.16]"
+        className="pointer-events-none absolute inset-0 z-0 rounded-2xl bg-[url('/card-photo.jpg')] bg-cover bg-center bg-no-repeat opacity-[0.9] [mask-image:radial-gradient(150%_150%_at_100%_0%,#000_0%,#000_30%,transparent_72%)] dark:opacity-[0.28] dark:[mask-image:radial-gradient(110%_110%_at_100%_0%,#000_0%,transparent_55%)]"
       />
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-0 rounded-2xl bg-gradient-to-tl from-surface via-surface/85 to-surface/40 dark:from-surface dark:via-surface/90 dark:to-surface/65"
+        className="pointer-events-none absolute inset-0 z-0 rounded-2xl bg-gradient-to-tl from-surface/70 via-surface/20 to-transparent dark:from-surface/90 dark:via-surface/40 dark:to-transparent"
       />
       <span className="pointer-events-none absolute inset-y-0 left-0 z-10 w-1.5 rounded-l-2xl" style={{ background: "var(--cc)" }} />
       <div className="pointer-events-none relative z-10 flex flex-1 flex-col p-5 pl-6 sm:p-6 sm:pl-7">
