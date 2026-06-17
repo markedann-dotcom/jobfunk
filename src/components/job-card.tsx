@@ -26,7 +26,7 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
 
   return (
     <article
-      className="fade-up group relative flex w-full min-w-0 flex-col rounded-2xl border border-border bg-surface/90 shadow-[0_2px_10px_-4px_rgba(60,40,20,0.08)] backdrop-blur-sm transition hover:-translate-y-1 hover:[border-color:color-mix(in_srgb,var(--cc)_50%,transparent)] hover:shadow-[0_22px_48px_-18px_rgba(120,72,20,0.32)]"
+      className="fade-up group relative flex w-full min-w-0 flex-col rounded-2xl border border-border bg-surface shadow-[0_2px_10px_-4px_rgba(60,40,20,0.08)] backdrop-blur-sm transition hover:-translate-y-1 hover:[border-color:color-mix(in_srgb,var(--cc)_50%,transparent)] hover:shadow-[0_22px_48px_-18px_rgba(120,72,20,0.32)]"
       style={{ ...toneStyle, animationDelay: `${Math.min(idx, 8) * 0.04}s` }}
     >
       {/* Full-card click target — covers the whole card, sits below interactive controls */}
@@ -38,7 +38,11 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
       />
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 z-0 rounded-2xl bg-[url('/card-texture.png')] bg-[length:48%] bg-right-top bg-no-repeat opacity-[0.42] mix-blend-multiply [mask-image:radial-gradient(120%_120%_at_100%_0%,#000_0%,transparent_62%)] dark:opacity-[0.18] dark:mix-blend-screen"
+        className="pointer-events-none absolute inset-0 z-0 rounded-2xl bg-[url('/card-photo.jpg')] bg-cover bg-center bg-no-repeat opacity-[0.55] dark:opacity-[0.16]"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-0 rounded-2xl bg-gradient-to-tl from-surface via-surface/85 to-surface/40 dark:from-surface dark:via-surface/90 dark:to-surface/65"
       />
       <span className="pointer-events-none absolute inset-y-0 left-0 z-10 w-1.5 rounded-l-2xl" style={{ background: "var(--cc)" }} />
       <div className="pointer-events-none relative z-10 flex flex-1 flex-col p-5 pl-6 sm:p-6 sm:pl-7">
