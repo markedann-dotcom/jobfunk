@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getJobDetail } from "@/lib/api";
 import { JobDetailView } from "./detail";
+import SimilarJobs from "@/components/SimilarJobs";
 
 export const dynamic = "force-dynamic";
 
@@ -110,6 +111,7 @@ export default async function JobPage({
         />
       )}
       <JobDetailView refnr={decoded} />
+      <SimilarJobs refnr={decoded} />
     </>
   );
 }
