@@ -73,7 +73,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="de" className={`${fraunces.variable} ${manrope.variable}`} suppressHydrationWarning>
+    <html lang="de" className={`${fraunces.variable} ${manrope.variable} overflow-x-hidden`} suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
