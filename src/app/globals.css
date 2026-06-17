@@ -17,25 +17,23 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Prevent any horizontal scroll / sideways drag on mobile.
-   overflow-x clipped on both html & body; width pinned to 100%. */
+/* Prevent horizontal scroll on all devices */
 html,
 body {
   max-width: 100%;
-  overflow-x: clip;
-}
-@supports not (overflow: clip) {
-  html,
-  body {
-    overflow-x: hidden;
-  }
+  width: 100%;
+  overflow-x: hidden;
 }
 
-/* ── Dark theme ─────────────────────────────────────────────
-   Tailwind v4 @theme tokens compile to fixed colors, so we
-   re-map the underlying CSS custom properties under html.dark.
-   Every utility built from these tokens (bg-page, text-ink,
-   border-border, bg-surface, accent-soft …) flips automatically. */
+/* Extra nuclear option for stubborn Android browsers */
+#__next,
+main,
+[data-nextjs-scroll-focus-boundary] {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+
+/* ── Dark theme ───────────────────────────────────────────── */
 html.dark {
   --color-ink: #f4ede4;
   --color-muted: #a39a8e;
@@ -47,10 +45,7 @@ html.dark {
   --color-accent-soft: #2a1d12;
 }
 
-/* ── Multicolor palette (soft, pastel — harmonised with cream) ──
-   Plain :root vars (NOT @theme — Tailwind v4 tree-shakes unknown
-   namespaces). Used via inline style across tiles, badges, icons & mesh.
-   amber stays the primary brand accent. */
+/* ── Multicolor palette ── */
 :root {
   --c-amber: #f97316;
   --c-amber-soft: #fff0e2;
@@ -114,7 +109,7 @@ body {
   animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* ── Scroll reveal — sections fade/slide in as they enter view ── */
+/* ── Scroll reveal ── */
 .reveal {
   opacity: 0;
   transform: translateY(34px);
@@ -139,8 +134,6 @@ body {
 .d3 { animation-delay: 0.25s; }
 .d4 { animation-delay: 0.35s; }
 
-/* warm gradient mesh for hero */
-/* Soft multicolor mesh — amber + violet + teal + coral, harmonised with cream */
 .hero-mesh {
   background:
     radial-gradient(55% 50% at 10% 6%, rgba(249, 115, 22, 0.16), transparent 60%),
@@ -155,7 +148,7 @@ html.dark .hero-mesh {
     radial-gradient(50% 50% at 82% 88%, rgba(69, 211, 195, 0.14), transparent 60%),
     radial-gradient(42% 42% at 20% 92%, rgba(255, 125, 146, 0.14), transparent 60%);
 }
-/* themed hero illustration banner */
+
 .hero-art {
   position: absolute;
   inset: 0;
@@ -165,18 +158,13 @@ html.dark .hero-mesh {
   background-repeat: no-repeat;
   opacity: 0.92;
   pointer-events: none;
-  /* dissolve the bottom early so the hero art melts into the shared site-bg
-     hills below it — the two read as one continuous illustration */
   -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 30%, rgba(0, 0, 0, 0.4) 58%, transparent 82%);
   mask-image: linear-gradient(180deg, #000 0%, #000 30%, rgba(0, 0, 0, 0.4) 58%, transparent 82%);
 }
-/* soft cream wash over the center so headline/search stay readable */
 .hero-art-fade {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  /* readability wash over center only; bottom stays transparent so the
-     shared site-bg hills below show through and continue the hero art */
   background:
     radial-gradient(58% 66% at 50% 36%, rgba(251, 247, 242, 0.92), rgba(251, 247, 242, 0.42) 54%, transparent 76%);
 }
@@ -188,7 +176,6 @@ html.dark .hero-art-fade {
     radial-gradient(58% 66% at 50% 36%, rgba(20, 17, 15, 0.9), rgba(20, 17, 15, 0.48) 54%, transparent 78%);
 }
 @media (max-width: 640px) {
-  /* on phones the illustration is busy — push it lighter and only show top band */
   .hero-art {
     opacity: 0.55;
     background-position: center -10px;
@@ -205,7 +192,6 @@ html.dark .hero-art-fade {
   }
 }
 
-/* subtle decorative footer background — blobs at bottom, fades into surface at top */
 .footer-bg {
   position: absolute;
   inset: 0;
@@ -215,7 +201,6 @@ html.dark .hero-art-fade {
   background-repeat: no-repeat;
   opacity: 0.6;
   pointer-events: none;
-  /* fade the top so there's no hard seam where the footer begins */
   -webkit-mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.5) 30%, #000 70%);
   mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.5) 30%, #000 70%);
 }
@@ -223,7 +208,6 @@ html.dark .footer-bg {
   opacity: 0.22;
 }
 
-/* hero bg image dimmed in dark mode */
 html.dark .hero-photo {
   opacity: 0.32;
 }
@@ -239,9 +223,6 @@ html.dark .hero-fade {
   color: #fff;
 }
 
-/* ── Global abstract multicolor background ───────────────────
-   Fixed decorative layer behind all content. Soft, low-opacity
-   so text stays readable; dimmed & darkened in dark mode.        */
 .site-bg {
   position: fixed;
   inset: 0;
@@ -249,8 +230,6 @@ html.dark .hero-fade {
   pointer-events: none;
   background-image: url("/site-bg.jpg");
   background-size: cover;
-  /* anchored to the top so its cream sky sits directly under the hero art
-     and its hills flow down the page — a seamless continuation of the hero */
   background-position: center top;
   background-repeat: no-repeat;
   opacity: 0.85;
@@ -260,8 +239,6 @@ html.dark .hero-fade {
   content: "";
   position: absolute;
   inset: 0;
-  /* keep the cream top (under hero) clean & let hills show, only soften the
-     mid/lower band a touch so foreground cards/text stay readable */
   background: linear-gradient(
     180deg,
     transparent 0%,
@@ -284,10 +261,6 @@ html.dark .site-bg::after {
   );
 }
 
-/* ── Jobs pages background (search results & job detail) ─────
-   A soft, bright photographic backdrop so listing cards appear to
-   float on a clean stylish surface. Sits above .site-bg, behind all
-   content; fades into the page color lower down for a seamless feel. */
 .jobs-bg {
   position: fixed;
   inset: 0;
@@ -298,11 +271,8 @@ html.dark .site-bg::after {
   background-position: center top;
   background-repeat: no-repeat;
   opacity: 1;
-  /* gently lift contrast/warmth so the photo actually reads as a backdrop */
   filter: saturate(1.12) contrast(1.04) brightness(1.02);
 }
-/* when the jobs background is present, hide the global multicolor canvas
-   so the clean photo backdrop reads clearly (no hills bleeding through) */
 .jobs-bg ~ * .site-bg,
 body:has(.jobs-bg) .site-bg {
   display: none;
@@ -311,8 +281,6 @@ body:has(.jobs-bg) .site-bg {
   content: "";
   position: absolute;
   inset: 0;
-  /* visible warm photo backdrop; soft veil keeps card text readable and the
-     bottom fades into the page color so pagination/footer have no hard seam */
   background: linear-gradient(
     180deg,
     color-mix(in srgb, var(--color-page) 30%, transparent) 0%,
@@ -335,7 +303,6 @@ html.dark .jobs-bg::after {
   );
 }
 
-/* legal pages typography */
 .legal-content {
   color: #44403a;
   font-size: 15px;
@@ -386,7 +353,6 @@ html.dark .legal-content {
   font-weight: 700;
 }
 
-/* Leaflet map markers */
 .jf-pin {
   background: transparent;
   border: 0;
