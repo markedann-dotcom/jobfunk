@@ -327,6 +327,21 @@ export async function getJobDetail(refnr: string): Promise<JobDetail> {
   return detail;
 }
 
+// ---- Similar jobs -----------------------------------------------------------
+
+export async function getSimilarJobs(detail: JobDetail, limit = 4): Promise<JobListItem[]> {
+  const was = detail.beruf || detail.titel;
+  if (!was) return [];
+
+  const { jobs } = await searchJobs({
+    was,
+    wo: detail.ort,
+    size: limit + 5, // запас на случай, если в выдаче встретится сама вакансия
+  });
+
+  return jobs.filter((j) => j.refnr !== detail.refnr).slice(0, limit);
+}
+
 // External link helper.
 export function jobExternalLink(j: { externeUrl?: string | null; refnr: string }): string {
   if (j.externeUrl) return j.externeUrl;
