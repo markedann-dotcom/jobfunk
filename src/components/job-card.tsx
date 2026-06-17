@@ -1,6 +1,6 @@
 "use client";
 
-import React, { memo } from "react"; // Добавили memo
+import React, { memo } from "react";
 import Link from "next/link";
 import { useT } from "@/lib/i18n";
 import type { JobListItem } from "@/lib/api";
@@ -10,7 +10,6 @@ import { formatDate, isRecent, typeMeta, toneVar } from "@/lib/display";
 import { useFavorites } from "@/lib/favorites";
 import { ShareMenu } from "./share-menu";
 
-// Обернули в memo для оптимизации производительности списков
 export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListItem; idx?: number }) {
   const { t, lang } = useT();
   const { isFav, toggle } = useFavorites();
@@ -57,13 +56,11 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
               )}
               {job.entfernung && job.entfernung !== "0" && (
                 <span className="rounded-full bg-page px-2.5 py-0.5 text-[11px] font-semibold text-muted">
-                  {/* Добавлен неразрывный пробел &nbsp; */}
                   {Math.round(Number(job.entfernung))}&nbsp;km
                 </span>
               )}
             </div>
             <h3
-              // Добавлен title для обрезанного заголовка
               title={job.titel}
               className="mt-2 line-clamp-2 text-[17px] font-bold leading-snug text-ink"
               style={{ fontFamily: "var(--font-fraunces)" }}
@@ -92,7 +89,6 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
           {job.arbeitgeber && (
             <p className="flex items-center gap-2">
               <BuildingIcon />
-              {/* Добавлен title для обрезанного текста */}
               <span className="truncate font-medium text-ink/80" title={job.arbeitgeber}>
                 {job.arbeitgeber}
               </span>
@@ -100,12 +96,10 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
           )}
           <p className="flex items-center gap-2">
             <PinIcon />
-            {/* Добавлен title для обрезанного текста */}
             <span className="truncate" title={location}>{location}</span>
           </p>
           <p className="flex items-center gap-2">
             <ClockIcon />
-            {/* Заменили на тег <time> */}
             {t("card.published")}: <time dateTime={job.published}>{formatDate(job.published, lang)}</time>
           </p>
         </div>
@@ -138,4 +132,28 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
   );
 });
 
-// ...иконки остаются без изменений...
+function BuildingIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-muted" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M15 9h2a2 2 0 0 1 2 2v10M9 7h2M9 11h2M9 15h2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PinIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-muted" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 21s-6.5-5.5-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 15.5 12 21 12 21z" />
+      <circle cx="12" cy="10.5" r="2.2" />
+    </svg>
+  );
+}
+
+function ClockIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-muted" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
