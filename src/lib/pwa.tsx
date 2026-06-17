@@ -75,7 +75,20 @@ export function PwaProvider({ children }: { children: ReactNode }) {
       "serviceWorker" in navigator &&
       process.env.NODE_ENV === "production"
     ) {
-      navigator.serviceWorker.register("/sw.js").catch(() => {});
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((reg) => {
+          // When a new SW takes control, reload once so the user sees fresh code.
+          let refreshing = false;
+          navigator.serviceWorker.addEventListener("controllerchange", () => {
+            if (refreshing) return;
+            refreshing = true;
+            window.location.reload();
+          });
+          // Proactively check for updates on each load.
+          reg.update().catch(() => {});
+        })
+        .catch(() => {});
     }
 
     return () => {
