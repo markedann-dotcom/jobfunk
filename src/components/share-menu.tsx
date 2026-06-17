@@ -119,9 +119,13 @@ export function ShareMenu({
 
       {open && (
         <div
-          className={`absolute z-30 w-56 rounded-2xl border border-border bg-surface p-2 shadow-[0_20px_50px_-15px_rgba(60,40,20,0.3)] ${
-            align === "right" ? "right-0" : "left-0"
-          } ${drop === "up" ? "bottom-full mb-2" : "top-full mt-2"}`}
+          className={`fixed z-50 w-56 rounded-2xl border border-border bg-surface p-2 shadow-[0_20px_50px_-15px_rgba(60,40,20,0.3)]`}
+          style={{
+            right: "max(8px, calc(100vw - 100%))",
+            ...(drop === "up"
+              ? { bottom: "calc(100% + 8px)" }
+              : { top: "calc(100% + 8px)" }),
+          }}
         >
           <p className="px-2 py-1.5 text-xs font-bold uppercase tracking-wide text-muted">
             {t("share.label")}
