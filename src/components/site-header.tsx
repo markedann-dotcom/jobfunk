@@ -22,6 +22,9 @@ export function SiteHeader() {
   const { count } = useFavorites();
   const pathname = usePathname();
 
+  // Количество вакансий (в будущем можно брать из API или контекста)
+  const totalJobs = 15432;
+
   const navLink = (href: string, label: string) => {
     const active = pathname === href;
     return (
@@ -41,15 +44,30 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-page/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5">
-          <Spark />
-          <span
-            className="text-lg font-extrabold tracking-tight text-ink"
-            style={{ fontFamily: "var(--font-fraunces)" }}
-          >
-            Job<span className="text-accent">Funke</span>
-          </span>
-        </Link>
+        
+        {/* Группа: Логотип + Бейдж */}
+        <div className="flex shrink-0 items-center gap-4">
+          <Link href="/" className="flex items-center gap-2.5">
+            <Spark />
+            <span
+              className="text-lg font-extrabold tracking-tight text-ink"
+              style={{ fontFamily: "var(--font-fraunces)" }}
+            >
+              Job<span className="text-accent">Funke</span>
+            </span>
+          </Link>
+
+          {/* Пульсирующий бейдж с количеством вакансий */}
+          <div className="hidden md:flex items-center gap-2 rounded-full border border-border/50 bg-surface px-3 py-1.5 text-xs font-semibold text-muted shadow-sm transition-colors hover:border-accent/30">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
+            </span>
+            <span>
+              <span className="text-ink">{totalJobs.toLocaleString("ru-RU")}</span> {t("nav.active_jobs") || "Jobs online"}
+            </span>
+          </div>
+        </div>
 
         <nav className="hidden items-center gap-1 sm:flex">
           {navLink("/", t("nav.home"))}
