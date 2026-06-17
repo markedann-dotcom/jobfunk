@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useT, type Lang } from "@/lib/i18n";
 
 const LANGS: { code: Lang; label: string; native: string }[] = [
@@ -30,21 +30,40 @@ function Globe({ className }: { className?: string }) {
 export function LangSwitch() {
   const { lang, setLang } = useT();
   const [open, setOpen] = useState(false);
+  const [focusedIdx, setFocusedIdx] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
+  const close = useCallback(() => {
+    setOpen(false);
+    setFocusedIdx(0);
+  }, []);
+
   useEffect(() => {
-    if (!open) return;
     const onDown = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node)) close();
     };
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") close();
+      if (!open) return;
+      
+      if (e.key === "ArrowDown") {
+        setFocusedIdx((i) => (i + 1) % LANGS.length);
+      } else if (e.key === "ArrowUp") {
+        setFocusedIdx((i) => (i - 1 + LANGS.length) % LANGS.length);
+      } else if (e.key === "Enter") {
+        setLang(LANGS[focusedIdx].code);
+        close();
+      }
+    };
+
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("mousedown", onDown);
       document.removeEventListener("keydown", onKey);
     };
-  }, [open]);
+  }, [open, focusedIdx, setLang, close]);
 
   const current = LANGS.find((l) => l.code === lang) ?? LANGS[0];
 
@@ -55,7 +74,7 @@ export function LangSwitch() {
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label="Sprache wählen"
-        className="group inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-surface pl-2.5 pr-2 text-muted transition hover:border-accent hover:text-accent"
+        className="group inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-surface pl-2.5 pr-2 text-muted transition hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
       >
         <Globe className="h-[18px] w-[18px]" />
         <span className="text-[13px] font-bold uppercase tracking-wide text-ink">
@@ -77,14 +96,16 @@ export function LangSwitch() {
 
       <div
         role="listbox"
+        aria-label="Sprachauswahl"
         className={`absolute right-0 top-full z-50 mt-2 w-44 origin-top-right overflow-hidden rounded-2xl border border-border bg-surface p-1.5 shadow-[0_12px_40px_-12px_rgba(20,17,15,0.35)] transition-all duration-150 ${
           open
             ? "pointer-events-auto scale-100 opacity-100"
             : "pointer-events-none scale-95 opacity-0"
         }`}
       >
-        {LANGS.map((l) => {
+        {LANGS.map((l, idx) => {
           const active = l.code === lang;
+          const isFocused = idx === focusedIdx;
           return (
             <button
               key={l.code}
@@ -92,13 +113,12 @@ export function LangSwitch() {
               aria-selected={active}
               onClick={() => {
                 setLang(l.code);
-                setOpen(false);
+                close();
               }}
+              onMouseEnter={() => setFocusedIdx(idx)}
               className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition ${
-                active
-                  ? "bg-accent-soft text-accent-strong"
-                  : "text-ink hover:bg-accent-soft/60"
-              }`}
+                isFocused ? "bg-accent-soft" : ""
+              } ${active ? "text-accent-strong" : "text-ink"}`}
             >
               <span
                 className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[11px] font-extrabold ${
