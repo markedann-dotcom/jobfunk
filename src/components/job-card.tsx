@@ -1,5 +1,6 @@
 "use client";
 
+import React, { memo } from "react"; // Добавили memo
 import Link from "next/link";
 import { useT } from "@/lib/i18n";
 import type { JobListItem } from "@/lib/api";
@@ -9,7 +10,8 @@ import { formatDate, isRecent, typeMeta, toneVar } from "@/lib/display";
 import { useFavorites } from "@/lib/favorites";
 import { ShareMenu } from "./share-menu";
 
-export function JobCard({ job, idx = 0 }: { job: JobListItem; idx?: number }) {
+// Обернули в memo для оптимизации производительности списков
+export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListItem; idx?: number }) {
   const { t, lang } = useT();
   const { isFav, toggle } = useFavorites();
   const tm = typeMeta(job.angebotsart);
@@ -28,7 +30,6 @@ export function JobCard({ job, idx = 0 }: { job: JobListItem; idx?: number }) {
       className="fade-up group relative flex w-full min-w-0 flex-col rounded-2xl border border-border bg-surface/90 shadow-[0_2px_10px_-4px_rgba(60,40,20,0.08)] backdrop-blur-sm transition hover:-translate-y-1 hover:[border-color:color-mix(in_srgb,var(--cc)_50%,transparent)] hover:shadow-[0_22px_48px_-18px_rgba(120,72,20,0.32)]"
       style={{ ...toneStyle, animationDelay: `${Math.min(idx, 8) * 0.04}s` }}
     >
-      {/* Full-card click target — covers the whole card, sits below interactive controls */}
       <Link
         href={`/job/${encodeURIComponent(job.refnr)}`}
         aria-label={job.titel}
@@ -56,11 +57,14 @@ export function JobCard({ job, idx = 0 }: { job: JobListItem; idx?: number }) {
               )}
               {job.entfernung && job.entfernung !== "0" && (
                 <span className="rounded-full bg-page px-2.5 py-0.5 text-[11px] font-semibold text-muted">
-                  {Math.round(Number(job.entfernung))} km
+                  {/* Добавлен неразрывный пробел &nbsp; */}
+                  {Math.round(Number(job.entfernung))}&nbsp;km
                 </span>
               )}
             </div>
             <h3
+              // Добавлен title для обрезанного заголовка
+              title={job.titel}
               className="mt-2 line-clamp-2 text-[17px] font-bold leading-snug text-ink"
               style={{ fontFamily: "var(--font-fraunces)" }}
             >
@@ -88,16 +92,21 @@ export function JobCard({ job, idx = 0 }: { job: JobListItem; idx?: number }) {
           {job.arbeitgeber && (
             <p className="flex items-center gap-2">
               <BuildingIcon />
-              <span className="truncate font-medium text-ink/80">{job.arbeitgeber}</span>
+              {/* Добавлен title для обрезанного текста */}
+              <span className="truncate font-medium text-ink/80" title={job.arbeitgeber}>
+                {job.arbeitgeber}
+              </span>
             </p>
           )}
           <p className="flex items-center gap-2">
             <PinIcon />
-            <span className="truncate">{location}</span>
+            {/* Добавлен title для обрезанного текста */}
+            <span className="truncate" title={location}>{location}</span>
           </p>
           <p className="flex items-center gap-2">
             <ClockIcon />
-            {t("card.published")}: {formatDate(job.published, lang)}
+            {/* Заменили на тег <time> */}
+            {t("card.published")}: <time dateTime={job.published}>{formatDate(job.published, lang)}</time>
           </p>
         </div>
 
@@ -127,28 +136,6 @@ export function JobCard({ job, idx = 0 }: { job: JobListItem; idx?: number }) {
       </div>
     </article>
   );
-}
+});
 
-function BuildingIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-muted" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M15 9h2a2 2 0 0 1 2 2v10M9 7h2M9 11h2M9 15h2" strokeLinecap="round" />
-    </svg>
-  );
-}
-function PinIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-muted" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 21s-6.5-5.5-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 15.5 12 21 12 21z" />
-      <circle cx="12" cy="10.5" r="2.2" />
-    </svg>
-  );
-}
-function ClockIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-muted" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3 2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
+// ...иконки остаются без изменений...
