@@ -55,12 +55,12 @@ export function HomeRecent() {
                 {t("recent.clear")}
               </button>
             </div>
-            <ul className="space-y-2">
+            <ul className="space-y-2 overflow-hidden">
               {recent.slice(0, 5).map((r) => (
-                <li key={r.refnr}>
+                <li key={r.refnr} className="min-w-0">
                   <Link
                     href={`/job/${encodeURIComponent(r.refnr)}`}
-                    className="group flex items-center gap-3 rounded-xl border border-transparent px-2.5 py-2 transition hover:border-border hover:bg-page/60"
+                    className="group flex min-w-0 items-center gap-3 rounded-xl border border-transparent px-2.5 py-2 transition hover:border-border hover:bg-page/60"
                   >
                     <span
                       className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border bg-page text-sm font-black text-ink/70"
@@ -99,15 +99,15 @@ export function HomeRecent() {
               </span>
               {t("saved.title")}
             </h2>
-            <ul className="space-y-2">
+            <ul className="space-y-2 overflow-hidden">
               {saved.slice(0, 5).map((s) => {
                 const labelParts = [s.was, s.wo].filter(Boolean);
                 const label = labelParts.length ? labelParts.join(" · ") : t("saved.run");
                 return (
-                  <li key={s.id} className="flex items-center gap-2">
+                  <li key={s.id} className="flex min-w-0 items-center gap-2">
                     <Link
                       href={`/suche?${searchToQuery(s)}`}
-                      className="group flex flex-1 items-center gap-3 rounded-xl border border-transparent px-2.5 py-2 transition hover:border-border hover:bg-page/60"
+                      className="group flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-transparent px-2.5 py-2 transition hover:border-border hover:bg-page/60"
                     >
                       <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent-strong">
                         <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden>
@@ -116,7 +116,7 @@ export function HomeRecent() {
                         </svg>
                       </span>
                       <span className="block min-w-0 flex-1 truncate text-sm font-bold text-ink">{label}</span>
-                      <span className="shrink-0 rounded-full bg-accent px-3 py-1 text-xs font-bold text-white transition group-hover:bg-accent-strong">
+                      <span className="hidden shrink-0 rounded-full bg-accent px-3 py-1 text-xs font-bold text-white transition group-hover:bg-accent-strong sm:inline">
                         {t("saved.run")}
                       </span>
                     </Link>
