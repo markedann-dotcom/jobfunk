@@ -4,13 +4,20 @@ import { useEffect, useState } from "react";
 
 export function ScrollTop() {
   const [show, setShow] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setShow(window.scrollY > 600);
+    const onScroll = () => {
+      const shouldShow = window.scrollY > 600;
+      if (shouldShow !== show) {
+        setShow(shouldShow);
+        // Небольшая задержка для плавного CSS-перехода
+        setTimeout(() => setIsVisible(shouldShow), 50);
+      }
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [show]);
 
   if (!show) return null;
 
@@ -19,7 +26,9 @@ export function ScrollTop() {
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       aria-label="Nach oben"
       style={{ bottom: "calc(80px + env(safe-area-inset-bottom))" }}
-      className="group fixed right-5 z-40 grid h-14 w-14 place-items-center rounded-full border border-border bg-surface text-ink shadow-[0_12px_34px_-8px_rgba(60,40,20,0.4)] transition hover:border-accent hover:text-accent lg:!bottom-5"
+      className={`group fixed right-5 z-40 grid h-14 w-14 place-items-center rounded-full border border-border bg-surface text-ink shadow-[0_12px_34px_-8px_rgba(60,40,20,0.4)] transition-all duration-300 hover:border-accent hover:text-accent lg:!bottom-5 ${
+        isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
+      }`}
     >
       {/* rotating circular brand text */}
       <svg
