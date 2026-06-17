@@ -72,7 +72,6 @@ export function SearchForm({
 
   useEffect(() => {
     function onDoc(ev: MouseEvent) {
-      // Only close if click is outside the entire wrapper (not on scrollbar inside list)
       if (woRef.current && !woRef.current.contains(ev.target as Node)) {
         setShowSug(false);
       }
@@ -182,6 +181,7 @@ export function SearchForm({
     router.push(`/suche?${qs.toString()}`);
   }
 
+  // Добавлен pr-10 для кнопок очистки
   const fieldBase =
     "h-13 w-full rounded-xl border border-border bg-surface px-4 text-[15px] text-ink outline-none transition placeholder:text-muted/70 focus:border-accent focus:ring-4 focus:ring-accent/15";
 
@@ -206,8 +206,24 @@ export function SearchForm({
               onKeyDown={onWasKey}
               placeholder={t("form.was.ph")}
               autoComplete="off"
-              className={`${fieldBase} pl-11`}
+              className={`${fieldBase} pl-11 pr-10`}
             />
+            {/* Кнопка очистки для поля "Was" */}
+            {was && (
+              <button
+                type="button"
+                tabIndex={-1}
+                onClick={() => {
+                  setWas("");
+                  setBerufSug([]);
+                  setShowBeruf(false);
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted transition hover:text-ink"
+              >
+                <XIcon />
+              </button>
+            )}
+
             {showBeruf && berufSug.length > 0 && (
               <ul
                 ref={wasListRef}
@@ -237,7 +253,6 @@ export function SearchForm({
                         </span>
                         <span className="truncate font-semibold text-ink">{b.label}</span>
                       </span>
-
                     </button>
                   </li>
                 ))}
@@ -259,8 +274,24 @@ export function SearchForm({
               onKeyDown={onWoKey}
               placeholder={t("form.wo.ph")}
               autoComplete="off"
-              className={`${fieldBase} pl-11`}
+              className={`${fieldBase} pl-11 pr-10`}
             />
+            {/* Кнопка очистки для поля "Wo" */}
+            {wo && (
+              <button
+                type="button"
+                tabIndex={-1}
+                onClick={() => {
+                  setWo("");
+                  setSuggestions([]);
+                  setShowSug(false);
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted transition hover:text-ink"
+              >
+                <XIcon />
+              </button>
+            )}
+
             {showSug && suggestions.length > 0 && (
               <ul
                 ref={woListRef}
@@ -342,18 +373,24 @@ export function SearchForm({
           <button
             type="submit"
             disabled={busy}
-            className="group inline-flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-accent px-7 text-[15px] font-bold text-white shadow-[0_10px_24px_-8px_rgba(234,88,12,0.6)] transition hover:bg-accent-strong active:scale-[0.98] disabled:opacity-60 md:w-auto"
+            className="group inline-flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-accent px-7 text-[15px] font-bold text-white shadow-[0_10px_24px_-8px_rgba(234,88,12,0.6)] transition hover:bg-accent-strong active:scale-[0.98] disabled:opacity-80 md:w-auto"
           >
             {busy ? t("form.searching") : t("form.submit")}
-            <svg
-              viewBox="0 0 24 24"
-              className="h-4 w-4 transition group-hover:translate-x-0.5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-            >
-              <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            
+            {/* Если занято — крутим спиннер, если нет — показываем стрелочку */}
+            {busy ? (
+              <SpinnerIcon className="h-4 w-4 animate-spin" />
+            ) : (
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4 transition group-hover:translate-x-0.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
           </button>
         </div>
       </div>
@@ -459,6 +496,8 @@ export function SearchForm({
   );
 }
 
+// --- Icons ---
+
 function SearchIcon() {
   return (
     <svg
@@ -473,6 +512,7 @@ function SearchIcon() {
     </svg>
   );
 }
+
 function PinIcon() {
   return (
     <svg
@@ -484,6 +524,25 @@ function PinIcon() {
     >
       <path d="M12 21s-6.5-5.5-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 15.5 12 21 12 21z" />
       <circle cx="12" cy="10.5" r="2.4" />
+    </svg>
+  );
+}
+
+// Новая иконка крестика
+function XIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5">
+      <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// Новая иконка загрузки (spinner)
+function SpinnerIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
     </svg>
   );
 }
