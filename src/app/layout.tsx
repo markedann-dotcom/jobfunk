@@ -12,21 +12,18 @@ import { ScrollTop } from "@/components/scroll-top";
 import { MobileNav } from "@/components/mobile-nav";
 import { PwaRegister } from "@/components/pwa-register";
 import { CookieBanner } from "@/components/cookie-banner";
-
 const fraunces = Fraunces({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "900"],
   variable: "--font-fraunces",
   display: "swap",
 });
-
 const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
   weight: ["400", "500", "600", "700", "800"],
   variable: "--font-manrope",
   display: "swap",
 });
-
 export const metadata: Metadata = {
   title: "JobFunke — Jobs in Deutschland kostenlos finden",
   description:
@@ -60,7 +57,6 @@ export const metadata: Metadata = {
     apple: "/icons/apple-touch-icon.png",
   },
 };
-
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
@@ -71,7 +67,6 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: dark)", color: "#14110f" },
   ],
 };
-
 export default function RootLayout({
   children,
 }: {
@@ -87,6 +82,7 @@ export default function RootLayout({
         />
       </head>
       <body
+        className="overflow-x-hidden"
         style={{
           fontFamily: "var(--font-manrope), ui-sans-serif, system-ui",
         }}
