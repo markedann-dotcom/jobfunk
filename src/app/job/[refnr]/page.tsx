@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getJobDetail } from "@/lib/api";
 import { JobDetailView } from "./detail";
-// import SimilarJobs from "@/components/SimilarJobs"; // <-- Закомментировали импорт
+// import SimilarJobs from "@/components/SimilarJobs";
 
 export const dynamic = "force-dynamic";
 
@@ -21,8 +21,10 @@ export async function generateMetadata({
   params: Promise<{ refnr: string }>;
 }): Promise<Metadata> {
   const { refnr } = await params;
+  const decoded = decodeURIComponent(refnr);
+
   try {
-    const job = await getJobDetail(decodeURIComponent(refnr));
+    const job = await getJobDetail(decoded);
     const where = [job.ort, job.plz].filter(Boolean).join(" ");
     const titleParts = [job.titel, job.arbeitgeber, where].filter(Boolean);
     const title = `${titleParts.join(" · ")} | ${SITE}`;
@@ -66,7 +68,6 @@ export default async function JobPage({
   const { refnr } = await params;
   const decoded = decodeURIComponent(refnr);
 
-  // Server-side JSON-LD (best effort — API can fail).
   let jsonLd: Record<string, unknown> | null = null;
   try {
     const job = await getJobDetail(decoded);
@@ -111,7 +112,7 @@ export default async function JobPage({
         />
       )}
       <JobDetailView refnr={decoded} />
-      {/* <SimilarJobs refnr={decoded} /> */} {/* <-- Закомментировали компонент */}
+      {/* <SimilarJobs refnr={decoded} /> */}
     </>
   );
 }
