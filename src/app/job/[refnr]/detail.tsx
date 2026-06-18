@@ -107,6 +107,9 @@ function DetailBody({
       .filter(Boolean)
       .join(", ") || "—";
   const external = jobExternalLink(job);
+  
+  // Определяем, откуда пришла вакансия
+  const isArbeitnow = job.refnr.startsWith("arbeitnow-");
 
   return (
     <article className="fade-up">
@@ -115,11 +118,22 @@ function DetailBody({
         <span className="absolute inset-x-0 top-0 h-1.5" style={{ background: "var(--cc)" }} />
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            {job.branche === "Minijob" && (
-              <span className="mb-3 inline-block rounded-full px-2.5 py-1 text-xs font-bold" style={{ background: "var(--cc-soft)", color: "var(--cc)" }}>
-                {t("type.34")}
+            {/* Плашки с типом и источником */}
+            <div className="flex flex-wrap gap-2 mb-3">
+              {job.branche === "Minijob" && (
+                <span className="inline-block rounded-full px-2.5 py-1 text-xs font-bold" style={{ background: "var(--cc-soft)", color: "var(--cc)" }}>
+                  {t("type.34")}
+                </span>
+              )}
+              <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-bold ${
+                isArbeitnow 
+                  ? "bg-blue-50 text-blue-700 border border-blue-100" 
+                  : "bg-gray-50 text-gray-600 border border-gray-100"
+              }`}>
+                {isArbeitnow ? "Arbeitnow" : "Bundesagentur für Arbeit"}
               </span>
-            )}
+            </div>
+
             <h1
               className="text-2xl font-black leading-tight text-ink sm:text-3xl"
               style={{ fontFamily: "var(--font-fraunces)" }}
@@ -183,14 +197,18 @@ function DetailBody({
               <path d="M7 17 17 7M9 7h8v8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </a>
-          <a
-            href={`https://www.arbeitsagentur.de/jobsuche/jobdetail/${encodeURIComponent(job.refnr)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-12 items-center rounded-full border border-border px-7 text-[15px] font-bold text-ink transition hover:border-accent hover:text-accent"
-          >
-            {t("detail.goto")}
-          </a>
+          
+          {/* Кнопка перехода на Arbeitsagentur рендерится ТОЛЬКО для вакансий из BA */}
+          {!isArbeitnow && (
+            <a
+              href={`https://www.arbeitsagentur.de/jobsuche/jobdetail/${encodeURIComponent(job.refnr)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-12 items-center rounded-full border border-border px-7 text-[15px] font-bold text-ink transition hover:border-accent hover:text-accent"
+            >
+              {t("detail.goto")}
+            </a>
+          )}
         </div>
       </header>
 
