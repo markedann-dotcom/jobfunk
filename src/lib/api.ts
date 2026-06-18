@@ -224,7 +224,7 @@ async function fetchArbeitnowJobs(p: SearchParams): Promise<JobListItem[]> {
 
     return jobs.map(job => ({
       refnr: `arbeitnow-${job.slug}`,
-      titel: job.title,
+      titel: "🟢 ARBEITNOW: " + job.title, // <--- Маячок уже здесь!
       beruf: job.tags.join(", "),
       arbeitgeber: job.company_name,
       ort: job.remote ? `${job.location} (Remote)` : job.location,
@@ -260,7 +260,6 @@ export async function searchJobs(p: SearchParams): Promise<SearchResult> {
   if (p.befristung) qs.set("befristung", p.befristung);
   if (p.sort) qs.set("sort", p.sort);
   qs.set("page", String(page));
-  // Arbeitnow API does not natively support variable 'size', but we still pass it to BA
   qs.set("size", String(size));
 
   const key = `search:${qs.toString()}`;
@@ -280,12 +279,11 @@ export async function searchJobs(p: SearchParams): Promise<SearchResult> {
 
   const bundesJobs = (bundesRes.stellenangebote ?? []).map(normalizeList);
 
-  // Склеиваем массивы: сначала BA, потом Arbeitnow (или наоборот, как вам удобнее)
+  // Склеиваем массивы
   const combinedJobs = [...bundesJobs, ...arbeitnowJobs];
 
   const result: SearchResult = {
     jobs: combinedJobs,
-    // Считаем общее количество найденных вакансий
     total: (bundesRes.maxErgebnisse ?? 0) + arbeitnowJobs.length,
     page,
     size,
@@ -418,7 +416,7 @@ export async function getSimilarJobs(detail: JobDetail, limit = 4): Promise<JobL
   const { jobs } = await searchJobs({
     was,
     wo: detail.ort,
-    size: limit + 5, // запас на случай, если в выдаче встретится сама вакансия
+    size: limit + 5,
   });
 
   return jobs.filter((j) => j.refnr !== detail.refnr).slice(0, limit);
