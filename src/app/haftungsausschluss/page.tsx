@@ -11,10 +11,11 @@ export default function HaftungsausschlussPage() {
     <LegalShell titleKey="legal.disclaimer.title">
       <p className="lead">
         JobFunke ist ein kostenloser, privat betriebener Such-Dienst, der
-        öffentlich zugängliche Stellenangebote aus der Jobbörse der
-        Bundesagentur für Arbeit technisch aufbereitet und durchsuchbar macht.
-        JobFunke ist <strong>kein Arbeitgeber, kein Personalvermittler und kein
-        Urheber der angezeigten Stellenangebote</strong>.
+        öffentlich zugängliche Stellenangebote aus verschiedenen Quellen und
+        Jobbörsen (unter anderem der Bundesagentur für Arbeit sowie externen
+        Partner-Schnittstellen wie Arbeitnow) technisch aufbereitet und
+        durchsuchbar macht. JobFunke ist <strong>kein Arbeitgeber, kein
+        Personalvermittler und kein Urheber der angezeigten Stellenangebote</strong>.
       </p>
 
       <h2>1. Keine Haftung für Stellenangebote und deren Inhalte</h2>
@@ -22,10 +23,10 @@ export default function HaftungsausschlussPage() {
         Sämtliche auf JobFunke angezeigten Stellenangebote, Beschreibungen,
         Gehaltsangaben, Arbeitgeberangaben, Kontaktdaten und sonstigen
         Informationen stammen <strong>ausschließlich von Dritten</strong> – den
-        inserierenden Unternehmen, Personaldienstleistern bzw. der Bundesagentur
-        für Arbeit – und werden über deren öffentliche Schnittstelle automatisiert
-        übernommen. JobFunke erstellt, prüft, redigiert oder verifiziert diese
-        Inhalte <strong>nicht</strong>.
+        inserierenden Unternehmen, Personaldienstleistern bzw. den Betreibern 
+        der angebundenen Schnittstellen (z. B. Bundesagentur für Arbeit, Arbeitnow) 
+        – und werden über deren öffentliche APIs automatisiert übernommen. JobFunke 
+        erstellt, prüft, redigiert oder verifiziert diese Inhalte <strong>nicht</strong>.
       </p>
       <p>
         Für die <strong>Richtigkeit, Vollständigkeit, Aktualität, Seriosität,
@@ -33,7 +34,7 @@ export default function HaftungsausschlussPage() {
         wird daher <strong>keinerlei Haftung oder Gewähr übernommen</strong>. Ein
         Anspruch auf Bestehen, Fortbestehen oder Vermittlung einer angezeigten
         Stelle besteht nicht. Stellenangebote können bereits besetzt, abgelaufen,
-        fehlerhaft oder zwischenzeitlich entfernt worden sein.
+        fehlerhaft oder zwischenzeitlich auf den Originalplattformen entfernt worden sein.
       </p>
 
       <h2>2. Keine Vermittlung, kein Beschäftigungsverhältnis</h2>
@@ -82,8 +83,8 @@ export default function HaftungsausschlussPage() {
 
       <h2>4b. Kartendarstellung</h2>
       <p>
-        Die Standortanzeige auf der Karte erfolgt auf Basis der von der externen
-        Schnittstelle gelieferten Koordinaten und nutzt Kartenmaterial von
+        Die Standortanzeige auf der Karte erfolgt auf Basis der von den externen
+        Schnittstellen gelieferten Koordinaten und nutzt Kartenmaterial von
         OpenStreetMap. Standorte können <strong>ungenau, unvollständig oder
         näherungsweise</strong> dargestellt sein. Für die Richtigkeit der
         Standort- und Kartendaten wird keine Gewähr übernommen.
@@ -92,8 +93,8 @@ export default function HaftungsausschlussPage() {
       <h2>5. Verfügbarkeit des Dienstes</h2>
       <p>
         Es besteht kein Anspruch auf ständige Verfügbarkeit, Fehlerfreiheit oder
-        Vollständigkeit des Dienstes. JobFunke greift auf eine externe
-        Schnittstelle zu; bei deren Ausfall, Änderung oder Einschränkung können
+        Vollständigkeit des Dienstes. JobFunke greift auf externe
+        Schnittstellen zu; bei deren Ausfall, Änderung oder Einschränkung können
         zeitweise keine oder unvollständige Ergebnisse angezeigt werden. Ein
         Schadensersatzanspruch hieraus ist ausgeschlossen.
       </p>
@@ -101,9 +102,9 @@ export default function HaftungsausschlussPage() {
       <h2>6. Externe Links</h2>
       <p>
         JobFunke verweist über Links auf externe Websites Dritter (z. B.
-        Bewerbungsseiten, arbeitsagentur.de). Auf deren Gestaltung und Inhalte
-        haben wir keinen Einfluss; hierfür ist ausschließlich der jeweilige
-        Anbieter verantwortlich. Zum Zeitpunkt der Verlinkung waren keine
+        Bewerbungsseiten, arbeitnow.com, arbeitsagentur.de). Auf deren Gestaltung 
+        und Inhalte haben wir keinen Einfluss; hierfür ist ausschließlich der 
+        jeweilige Anbieter verantwortlich. Zum Zeitpunkt der Verlinkung waren keine
         rechtswidrigen Inhalte erkennbar.
       </p>
 
@@ -121,8 +122,9 @@ export default function HaftungsausschlussPage() {
       <p>
         JobFunke ist ein unabhängiges, privates Angebot und steht in{" "}
         <strong>keiner geschäftlichen, behördlichen oder kooperativen
-        Verbindung</strong> zur Bundesagentur für Arbeit. Alle Marken-,
-        Namens- und Stellenrechte verbleiben bei den jeweiligen Inhabern.
+        Verbindung</strong> zur Bundesagentur für Arbeit, Arbeitnow oder anderen 
+        Plattformen. Alle Marken-, Namens- und Stellenrechte verbleiben bei den 
+        jeweiligen Inhabern.
       </p>
 
       <p style={{ marginTop: "1.5rem" }}>
