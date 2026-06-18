@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { suggestBerufe } from "@/lib/api";
+import { rateLimit, clientIp, rateLimitHeaders } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -11,6 +12,14 @@ function clean(v: string | null, max = 80): string {
 }
 
 export async function GET(req: NextRequest) {
+  const rl = rateLimit(`suggest:${clientIp(req)}`, 90, 60_000);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { items: [] },
+      { status: 429, headers: rateLimitHeaders(rl) }
+    );
+  }
+
   const was = clean(req.nextUrl.searchParams.get("was"));
   if (was.length < 2) {
     return NextResponse.json({ items: [] }, { status: 200 });

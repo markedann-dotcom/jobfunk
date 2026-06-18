@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getJobDetail, getSimilarJobs } from "@/lib/api";
+import { rateLimit, clientIp, rateLimitHeaders } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ refnr: string }> }
 ) {
+  const rl = rateLimit(`similar:${clientIp(req)}`, 40, 60_000);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "rate_limited" },
+      { status: 429, headers: rateLimitHeaders(rl) }
+    );
+  }
+
   const { refnr: raw } = await params;
 
   let refnr = "";

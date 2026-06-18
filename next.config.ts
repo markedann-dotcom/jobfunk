@@ -10,9 +10,13 @@ const csp = [
   "script-src 'self' 'unsafe-inline'" + (process.env.NODE_ENV === "production" ? "" : " 'unsafe-eval'"),
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com data:",
-  "img-src 'self' data: blob: https:",
-  "connect-src 'self' https://rest.arbeitsagentur.de",
+  // Map tiles (OpenStreetMap) + Leaflet marker images (cloudflare CDN)
+  "img-src 'self' data: blob: https://*.tile.openstreetmap.org https://cdnjs.cloudflare.com https:",
+  "connect-src 'self' https://rest.arbeitsagentur.de https://*.tile.openstreetmap.org",
+  "worker-src 'self' blob:",
   "manifest-src 'self'",
+  "media-src 'self'",
+  "frame-src 'none'",
   "upgrade-insecure-requests",
 ].join("; ");
 
@@ -27,6 +31,19 @@ const securityHeaders = [
     value: "max-age=63072000; includeSubDomains; preload",
   },
   { key: "X-DNS-Prefetch-Control", value: "on" },
+  // Cross-origin isolation hardening
+  { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+  { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
+  { key: "X-Permitted-Cross-Domain-Policies", value: "none" },
+  { key: "Origin-Agent-Cluster", value: "?1" },
+];
+
+// API responses must not be cached cross-origin nor framed.
+const apiHeaders = [
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
+  { key: "Referrer-Policy", value: "no-referrer" },
 ];
 
 const nextConfig: NextConfig = {
@@ -37,6 +54,10 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         headers: securityHeaders,
+      },
+      {
+        source: "/api/:path*",
+        headers: apiHeaders,
       },
     ];
   },
