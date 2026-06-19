@@ -108,32 +108,49 @@ function DetailBody({
       .join(", ") || "—";
   const external = jobExternalLink(job);
   
-  // Определяем, откуда пришла вакансия
   const isArbeitnow = job.refnr.startsWith("arbeitnow-");
+  const [letter, setLetter] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+
+  const generateLetter = async () => {
+    setGenerating(true);
+    try {
+      const res = await fetch("/api/job/motivation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+            titel: job.titel, 
+            arbeitgeber: job.arbeitgeber, 
+            ort: job.ort, 
+            refnr: job.refnr, 
+            isMinijob: job.branche === "Minijob" 
+        }),
+      });
+      const data = await res.json();
+      setLetter(data.text);
+    } catch (err) {
+      console.error("Failed to generate", err);
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   return (
     <article className="fade-up">
-      {/* hero card */}
       <header className="relative overflow-hidden rounded-2xl border border-border bg-surface p-6 shadow-[0_2px_14px_-6px_rgba(60,40,20,0.12)] sm:p-8" style={toneStyle}>
         <span className="absolute inset-x-0 top-0 h-1.5" style={{ background: "var(--cc)" }} />
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            {/* Плашки с типом и источником */}
             <div className="flex flex-wrap gap-2 mb-3">
               {job.branche === "Minijob" && (
-                <span className="inline-block rounded-full px-2.5 py-1 text-xs font-bold" style={{ background: "var(--cc-soft)", color: "var(--cc)" }}>
+                <span className="mb-3 inline-block rounded-full px-2.5 py-1 text-xs font-bold" style={{ background: "var(--cc-soft)", color: "var(--cc)" }}>
                   {t("type.34")}
                 </span>
               )}
-              <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-bold ${
-                isArbeitnow 
-                  ? "bg-blue-50 text-blue-700 border border-blue-100" 
-                  : "bg-gray-50 text-gray-600 border border-gray-100"
-              }`}>
+              <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-bold ${isArbeitnow ? "bg-blue-50 text-blue-700 border border-blue-100" : "bg-gray-50 text-gray-600 border border-gray-100"}`}>
                 {isArbeitnow ? "Arbeitnow" : "Bundesagentur für Arbeit"}
               </span>
             </div>
-
             <h1
               className="text-2xl font-black leading-tight text-ink sm:text-3xl"
               style={{ fontFamily: "var(--font-fraunces)" }}
@@ -197,8 +214,6 @@ function DetailBody({
               <path d="M7 17 17 7M9 7h8v8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </a>
-          
-          {/* Кнопка перехода на Arbeitsagentur рендерится ТОЛЬКО для вакансий из BA */}
           {!isArbeitnow && (
             <a
               href={`https://www.arbeitsagentur.de/jobsuche/jobdetail/${encodeURIComponent(job.refnr)}`}
@@ -212,7 +227,6 @@ function DetailBody({
         </div>
       </header>
 
-      {/* description */}
       <section className="mt-5 rounded-2xl border border-border bg-surface p-6 sm:p-8">
         <h2
           className="flex items-center gap-2.5 text-xl font-bold text-ink"
@@ -230,9 +244,31 @@ function DetailBody({
         ) : (
           <p className="mt-4 text-muted">{t("detail.nodesc")}</p>
         )}
+        
+        <div className="mt-6 pt-6 border-t border-border/60 flex justify-center">
+          <button 
+            onClick={generateLetter} 
+            disabled={generating} 
+            className="inline-flex h-11 items-center gap-2 rounded-xl bg-accent-soft px-5 text-sm font-bold text-accent-strong transition hover:bg-accent hover:text-white disabled:opacity-50"
+          >
+            {generating ? "Wird generiert..." : "Motivationsschreiben erstellen"}
+          </button>
+        </div>
       </section>
 
-      {/* liability disclaimer */}
+      {letter && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-2xl border border-border bg-surface p-6 shadow-2xl flex flex-col max-h-[85vh]">
+            <h3 className="font-bold text-lg mb-3">Vorschau</h3>
+            <div className="flex-1 overflow-y-auto bg-page p-4 rounded-xl font-mono text-xs whitespace-pre-wrap">{letter}</div>
+            <div className="mt-4 flex justify-end gap-3">
+              <button onClick={() => setLetter(null)} className="px-4 py-2 border rounded-lg">Schließen</button>
+              <button onClick={() => window.print()} className="px-4 py-2 bg-accent text-white font-bold rounded-lg">PDF Drucken</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <p className="mt-4 flex items-start gap-2 rounded-2xl border border-border bg-page/60 px-4 py-3 text-xs leading-relaxed text-muted">
         <svg viewBox="0 0 24 24" className="mt-0.5 h-4 w-4 shrink-0 text-accent" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
           <circle cx="12" cy="12" r="9" />
@@ -241,16 +277,13 @@ function DetailBody({
         {t("disc.jobs")}
       </p>
 
-      {/* related berufe */}
       <RelatedBerufe input={job.beruf || job.titel} className="mt-6" />
 
-      {/* application checklist + netto estimator */}
       <div className="mt-6 grid gap-5 lg:grid-cols-2">
         <BewerbungTips beruf={job.beruf} />
         <NettoCalculator compact />
       </div>
 
-      {/* similar jobs */}
       <SimilarJobs job={job} t={t} />
     </article>
   );
