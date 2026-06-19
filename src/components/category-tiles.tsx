@@ -7,61 +7,74 @@ import { CATEGORIES } from "@/lib/categories";
 
 export function CategoryTiles() {
   const { t, lang } = useT();
+  
   return (
     <section className="mx-auto max-w-6xl px-4 pt-16 sm:px-6">
-      <div className="mb-6 text-center">
+      <div className="mb-8 text-center">
         <h2 className="text-2xl font-black text-ink sm:text-3xl" style={{ fontFamily: "var(--font-fraunces)" }}>
           {t("cat.title")}
         </h2>
         <p className="mt-2 text-sm text-muted">{t("cat.sub")}</p>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {CATEGORIES.map((c) => (
-          <Link
-            key={c.id}
-            href={`/suche?was=${encodeURIComponent(c.was)}&umkreis=25&page=1`}
-            style={
-              {
-                "--cc": `var(--c-${c.color})`,
-              } as CSSProperties
-            }
-            className="group relative block h-32 overflow-hidden rounded-2xl border border-border shadow-[0_8px_24px_-16px_rgba(120,72,20,0.35)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_44px_-18px_rgba(120,72,20,0.4)] hover:[border-color:color-mix(in_srgb,var(--cc)_60%,transparent)] sm:h-36"
-          >
-            {/* photo */}
-            <img
-              src={c.img}
-              alt={lang === "uk" ? c.uk : c.de}
-              loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-110"
-            />
-            {/* readability + tint gradient */}
-            <span
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(180deg, rgba(20,15,10,0) 28%, rgba(20,15,10,0.35) 58%, rgba(20,15,10,0.82) 100%)",
-              }}
-              aria-hidden
-            />
-            {/* color accent bar that grows on hover */}
-            <span
-              className="absolute inset-x-0 bottom-0 h-1 origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100"
-              style={{ background: "var(--cc)" }}
-              aria-hidden
-            />
-            {/* icon chip top-left */}
-            <span
-              className="absolute left-3 top-3 grid h-8 w-8 place-items-center rounded-lg text-white shadow-sm backdrop-blur-sm transition group-hover:scale-105"
-              style={{ background: "color-mix(in srgb, var(--cc) 78%, transparent)" }}
+      
+      {/* Сетка: на мобильных 2 колонки, на планшетах 3, на десктопе 4 */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 sm:gap-4">
+        {CATEGORIES.map((c) => {
+          const label = lang === "uk" ? c.uk : c.de;
+          
+          return (
+            <Link
+              key={c.id}
+              href={`/suche?was=${encodeURIComponent(c.was)}&umkreis=25&page=1`}
+              title={`${label} Jobs suchen`} // Для SEO и доступности
+              style={
+                {
+                  "--cc": `var(--c-${c.color}, #6b7280)`, // #6b7280 (серый) как фолбэк
+                } as CSSProperties
+              }
+              className="group relative block h-36 overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_8px_24px_-16px_rgba(120,72,20,0.35)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_22px_44px_-18px_rgba(120,72,20,0.4)] hover:[border-color:color-mix(in_srgb,var(--cc)_60%,transparent)] sm:h-40"
             >
-              <CatIcon name={c.icon} />
-            </span>
-            {/* label bottom */}
-            <span className="absolute inset-x-3 bottom-2.5 text-[14px] font-bold leading-tight text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)]">
-              {lang === "uk" ? c.uk : c.de}
-            </span>
-          </Link>
-        ))}
+              {/* photo */}
+              <img
+                src={c.img}
+                alt={label}
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover transition duration-700 ease-out group-hover:scale-110"
+              />
+              
+              {/* readability + tint gradient */}
+              <span
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(180deg, rgba(20,15,10,0) 25%, rgba(20,15,10,0.4) 60%, rgba(20,15,10,0.85) 100%)",
+                }}
+                aria-hidden
+              />
+              
+              {/* color accent bar that grows on hover */}
+              <span
+                className="absolute inset-x-0 bottom-0 h-1.5 origin-left scale-x-0 bg-(--cc) transition-transform duration-300 ease-out group-hover:scale-x-100"
+                style={{ background: "var(--cc)" }}
+                aria-hidden
+              />
+              
+              {/* icon chip top-left */}
+              <span
+                className="absolute left-3 top-3 grid h-8 w-8 place-items-center rounded-lg text-white shadow-sm backdrop-blur-md transition group-hover:scale-105 sm:left-4 sm:top-4"
+                style={{ background: "color-mix(in srgb, var(--cc) 85%, rgba(0,0,0,0.2))" }}
+                aria-hidden
+              >
+                <CatIcon name={c.icon} />
+              </span>
+              
+              {/* label bottom */}
+              <span className="absolute inset-x-3 bottom-3 text-[14px] font-bold leading-tight text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.6)] sm:inset-x-4 sm:bottom-4 sm:text-[15px]">
+                {label}
+              </span>
+            </Link>
+          );
+        })}
       </div>
     </section>
   );
@@ -69,7 +82,14 @@ export function CategoryTiles() {
 
 function CatIcon({ name }: { name: string }) {
   const cls = "h-4 w-4";
-  const p = { fill: "none" as const, stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  const p = { 
+    fill: "none" as const, 
+    stroke: "currentColor", 
+    strokeWidth: 2, 
+    strokeLinecap: "round" as const, 
+    strokeLinejoin: "round" as const 
+  };
+  
   switch (name) {
     case "health":
       return <svg viewBox="0 0 24 24" className={cls} {...p}><path d="M12 21s-7-4.5-9.2-8.4A5 5 0 0 1 12 6a5 5 0 0 1 9.2 5.6C19 15.5 12 21 12 21z" /><path d="M12 9v4M10 11h4" /></svg>;
