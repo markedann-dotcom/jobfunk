@@ -46,9 +46,7 @@ export function JobDetailView({ refnr }: { refnr: string }) {
         if (!alive) return;
         setStatus("error");
       });
-    return () => {
-      alive = false;
-    };
+    return () => { alive = false; };
   }, [refnr]);
 
   return (
@@ -107,15 +105,14 @@ function DetailBody({
       .filter(Boolean)
       .join(", ") || "—";
   const external = jobExternalLink(job);
-
   const isArbeitnow = job.refnr.startsWith("arbeitnow-");
 
   const [letter, setLetter] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [showEditor, setShowEditor] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
-  // Данные отправителя
   const [senderName, setSenderName] = useState("");
   const [senderStreet, setSenderStreet] = useState("");
   const [senderCity, setSenderCity] = useState("");
@@ -139,6 +136,7 @@ function DetailBody({
       });
       const data = await res.json();
       setLetter(data.text);
+      setShowPreview(true);
     } catch (err) {
       console.error("Failed to generate", err);
     } finally {
@@ -155,123 +153,129 @@ function DetailBody({
 
       const W = 210;
       const H = 297;
-      const mL = 25; // left margin (DIN 5008)
-      const mR = 20;
+      const sidebarW = 58;
+      const mL = sidebarW + 14;
+      const mR = 14;
       const usable = W - mL - mR;
 
-      // ── Акцентная полоса сверху ──────────────────────────────
+      // ── Синий сайдбар слева ───────────────────────────────────
+      doc.setFillColor(23, 37, 84); // тёмно-синий
+      doc.rect(0, 0, sidebarW, H, "F");
+
+      // тонкая акцентная линия справа от сайдбара
       doc.setFillColor(59, 130, 246);
-      doc.rect(0, 0, W, 6, "F");
+      doc.rect(sidebarW, 0, 2.5, H, "F");
 
-      // ── Имя отправителя мелко в шапке ────────────────────────
+      // ── Имя в сайдбаре ───────────────────────────────────────
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(7.5);
-      doc.setTextColor(120, 120, 120);
-      const senderLine = [senderName, senderStreet, senderCity]
-        .filter(Boolean)
-        .join(" · ");
-      doc.text(senderLine || "Ihr Name · Straße · Stadt", mL, 14);
+      doc.setFontSize(13);
+      doc.setTextColor(255, 255, 255);
+      const nameLines = doc.splitTextToSize(senderName || "Ihr Name", sidebarW - 12);
+      doc.text(nameLines, 7, 28);
 
-      // тонкая разделительная линия под шапкой
-      doc.setDrawColor(200, 200, 200);
-      doc.setLineWidth(0.3);
-      doc.line(mL, 16, W - mR, 16);
+      // разделитель
+      doc.setDrawColor(59, 130, 246);
+      doc.setLineWidth(0.8);
+      doc.line(7, 28 + nameLines.length * 6 + 2, sidebarW - 7, 28 + nameLines.length * 6 + 2);
 
-      // ── Адрес получателя (окошко DIN 5008) ───────────────────
+      // контакты в сайдбаре
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(80, 80, 80);
-      doc.text(job.arbeitgeber || "Unternehmen", mL, 35);
-      doc.text(job.strasse || "Straße des Unternehmens", mL, 40);
-      const cityLine = [job.plz, job.ort].filter(Boolean).join(" ");
-      doc.text(cityLine || "PLZ Ort", mL, 45);
+      doc.setFontSize(8);
+      doc.setTextColor(180, 200, 255);
 
-      // ── Контакт отправителя справа ────────────────────────────
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.setTextColor(30, 30, 30);
-      doc.text(senderName || "Ihr Name", W - mR, 32, { align: "right" });
+      let sideY = 28 + nameLines.length * 6 + 10;
+      const sideItems = [
+        { label: "Adresse", value: [senderStreet, senderCity].filter(Boolean).join("\n") },
+        { label: "E-Mail", value: senderEmail },
+        { label: "Telefon", value: senderPhone },
+      ].filter((x) => x.value);
 
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8.5);
-      doc.setTextColor(100, 100, 100);
-      if (senderStreet) doc.text(senderStreet, W - mR, 37, { align: "right" });
-      if (senderCity) doc.text(senderCity, W - mR, 42, { align: "right" });
-      if (senderEmail) doc.text(senderEmail, W - mR, 47, { align: "right" });
-      if (senderPhone) doc.text(senderPhone, W - mR, 52, { align: "right" });
+      for (const item of sideItems) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(6.5);
+        doc.setTextColor(100, 140, 220);
+        doc.text(item.label.toUpperCase(), 7, sideY);
+        sideY += 4;
 
-      // ── Дата ─────────────────────────────────────────────────
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(210, 225, 255);
+        const valLines = doc.splitTextToSize(item.value, sidebarW - 14);
+        doc.text(valLines, 7, sideY);
+        sideY += valLines.length * 4.5 + 5;
+      }
+
+      // дата в низу сайдбара
       const today = new Date().toLocaleDateString("de-DE", {
         day: "2-digit",
         month: "long",
         year: "numeric",
       });
       doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(130, 160, 220);
+      doc.text(today, 7, H - 14);
+
+      // ── Получатель ───────────────────────────────────────────
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       doc.setTextColor(80, 80, 80);
-      doc.text(today, W - mR, 62, { align: "right" });
+      doc.text(job.arbeitgeber || "Unternehmen", mL, 32);
+      if (job.strasse) doc.text(job.strasse, mL, 37);
+      const rcvCity = [job.plz, job.ort].filter(Boolean).join(" ");
+      if (rcvCity) doc.text(rcvCity, mL, job.strasse ? 42 : 37);
 
-      // ── Тема (Betreff) ────────────────────────────────────────
+      // ── Тема ────────────────────────────────────────────────
+      const subjectTop = 60;
       doc.setFont("helvetica", "bold");
-      doc.setFontSize(12);
-      doc.setTextColor(20, 20, 20);
+      doc.setFontSize(13);
+      doc.setTextColor(15, 23, 60);
       const subject = `Bewerbung als ${job.titel}`;
       const subjectLines = doc.splitTextToSize(subject, usable);
-      doc.text(subjectLines, mL, 72);
-      const subjectH = subjectLines.length * 6;
+      doc.text(subjectLines, mL, subjectTop);
+      const subjectH = subjectLines.length * 6.5;
 
-      // акцент под темой
+      // подчёркивание темы
       doc.setDrawColor(59, 130, 246);
-      doc.setLineWidth(0.6);
-      doc.line(mL, 72 + subjectH - 1, mL + 40, 72 + subjectH - 1);
+      doc.setLineWidth(1);
+      doc.line(mL, subjectTop + subjectH, mL + 50, subjectTop + subjectH);
 
-      // ── Тело письма ───────────────────────────────────────────
+      // ── Тело письма ─────────────────────────────────────────
       doc.setFont("helvetica", "normal");
-      doc.setFontSize(10.5);
+      doc.setFontSize(10);
       doc.setTextColor(35, 35, 35);
-      const lineH = 5.8;
-      let curY = 72 + subjectH + 6;
+      const lineH = 5.6;
+      let curY = subjectTop + subjectH + 9;
 
-      const paragraphs = letter.split(/\n/);
-      for (const para of paragraphs) {
+      for (const para of letter.split(/\n/)) {
         const lines = para.trim().length
           ? doc.splitTextToSize(para, usable)
           : [""];
-
         for (const line of lines) {
-          if (curY + lineH > H - 25) {
+          if (curY + lineH > H - 20) {
             doc.addPage();
+            // сайдбар на новой странице
+            doc.setFillColor(23, 37, 84);
+            doc.rect(0, 0, sidebarW, H, "F");
             doc.setFillColor(59, 130, 246);
-            doc.rect(0, 0, W, 3, "F");
-            curY = 27;
+            doc.rect(sidebarW, 0, 2.5, H, "F");
+            curY = 24;
           }
           doc.text(line, mL, curY);
           curY += lineH;
         }
-        if (para.trim().length) curY += 1.5;
+        if (para.trim().length) curY += 2;
       }
 
-      // ── Нижний колонтитул ─────────────────────────────────────
+      // ── Нижний колонтитул ────────────────────────────────────
       doc.setDrawColor(220, 220, 220);
       doc.setLineWidth(0.3);
-      doc.line(mL, H - 18, W - mR, H - 18);
-      doc.setFontSize(7.5);
-      doc.setTextColor(160, 160, 160);
-      doc.text(
-        `Bewerbung · ${job.titel} · ${job.arbeitgeber || ""}`,
-        W / 2,
-        H - 13,
-        { align: "center" }
-      );
+      doc.line(mL, H - 14, W - mR, H - 14);
+      doc.setFontSize(7);
+      doc.setTextColor(170, 170, 170);
+      doc.text(`${job.titel} · ${job.arbeitgeber || ""}`, mL, H - 9);
 
-      // ── Акцентная полоса снизу ────────────────────────────────
-      doc.setFillColor(59, 130, 246);
-      doc.rect(0, H - 4, W, 4, "F");
-
-      const safeCompany = (job.arbeitgeber || "Unternehmen").replace(
-        /[^\p{L}\p{N}_-]+/gu,
-        "_"
-      );
+      const safeCompany = (job.arbeitgeber || "Unternehmen").replace(/[^\p{L}\p{N}_-]+/gu, "_");
       doc.save(`Motivationsschreiben_${safeCompany}.pdf`);
     } catch (err) {
       console.error("Failed to create PDF", err);
@@ -311,11 +315,7 @@ function DetailBody({
               onClick={() => toggle({ ...job, savedAt: Date.now() })}
               aria-label={fav ? t("fav.added") : t("fav.add")}
               aria-pressed={fav}
-              className={`grid h-10 w-10 place-items-center rounded-full border transition ${
-                fav
-                  ? "border-accent bg-accent-soft text-accent"
-                  : "border-border bg-surface text-muted hover:border-accent hover:text-accent"
-              }`}
+              className={`grid h-10 w-10 place-items-center rounded-full border transition ${fav ? "border-accent bg-accent-soft text-accent" : "border-border bg-surface text-muted hover:border-accent hover:text-accent"}`}
             >
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill={fav ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
                 <path d="M12 20s-7-4.5-9.2-8.4A5 5 0 0 1 12 6a5 5 0 0 1 9.2 5.6C19 15.5 12 20 12 20z" strokeLinecap="round" strokeLinejoin="round" />
@@ -327,24 +327,10 @@ function DetailBody({
 
         <dl className="mt-6 grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
           <Field icon={<PinIcon />} label={t("detail.location")} value={location} />
-          <Field
-            icon={<ClockIcon />}
-            label={t("detail.published")}
-            value={formatDate(job.published, lang)}
-          />
-          {job.eintrittsdatum && (
-            <Field
-              icon={<CalIcon />}
-              label={t("detail.start")}
-              value={formatDate(job.eintrittsdatum, lang)}
-            />
-          )}
-          {job.arbeitszeit && (
-            <Field icon={<TimeIcon />} label={t("detail.worktime")} value={job.arbeitszeit} />
-          )}
-          {job.verguetung && (
-            <Field icon={<EuroIcon />} label={t("detail.salary")} value={job.verguetung} />
-          )}
+          <Field icon={<ClockIcon />} label={t("detail.published")} value={formatDate(job.published, lang)} />
+          {job.eintrittsdatum && <Field icon={<CalIcon />} label={t("detail.start")} value={formatDate(job.eintrittsdatum, lang)} />}
+          {job.arbeitszeit && <Field icon={<TimeIcon />} label={t("detail.worktime")} value={job.arbeitszeit} />}
+          {job.verguetung && <Field icon={<EuroIcon />} label={t("detail.salary")} value={job.verguetung} />}
         </dl>
 
         <div className="mt-7 flex flex-wrap gap-3">
@@ -403,88 +389,83 @@ function DetailBody({
         </div>
       </section>
 
-      {/* Форма с данными отправителя */}
-      {showEditor && !letter && !generating && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-2xl border border-border bg-surface p-6 shadow-2xl">
-            <h3 className="font-black text-xl text-ink mb-1" style={{ fontFamily: "var(--font-fraunces)" }}>
-              Ihre Angaben
-            </h3>
-            <p className="text-sm text-muted mb-5">
-              Diese werden ins Motivationsschreiben und in den PDF-Briefkopf übernommen.
-            </p>
+      {/* ── Шаг 1: Форма данных ── */}
+      {showEditor && !generating && !showPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-surface p-7 shadow-2xl">
+            <div className="mb-5">
+              <h3 className="font-black text-xl text-ink" style={{ fontFamily: "var(--font-fraunces)" }}>
+                Ihre Kontaktdaten
+              </h3>
+              <p className="text-sm text-muted mt-1">
+                Erscheinen im Briefkopf des PDFs.
+              </p>
+            </div>
 
             <div className="space-y-3">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wide text-muted mb-1">
-                  Vor- und Nachname *
+                <label className="block text-xs font-bold uppercase tracking-wide text-muted mb-1.5">
+                  Vor- und Nachname <span className="text-accent">*</span>
                 </label>
                 <input
                   type="text"
                   value={senderName}
                   onChange={(e) => setSenderName(e.target.value)}
                   placeholder="Max Mustermann"
-                  className="w-full rounded-xl border border-border bg-page px-4 py-2.5 text-sm text-ink placeholder:text-muted/50 focus:border-accent focus:outline-none"
+                  autoFocus
+                  className="w-full rounded-xl border border-border bg-page px-4 py-2.5 text-sm text-ink placeholder:text-muted/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wide text-muted mb-1">
-                    Straße & Hausnr.
-                  </label>
+                  <label className="block text-xs font-bold uppercase tracking-wide text-muted mb-1.5">Straße & Hausnr.</label>
                   <input
                     type="text"
                     value={senderStreet}
                     onChange={(e) => setSenderStreet(e.target.value)}
                     placeholder="Musterstraße 12"
-                    className="w-full rounded-xl border border-border bg-page px-4 py-2.5 text-sm text-ink placeholder:text-muted/50 focus:border-accent focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-page px-4 py-2.5 text-sm text-ink placeholder:text-muted/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wide text-muted mb-1">
-                    PLZ & Stadt
-                  </label>
+                  <label className="block text-xs font-bold uppercase tracking-wide text-muted mb-1.5">PLZ & Stadt</label>
                   <input
                     type="text"
                     value={senderCity}
                     onChange={(e) => setSenderCity(e.target.value)}
                     placeholder="10115 Berlin"
-                    className="w-full rounded-xl border border-border bg-page px-4 py-2.5 text-sm text-ink placeholder:text-muted/50 focus:border-accent focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-page px-4 py-2.5 text-sm text-ink placeholder:text-muted/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wide text-muted mb-1">
-                    E-Mail
-                  </label>
+                  <label className="block text-xs font-bold uppercase tracking-wide text-muted mb-1.5">E-Mail</label>
                   <input
                     type="email"
                     value={senderEmail}
                     onChange={(e) => setSenderEmail(e.target.value)}
                     placeholder="max@beispiel.de"
-                    className="w-full rounded-xl border border-border bg-page px-4 py-2.5 text-sm text-ink placeholder:text-muted/50 focus:border-accent focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-page px-4 py-2.5 text-sm text-ink placeholder:text-muted/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wide text-muted mb-1">
-                    Telefon
-                  </label>
+                  <label className="block text-xs font-bold uppercase tracking-wide text-muted mb-1.5">Telefon</label>
                   <input
                     type="tel"
                     value={senderPhone}
                     onChange={(e) => setSenderPhone(e.target.value)}
                     placeholder="+49 30 12345678"
-                    className="w-full rounded-xl border border-border bg-page px-4 py-2.5 text-sm text-ink placeholder:text-muted/50 focus:border-accent focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-page px-4 py-2.5 text-sm text-ink placeholder:text-muted/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="mt-6 flex justify-end gap-3">
+            <div className="mt-7 flex justify-end gap-3">
               <button
                 onClick={() => setShowEditor(false)}
-                className="px-4 py-2 text-sm border border-border rounded-xl text-muted hover:text-ink transition"
+                className="px-5 py-2.5 text-sm border border-border rounded-xl text-muted hover:text-ink transition"
               >
                 Abbrechen
               </button>
@@ -494,7 +475,7 @@ function DetailBody({
                   await generateLetter();
                 }}
                 disabled={!senderName.trim()}
-                className="inline-flex h-10 items-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-strong disabled:opacity-40"
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-accent px-6 text-sm font-bold text-white transition hover:bg-accent-strong disabled:opacity-40"
               >
                 Schreiben generieren →
               </button>
@@ -503,11 +484,11 @@ function DetailBody({
         </div>
       )}
 
-      {/* Спиннер генерации */}
+      {/* ── Спиннер генерации ── */}
       {generating && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="rounded-2xl border border-border bg-surface px-10 py-8 shadow-2xl flex flex-col items-center gap-4">
-            <svg className="h-8 w-8 animate-spin text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="rounded-2xl border border-border bg-surface px-12 py-10 shadow-2xl flex flex-col items-center gap-4">
+            <svg className="h-9 w-9 animate-spin text-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="9" strokeDasharray="28 8" />
             </svg>
             <p className="text-sm font-semibold text-muted">Motivationsschreiben wird erstellt…</p>
@@ -515,84 +496,141 @@ function DetailBody({
         </div>
       )}
 
-      {/* Предпросмотр и редактирование письма */}
-      {letter && !generating && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-2xl rounded-2xl border border-border bg-surface shadow-2xl flex flex-col max-h-[90vh]">
-            {/* Шапка модала */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
-              <div>
-                <h3 className="font-black text-lg text-ink" style={{ fontFamily: "var(--font-fraunces)" }}>
-                  Motivationsschreiben
-                </h3>
-                <p className="text-xs text-muted mt-0.5">Bearbeiten Sie den Text direkt im Feld</p>
-              </div>
-              <button
-                onClick={() => { setLetter(null); setShowEditor(false); }}
-                className="grid h-8 w-8 place-items-center rounded-full border border-border text-muted hover:text-ink transition"
-                aria-label="Schließen"
-              >
-                <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6 6 18M6 6l12 12" strokeLinecap="round" />
-                </svg>
-              </button>
+      {/* ── Шаг 2: Предпросмотр на весь экран ── */}
+      {showPreview && letter && !generating && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-[#1a1a2e]">
+          {/* Топбар */}
+          <div className="flex items-center justify-between px-6 py-3 bg-[#16213e] border-b border-white/10 shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="h-3 w-3 rounded-full bg-red-400" />
+              <div className="h-3 w-3 rounded-full bg-yellow-400" />
+              <div className="h-3 w-3 rounded-full bg-green-400" />
+              <span className="ml-2 text-xs text-white/40 font-mono">Motivationsschreiben_Vorschau.pdf</span>
             </div>
-
-            {/* Мета-данные отправителя */}
-            <div className="px-6 py-3 bg-page/60 border-b border-border/40 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
-              <span className="font-semibold text-ink">{senderName || "—"}</span>
-              {senderStreet && <span>{senderStreet}</span>}
-              {senderCity && <span>{senderCity}</span>}
-              {senderEmail && <span>{senderEmail}</span>}
-              {senderPhone && <span>{senderPhone}</span>}
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => { setLetter(null); setShowEditor(true); }}
-                className="ml-auto text-accent hover:underline font-semibold"
+                onClick={() => { setShowPreview(false); setShowEditor(true); setLetter(null); }}
+                className="px-3 py-1.5 text-xs border border-white/20 rounded-lg text-white/60 hover:text-white hover:border-white/40 transition"
               >
                 ✎ Angaben ändern
               </button>
+              <button
+                onClick={() => { setShowPreview(false); setLetter(null); setShowEditor(false); }}
+                className="px-3 py-1.5 text-xs border border-white/20 rounded-lg text-white/60 hover:text-white hover:border-white/40 transition"
+              >
+                Verwerfen
+              </button>
+              <button
+                onClick={downloadLetterAsPdf}
+                disabled={downloading}
+                className="inline-flex h-8 items-center gap-2 rounded-lg bg-blue-500 hover:bg-blue-400 px-4 text-xs font-bold text-white transition disabled:opacity-50"
+              >
+                {downloading ? (
+                  <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="9" strokeDasharray="28 8" />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M12 15V3m0 12-4-4m4 4 4-4M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+                {downloading ? "Erstellt…" : "Als PDF herunterladen"}
+              </button>
             </div>
+          </div>
 
-            {/* Редактируемое тело письма */}
-            <textarea
-              value={letter}
-              onChange={(e) => setLetter(e.target.value)}
-              className="flex-1 resize-none bg-transparent px-6 py-4 text-sm text-ink leading-relaxed focus:outline-none font-mono overflow-y-auto"
-              spellCheck
-              lang="de"
-            />
+          {/* Область предпросмотра */}
+          <div className="flex-1 overflow-y-auto flex justify-center py-8 px-4">
+            {/* Лист A4 */}
+            <div
+              className="relative bg-white shadow-2xl flex"
+              style={{ width: "210mm", minHeight: "297mm", fontFamily: "Georgia, serif" }}
+            >
+              {/* Тёмно-синий сайдбар */}
+              <div className="shrink-0 flex flex-col" style={{ width: "58mm", background: "#172554" }}>
+                {/* Акцентная линия */}
+                <div style={{ width: "3px", position: "absolute", left: "58mm", top: 0, bottom: 0, background: "#3b82f6" }} />
 
-            {/* Кнопки */}
-            <div className="px-6 py-4 border-t border-border/60 flex items-center justify-between gap-3">
-              <p className="text-xs text-muted">{letter.length} Zeichen</p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => { setLetter(null); setShowEditor(false); }}
-                  className="px-4 py-2 text-sm border border-border rounded-xl text-muted hover:text-ink transition"
-                >
-                  Verwerfen
-                </button>
-                <button
-                  onClick={downloadLetterAsPdf}
-                  disabled={downloading}
-                  className="inline-flex h-10 items-center gap-2 rounded-xl bg-accent px-5 text-sm font-bold text-white transition hover:bg-accent-strong disabled:opacity-50"
-                >
-                  {downloading ? (
-                    <>
-                      <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="12" r="9" strokeDasharray="28 8" />
-                      </svg>
-                      Wird erstellt…
-                    </>
-                  ) : (
-                    <>
-                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M12 15V3m0 12-4-4m4 4 4-4M2 17l.621 2.485A2 2 0 0 0 4.561 21h14.878a2 2 0 0 0 1.94-1.515L22 17" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                      Als PDF herunterladen
-                    </>
+                <div className="p-5 flex-1">
+                  {/* Имя */}
+                  <div className="mb-4">
+                    <p className="text-white font-bold leading-tight" style={{ fontSize: "13px" }}>
+                      {senderName || <span className="text-white/30">Ihr Name</span>}
+                    </p>
+                    <div className="mt-2 h-px bg-blue-500" />
+                  </div>
+
+                  {/* Контакты */}
+                  <div className="space-y-4">
+                    {(senderStreet || senderCity) && (
+                      <div>
+                        <p className="uppercase tracking-widest font-bold" style={{ fontSize: "6px", color: "#6496dc" }}>Adresse</p>
+                        <p className="mt-1 leading-snug" style={{ fontSize: "8px", color: "#b8d0ff" }}>
+                          {senderStreet && <>{senderStreet}<br /></>}
+                          {senderCity}
+                        </p>
+                      </div>
+                    )}
+                    {senderEmail && (
+                      <div>
+                        <p className="uppercase tracking-widest font-bold" style={{ fontSize: "6px", color: "#6496dc" }}>E-Mail</p>
+                        <p className="mt-1 break-all" style={{ fontSize: "8px", color: "#b8d0ff" }}>{senderEmail}</p>
+                      </div>
+                    )}
+                    {senderPhone && (
+                      <div>
+                        <p className="uppercase tracking-widest font-bold" style={{ fontSize: "6px", color: "#6496dc" }}>Telefon</p>
+                        <p className="mt-1" style={{ fontSize: "8px", color: "#b8d0ff" }}>{senderPhone}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Дата внизу сайдбара */}
+                <div className="p-5 pt-0">
+                  <p style={{ fontSize: "7px", color: "#6496dc" }}>
+                    {new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })}
+                  </p>
+                </div>
+              </div>
+
+              {/* Основной контент */}
+              <div className="flex-1 p-8 flex flex-col" style={{ paddingLeft: "14mm", paddingRight: "14mm", paddingTop: "10mm" }}>
+                {/* Получатель */}
+                <div className="mb-7" style={{ fontSize: "9px", color: "#555", lineHeight: 1.6 }}>
+                  <p style={{ fontFamily: "Arial, sans-serif" }}>{job.arbeitgeber || "Unternehmen"}</p>
+                  {job.strasse && <p style={{ fontFamily: "Arial, sans-serif" }}>{job.strasse}</p>}
+                  {(job.plz || job.ort) && (
+                    <p style={{ fontFamily: "Arial, sans-serif" }}>{[job.plz, job.ort].filter(Boolean).join(" ")}</p>
                   )}
-                </button>
+                </div>
+
+                {/* Тема */}
+                <div className="mb-6">
+                  <p className="font-bold text-[#0f1740] leading-snug" style={{ fontSize: "14px", fontFamily: "Arial, sans-serif" }}>
+                    Bewerbung als {job.titel}
+                  </p>
+                  <div className="mt-1.5 h-0.5 w-20 bg-blue-500 rounded-full" />
+                </div>
+
+                {/* Тело письма — редактируемое */}
+                <div className="flex-1 relative">
+                  <textarea
+                    value={letter}
+                    onChange={(e) => setLetter(e.target.value)}
+                    className="absolute inset-0 w-full h-full resize-none border-none outline-none bg-transparent text-gray-800 leading-relaxed"
+                    style={{ fontSize: "10px", fontFamily: "Arial, sans-serif", lineHeight: "1.75" }}
+                    spellCheck
+                    lang="de"
+                  />
+                </div>
+
+                {/* Нижний колонтитул */}
+                <div className="mt-6 pt-3 border-t border-gray-200">
+                  <p style={{ fontSize: "7px", color: "#aaa", fontFamily: "Arial, sans-serif" }}>
+                    {job.titel} · {job.arbeitgeber}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -636,9 +674,7 @@ function SimilarJobs({ job, t }: { job: JobDetail; t: (k: string) => string }) {
         setJobs((d.jobs || []).filter((j) => j.refnr !== job.refnr).slice(0, 4));
       })
       .catch(() => {});
-    return () => {
-      alive = false;
-    };
+    return () => { alive = false; };
   }, [query, job.refnr]);
 
   if (jobs.length === 0) return null;
@@ -665,15 +701,7 @@ function SimilarJobs({ job, t }: { job: JobDetail; t: (k: string) => string }) {
   );
 }
 
-function Field({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
+function Field({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex gap-3">
       <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent-strong">
