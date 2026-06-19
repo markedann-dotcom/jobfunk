@@ -5,6 +5,7 @@ import { rateLimit, clientIp, rateLimitHeaders } from "@/lib/rate-limit";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
+  // Защита от DDoS и спама (rate limiting)
   const rl = rateLimit(`count:${clientIp(req)}`, 30, 60_000);
   if (!rl.ok) {
     return NextResponse.json(
@@ -14,14 +15,22 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // Request a single job; the upstream still returns the overall total.
+    // Вызываем нашу обновленную функцию, которая УЖЕ ищет по ДВУМ базам (BA + Arbeitnow)
     const result = await searchJobs({ size: 1 });
+    
     return NextResponse.json(
       { total: result.total },
-      { status: 200, headers: { "Cache-Control": "public, max-age=600" } }
+      { 
+        status: 200, 
+        headers: { 
+          // Кэшируем результат на 10 минут, чтобы шапка загружалась мгновенно
+          "Cache-Control": "public, s-maxage=600, stale-while-revalidate=300",
+          ...rateLimitHeaders(rl)
+        } 
+      }
     );
-  } catch {
-    // Do not leak upstream/internal error details to the client.
+  } catch (error) {
+    // В случае сбоя внешних API отдаем 0, чтобы не "ронять" шапку сайта
     return NextResponse.json({ total: 0 }, { status: 502 });
   }
 }
