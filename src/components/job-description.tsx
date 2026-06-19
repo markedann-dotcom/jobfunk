@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 
 /**
  * Renders a plain-text job description (from the Bundesagentur API) as
@@ -9,48 +9,79 @@ import React from "react";
  */
 export function JobDescription({ text }: { text: string }) {
   const blocks = parse(text);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      // Очищаем текст от HTML-тегов перед копированием, чтобы в буфере обмена был красивый plain-text
+      const cleanText = decodeHtml(text);
+      await navigator.clipboard.writeText(cleanText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy text", err);
+    }
+  };
 
   return (
-    <div className="mt-5 space-y-4">
-      {blocks.map((b, i) => {
-        const blockKey = `${i}-${b.type}`;
+    <div className="mt-4">
+      {/* Кнопка копирования */}
+      <div className="mb-5 flex justify-end">
+        <button
+          onClick={handleCopy}
+          className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[13px] font-bold transition-all active:scale-[0.97] ${
+            copied
+              ? "border-green-500/40 bg-green-50 text-green-700"
+              : "border-border bg-surface text-muted hover:border-accent hover:text-accent hover:shadow-sm"
+          }`}
+        >
+          {copied ? <CheckIcon /> : <CopyIcon />}
+          {copied ? "Kopiert!" : "Text kopieren"}
+        </button>
+      </div>
 
-        if (b.type === "heading") {
+      {/* Текст вакансии */}
+      <div className="space-y-4">
+        {blocks.map((b, i) => {
+          const blockKey = `${i}-${b.type}`;
+
+          if (b.type === "heading") {
+            return (
+              <h3
+                key={blockKey}
+                className="pt-1 text-[15px] font-extrabold uppercase tracking-wide text-accent-strong"
+              >
+                {b.text}
+              </h3>
+            );
+          }
+          if (b.type === "list") {
+            return (
+              <ul key={blockKey} className="space-y-2">
+                {b.items.map((it, j) => (
+                  <li key={`${blockKey}-item-${j}`} className="flex gap-2.5">
+                    <span
+                      aria-hidden
+                      className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-accent"
+                    />
+                    <span className="text-[15.5px] font-medium leading-relaxed text-ink/90">
+                      {inline(it)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            );
+          }
           return (
-            <h3
+            <p
               key={blockKey}
-              className="pt-1 text-[15px] font-extrabold uppercase tracking-wide text-accent-strong"
+              className="text-[15.5px] font-medium leading-[1.75] text-ink/90"
             >
-              {b.text}
-            </h3>
+              {inline(b.text)}
+            </p>
           );
-        }
-        if (b.type === "list") {
-          return (
-            <ul key={blockKey} className="space-y-2">
-              {b.items.map((it, j) => (
-                <li key={`${blockKey}-item-${j}`} className="flex gap-2.5">
-                  <span
-                    aria-hidden
-                    className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-accent"
-                  />
-                  <span className="text-[15.5px] font-medium leading-relaxed text-ink/90">
-                    {inline(it)}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          );
-        }
-        return (
-          <p
-            key={blockKey}
-            className="text-[15.5px] font-medium leading-[1.75] text-ink/90"
-          >
-            {inline(b.text)}
-          </p>
-        );
-      })}
+        })}
+      </div>
     </div>
   );
 }
@@ -204,4 +235,23 @@ function linkify(text: string): React.ReactNode {
       return <React.Fragment key={`text-${i}-${j}`}>{emailPart}</React.Fragment>;
     });
   });
+}
+
+// --- Icons ---
+
+function CopyIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
+  );
 }
