@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useT } from "@/lib/i18n";
 import type { Angebotsart } from "@/lib/api";
 import { searchCities, type CityEntry } from "@/lib/cities";
@@ -13,7 +13,7 @@ const TYPES: Angebotsart[] = ["", "1", "4", "34", "2"];
 const ARBEITSZEIT: { v: string; key: string }[] = [
   { v: "vz", key: "filt.az.vz" },
   { v: "tz", key: "filt.az.tz" },
-  { v: "ho", key: "filt.az.ho" },
+  { v: "ho", key: "filt.az.ho" }, // ho = Homeoffice
   { v: "snw", key: "filt.az.snw" },
   { v: "mj", key: "filt.az.mj" },
 ];
@@ -39,7 +39,11 @@ export function SearchForm({
   const router = useRouter();
   const [was, setWas] = useState(initial?.was ?? "");
   const [wo, setWo] = useState(initial?.wo ?? "");
-  const [umkreis, setUmkreis] = useState(initial?.umkreis ?? "25");
+  
+  // Если ищем Remote, радиус всегда 0
+  const isRemote = wo.toLowerCase() === "remote";
+  const [umkreis, setUmkreis] = useState(isRemote ? "0" : (initial?.umkreis ?? "25"));
+  
   const [angebotsart, setAngebotsart] = useState(initial?.angebotsart ?? "");
   const [arbeitszeit, setArbeitszeit] = useState<string[]>(
     initial?.arbeitszeit ? initial.arbeitszeit.split(";").filter(Boolean) : []
@@ -126,7 +130,23 @@ export function SearchForm({
 
   function onWoChange(v: string) {
     setWo(v);
-    const sug = searchCities(v);
+    const lowerV = v.toLowerCase();
+    
+    // Если введено remote, блокируем радиус на "0"
+    if (lowerV === "remote") {
+      setUmkreis("0");
+    }
+
+    let sug = searchCities(v);
+    
+    // Искусственно добавляем подсказку "Remote" (Удаленка)
+    if (lowerV.startsWith("rem") || lowerV.startsWith("уда") || lowerV.startsWith("hom")) {
+       sug = [
+         { plz: "Remote", name: "Homeoffice", region: "Weltweit / Bundesweit" },
+         ...sug
+       ];
+    }
+
     setSuggestions(sug);
     setShowSug(sug.length > 0);
     setActiveIdx(-1);
@@ -134,6 +154,9 @@ export function SearchForm({
 
   function pickCity(c: CityEntry) {
     setWo(c.plz);
+    if (c.plz.toLowerCase() === "remote") {
+      setUmkreis("0");
+    }
     setShowSug(false);
     setSuggestions([]);
   }
@@ -171,7 +194,10 @@ export function SearchForm({
     const qs = new URLSearchParams();
     if (was.trim()) qs.set("was", was.trim());
     if (wo.trim()) qs.set("wo", wo.trim());
-    qs.set("umkreis", umkreis);
+    
+    // Если ищем Remote, нет смысла слать радиус > 0
+    qs.set("umkreis", wo.toLowerCase() === "remote" ? "0" : umkreis);
+    
     if (angebotsart) qs.set("angebotsart", angebotsart);
     if (arbeitszeit.length) qs.set("arbeitszeit", arbeitszeit.join(";"));
     if (seit) qs.set("veroeffentlichtseit", seit);
@@ -181,7 +207,6 @@ export function SearchForm({
     router.push(`/suche?${qs.toString()}`);
   }
 
-  // Добавлен pr-10 для кнопок очистки
   const fieldBase =
     "h-13 w-full rounded-xl border border-border bg-surface px-4 text-[15px] text-ink outline-none transition placeholder:text-muted/70 focus:border-accent focus:ring-4 focus:ring-accent/15";
 
@@ -208,7 +233,6 @@ export function SearchForm({
               autoComplete="off"
               className={`${fieldBase} pl-11 pr-10`}
             />
-            {/* Кнопка очистки для поля "Was" */}
             {was && (
               <button
                 type="button"
@@ -276,7 +300,6 @@ export function SearchForm({
               autoComplete="off"
               className={`${fieldBase} pl-11 pr-10`}
             />
-            {/* Кнопка очистки для поля "Wo" */}
             {wo && (
               <button
                 type="button"
@@ -314,17 +337,24 @@ export function SearchForm({
                     >
                       <span className="flex items-center gap-2.5">
                         <span className="grid h-7 w-7 place-items-center rounded-md bg-accent-soft text-accent-strong">
-                          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.2">
-                            <path d="M12 21s-6.5-5.5-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 15.5 12 21 12 21z" />
-                            <circle cx="12" cy="10.5" r="2" />
-                          </svg>
+                          {c.plz === "Remote" ? (
+                             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.2">
+                               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                               <polyline points="9 22 9 12 15 12 15 22" />
+                             </svg>
+                          ) : (
+                            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.2">
+                              <path d="M12 21s-6.5-5.5-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 15.5 12 21 12 21z" />
+                              <circle cx="12" cy="10.5" r="2" />
+                            </svg>
+                          )}
                         </span>
                         <span>
                           <span className="font-semibold text-ink">{c.name}</span>
                           <span className="ml-1 text-xs text-muted">{c.region}</span>
                         </span>
                       </span>
-                      <span className="font-mono text-xs font-bold text-muted">{c.plz}</span>
+                      {c.plz !== "Remote" && <span className="font-mono text-xs font-bold text-muted">{c.plz}</span>}
                     </button>
                   </li>
                 ))}
@@ -342,7 +372,8 @@ export function SearchForm({
           <select
             value={umkreis}
             onChange={(e) => setUmkreis(e.target.value)}
-            className={`${fieldBase} cursor-pointer appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b6259%22 stroke-width=%222%22><path d=%22M6 9l6 6 6-6%22/></svg>')] bg-[length:18px] bg-[right_14px_center] bg-no-repeat pr-10`}
+            disabled={isRemote}
+            className={`${fieldBase} cursor-pointer appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b6259%22 stroke-width=%222%22><path d=%22M6 9l6 6 6-6%22/></svg>')] bg-[length:18px] bg-[right_14px_center] bg-no-repeat pr-10 disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             {RADII.map((r) => (
               <option key={r} value={r}>
@@ -377,7 +408,6 @@ export function SearchForm({
           >
             {busy ? t("form.searching") : t("form.submit")}
             
-            {/* Если занято — крутим спиннер, если нет — показываем стрелочку */}
             {busy ? (
               <SpinnerIcon className="h-4 w-4 animate-spin" />
             ) : (
@@ -528,7 +558,6 @@ function PinIcon() {
   );
 }
 
-// Новая иконка крестика
 function XIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -537,7 +566,6 @@ function XIcon() {
   );
 }
 
-// Новая иконка загрузки (spinner)
 function SpinnerIcon({ className = "" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none">
