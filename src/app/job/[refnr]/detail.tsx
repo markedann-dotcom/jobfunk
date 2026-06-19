@@ -107,10 +107,11 @@ function DetailBody({
       .filter(Boolean)
       .join(", ") || "—";
   const external = jobExternalLink(job);
-  
+
   const isArbeitnow = job.refnr.startsWith("arbeitnow-");
   const [letter, setLetter] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const generateLetter = async () => {
     setGenerating(true);
@@ -118,12 +119,12 @@ function DetailBody({
       const res = await fetch("/api/job/motivation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-            titel: job.titel, 
-            arbeitgeber: job.arbeitgeber, 
-            ort: job.ort, 
-            refnr: job.refnr, 
-            isMinijob: job.branche === "Minijob" 
+        body: JSON.stringify({
+          titel: job.titel,
+          arbeitgeber: job.arbeitgeber,
+          ort: job.ort,
+          refnr: job.refnr,
+          isMinijob: job.branche === "Minijob",
         }),
       });
       const data = await res.json();
@@ -132,6 +133,58 @@ function DetailBody({
       console.error("Failed to generate", err);
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const downloadLetterAsPdf = async () => {
+    if (!letter) return;
+    setDownloading(true);
+    try {
+      // jsPDF is loaded lazily so the main bundle doesn't carry the extra weight
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF({ unit: "mm", format: "a4" });
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const marginLeft = 20;
+      const marginRight = 20;
+      const marginTop = 20;
+      const marginBottom = 20;
+      const usableWidth = pageWidth - marginLeft - marginRight;
+      const lineHeight = 6; // mm, matches 11pt body text below
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+
+      // Split into paragraphs first so blank lines are preserved, then
+      // word-wrap each paragraph to the usable page width.
+      const paragraphs = letter.split(/\n/);
+      let cursorY = marginTop;
+
+      for (const paragraph of paragraphs) {
+        const lines = paragraph.length
+          ? doc.splitTextToSize(paragraph, usableWidth)
+          : [""];
+
+        for (const line of lines) {
+          if (cursorY + lineHeight > pageHeight - marginBottom) {
+            doc.addPage();
+            cursorY = marginTop;
+          }
+          doc.text(line, marginLeft, cursorY);
+          cursorY += lineHeight;
+        }
+      }
+
+      const safeCompany = (job.arbeitgeber || "Unternehmen").replace(
+        /[^\p{L}\p{N}_-]+/gu,
+        "_"
+      );
+      doc.save(`Motivationsschreiben_${safeCompany}.pdf`);
+    } catch (err) {
+      console.error("Failed to create PDF", err);
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -244,11 +297,11 @@ function DetailBody({
         ) : (
           <p className="mt-4 text-muted">{t("detail.nodesc")}</p>
         )}
-        
+
         <div className="mt-6 pt-6 border-t border-border/60 flex justify-center">
-          <button 
-            onClick={generateLetter} 
-            disabled={generating} 
+          <button
+            onClick={generateLetter}
+            disabled={generating}
             className="inline-flex h-11 items-center gap-2 rounded-xl bg-accent-soft px-5 text-sm font-bold text-accent-strong transition hover:bg-accent hover:text-white disabled:opacity-50"
           >
             {generating ? "Wird generiert..." : "Motivationsschreiben erstellen"}
@@ -263,7 +316,13 @@ function DetailBody({
             <div className="flex-1 overflow-y-auto bg-page p-4 rounded-xl font-mono text-xs whitespace-pre-wrap">{letter}</div>
             <div className="mt-4 flex justify-end gap-3">
               <button onClick={() => setLetter(null)} className="px-4 py-2 border rounded-lg">Schließen</button>
-              <button onClick={() => window.print()} className="px-4 py-2 bg-accent text-white font-bold rounded-lg">PDF Drucken</button>
+              <button
+                onClick={downloadLetterAsPdf}
+                disabled={downloading}
+                className="px-4 py-2 bg-accent text-white font-bold rounded-lg disabled:opacity-50"
+              >
+                {downloading ? "Wird erstellt..." : "Als PDF herunterladen"}
+              </button>
             </div>
           </div>
         </div>
