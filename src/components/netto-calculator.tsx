@@ -1,26 +1,36 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useId } from "react";
 import { useT } from "@/lib/i18n";
 import { calcNetto, eur2, type Steuerklasse } from "@/lib/netto";
 
 export function NettoCalculator({ compact = false }: { compact?: boolean }) {
   const { t } = useT();
+  
+  // Генерируем уникальные ID для связи label и input (Accessibility)
+  const bruttoId = useId();
+  const stklId = useId();
+
   const [brutto, setBrutto] = useState("3000");
   const [stkl, setStkl] = useState<Steuerklasse>(1);
   const [kirche, setKirche] = useState(false);
   const [kinderlos, setKinderlos] = useState(true);
 
-  const res = useMemo(
-    () =>
-      calcNetto({
-        brutto: Number(brutto.replace(/[^\d.]/g, "")) || 0,
-        steuerklasse: stkl,
-        kirchensteuer: kirche,
-        kinderlos,
-      }),
-    [brutto, stkl, kirche, kinderlos]
-  );
+  const res = useMemo(() => {
+    // Безопасный парсинг для немецкого формата (например, "3.000,50" -> 3000.50)
+    const normalizedBrutto = brutto
+      .replace(/\./g, "")       // удаляем точки (разделители тысяч)
+      .replace(",", ".");       // меняем запятую на точку (для JS)
+    
+    const parsedBrutto = Number(normalizedBrutto.replace(/[^\d.]/g, "")) || 0;
+
+    return calcNetto({
+      brutto: parsedBrutto,
+      steuerklasse: stkl,
+      kirchensteuer: kirche,
+      kinderlos,
+    });
+  }, [brutto, stkl, kirche, kinderlos]);
 
   const nettoPct = res.brutto > 0 ? Math.round((res.netto / res.brutto) * 100) : 0;
 
@@ -49,21 +59,32 @@ export function NettoCalculator({ compact = false }: { compact?: boolean }) {
       </div>
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        <label className="block">
-          <span className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-muted">{t("netto.brutto")}</span>
+        <div className="block">
+          <label htmlFor={bruttoId} className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-muted">
+            {t("netto.brutto")}
+          </label>
           <div className="relative">
             <input
-              inputMode="numeric"
+              id={bruttoId}
+              inputMode="decimal"
+              maxLength={10}
               value={brutto}
               onChange={(e) => setBrutto(e.target.value)}
               className={`${field} pr-12`}
+              placeholder="0,00"
             />
-            <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted">€</span>
+            <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-muted">
+              €
+            </span>
           </div>
-        </label>
-        <label className="block">
-          <span className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-muted">{t("netto.stkl")}</span>
+        </div>
+        
+        <div className="block">
+          <label htmlFor={stklId} className="mb-1.5 block text-xs font-bold uppercase tracking-wide text-muted">
+            {t("netto.stkl")}
+          </label>
           <select
+            id={stklId}
             value={stkl}
             onChange={(e) => setStkl(Number(e.target.value) as Steuerklasse)}
             className={`${field} cursor-pointer appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b6259%22 stroke-width=%222%22><path d=%22M6 9l6 6 6-6%22/></svg>')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat pr-10`}
@@ -74,7 +95,7 @@ export function NettoCalculator({ compact = false }: { compact?: boolean }) {
               </option>
             ))}
           </select>
-        </label>
+        </div>
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
@@ -98,7 +119,7 @@ export function NettoCalculator({ compact = false }: { compact?: boolean }) {
           </div>
         </div>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface">
-          <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${nettoPct}%` }} />
+          <div className="h-full rounded-full bg-accent transition-all duration-500 ease-out" style={{ width: `${nettoPct}%` }} />
         </div>
 
         <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
