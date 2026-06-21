@@ -3,22 +3,10 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { JobCard } from "./Card";
 import { JobTokFilters } from "./Filters";
-
-type Job = {
-  refnr: string;
-  titel: string;
-  arbeitgeber: string;
-  plz?: string;
-  ort?: string;
-  region?: string;
-  beruf: string;
-  eintrittsdatum: string;
-  aktuelleVeroeffentlichungsdatum: string;
-  stellenbeschreibung: string;
-};
+import type { JobListItem } from "@/lib/api";
 
 export function JobTokFeed() {
-  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jobs, setJobs] = useState<JobListItem[]>([]);
   const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [current, setCurrent] = useState(0);
@@ -38,7 +26,9 @@ export function JobTokFeed() {
         });
         const res = await fetch(`/api/jobs?${params}`);
         const data = await res.json();
-        const newJobs: Job[] = data.stellenangebote ?? [];
+        // На случай если /api/jobs отдаёт результат searchJobs() как {jobs: [...]},
+        // а не сырой ответ Bundesagentur ({stellenangebote: [...]})
+        const newJobs: JobListItem[] = data.jobs ?? data.stellenangebote ?? [];
         setJobs((prev) => (reset ? newJobs : [...prev, ...newJobs]));
       } finally {
         setLoading(false);
