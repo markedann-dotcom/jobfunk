@@ -43,7 +43,7 @@ export function JobCard({ job, active }: { job: JobListItem; active: boolean }) 
         const d = await res.json();
         const raw = d.beschreibung || d.description || "";
         if (alive && raw) {
-          setDesc(stripHtml(raw).slice(0, 900));
+          setDesc(stripHtml(raw).slice(0, 420));
           tried.current = true; // only lock in after a successful render
         }
       } catch {
@@ -64,8 +64,8 @@ export function JobCard({ job, active }: { job: JobListItem; active: boolean }) 
           "linear-gradient(to bottom, color-mix(in srgb, var(--color-accent) 8%, var(--color-page)) 0%, var(--color-page) 38%, var(--color-page) 100%)",
       }}
     >
-      {/* Content (scrollable inside the card) */}
-      <div className="flex-1 overflow-y-auto overscroll-contain">
+      {/* Content — NOT scrollable; the whole card is one snap slide */}
+      <div className="flex-1 overflow-hidden" style={{ touchAction: "pan-y" }}>
         <span
           className="mb-2 inline-block rounded-full px-3 py-1 text-xs font-bold"
           style={{
