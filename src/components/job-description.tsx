@@ -8,13 +8,19 @@ import React, { useState } from "react";
  * paragraphs and clickable links (including emails).
  */
 export function JobDescription({ text }: { text: string }) {
-  const blocks = parse(text);
   const [copied, setCopied] = useState(false);
+  const [showTranslation, setShowTranslation] = useState(false);
+  const [translatedText, setTranslatedText] = useState<string | null>(null);
+  const [translating, setTranslating] = useState(false);
+  const [translateError, setTranslateError] = useState(false);
+
+  const blocks = parse(showTranslation && translatedText ? translatedText : text);
 
   const handleCopy = async () => {
     try {
       // Очищаем текст от HTML-тегов перед копированием, чтобы в буфере обмена был красивый plain-text
-      const cleanText = decodeHtml(text);
+      const sourceText = showTranslation && translatedText ? translatedText : text;
+      const cleanText = decodeHtml(sourceText);
       await navigator.clipboard.writeText(cleanText);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -23,10 +29,56 @@ export function JobDescription({ text }: { text: string }) {
     }
   };
 
+  const handleToggleTranslation = async () => {
+    // Уже переведено — просто переключаем обратно на оригинал/перевод
+    if (translatedText) {
+      setShowTranslation((v) => !v);
+      return;
+    }
+
+    setTranslating(true);
+    setTranslateError(false);
+    try {
+      const res = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: decodeHtml(text), target: "uk" }),
+      });
+      if (!res.ok) throw new Error("Translation request failed");
+      const data = await res.json();
+      setTranslatedText(data.translated);
+      setShowTranslation(true);
+    } catch (err) {
+      console.error("Failed to translate text", err);
+      setTranslateError(true);
+      setTimeout(() => setTranslateError(false), 2500);
+    } finally {
+      setTranslating(false);
+    }
+  };
+
   return (
     <div className="mt-4">
-      {/* Кнопка копирования */}
-      <div className="mb-6 flex justify-end">
+      {/* Кнопки копирования и перевода */}
+      <div className="mb-6 flex flex-wrap items-center justify-end gap-2">
+        {translateError && (
+          <span className="text-[12px] font-semibold text-red-600">
+            Переклад не вдався, спробуйте ще раз
+          </span>
+        )}
+        <button
+          onClick={handleToggleTranslation}
+          disabled={translating}
+          aria-pressed={showTranslation}
+          className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[13px] font-bold transition-all duration-200 active:scale-[0.97] disabled:cursor-wait disabled:opacity-70 ${
+            showTranslation
+              ? "border-accent bg-accent text-white shadow-sm"
+              : "border-border bg-surface text-muted hover:border-accent hover:text-accent hover:shadow-sm"
+          }`}
+        >
+          {translating ? <SpinnerIcon /> : <TranslateIcon />}
+          {translating ? "Переклад…" : showTranslation ? "Оригінал" : "Перекласти"}
+        </button>
         <button
           onClick={handleCopy}
           className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[13px] font-bold transition-all duration-200 active:scale-[0.97] ${
@@ -245,6 +297,23 @@ function CopyIcon() {
     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
+function TranslateIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 5h7M7 3v2M4 19l5-12 5 12M5.5 15h7" />
+      <path d="M13 9h7l-3.5 5.5M16.5 14.5 20 19" />
+    </svg>
+  );
+}
+
+function SpinnerIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+      <path d="M21 12a9 9 0 1 1-9-9" />
     </svg>
   );
 }
