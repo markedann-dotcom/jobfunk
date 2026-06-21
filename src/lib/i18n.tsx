@@ -136,9 +136,9 @@ const de: Dict = {
 
   "pwa.title": "JobFunke installieren",
   "pwa.sub": "Füge die App zum Startbildschirm hinzu — schneller Zugriff, auch offline.",
-  "pwa.ios": "Tippe in Safari auf „Teilen" (Symbol unten) und dann „Zum Home-Bildschirm", um JobFunke zu installieren.",
-  "pwa.android": "Öffne das Browser-Menü (⋮ oben rechts) und tippe auf „App installieren" bzw. „Zum Startbildschirm hinzufügen".",
-  "pwa.desktop": "Klicke in der Adressleiste auf das Installations-Symbol (⊕) oder öffne das Browser-Menü und wähle „JobFunke installieren".",
+  "pwa.ios": "Tippe in Safari auf „Teilen“ (Symbol unten) und dann „Zum Home-Bildschirm“, um JobFunke zu installieren.",
+  "pwa.android": "Öffne das Browser-Menü (⋮ oben rechts) und tippe auf „App installieren“ bzw. „Zum Startbildschirm hinzufügen“.",
+  "pwa.desktop": "Klicke in der Adressleiste auf das Installations-Symbol (⊕) oder öffne das Browser-Menü und wähle „JobFunke installieren“.",
   "pwa.howto": "So installierst du die App:",
   "pwa.install": "Installieren",
   "pwa.later": "Später",
@@ -258,7 +258,7 @@ const de: Dict = {
   "faq.q3.q": "Muss ich mich registrieren?",
   "faq.q3.a": "Nein. Merkliste, gespeicherte Suchen und Verlauf werden nur lokal in deinem Browser gespeichert — kein Konto nötig.",
   "faq.q4.q": "Wie bewerbe ich mich auf eine Stelle?",
-  "faq.q4.a": "Auf der Detailseite findest du den Link „Zur Stelle", der dich zur Originalanzeige bzw. zum Arbeitgeber führt. Die Bewerbung erfolgt dort direkt.",
+  "faq.q4.a": "Auf der Detailseite findest du den Link „Zur Stelle“, der dich zur Originalanzeige bzw. zum Arbeitgeber führt. Die Bewerbung erfolgt dort direkt.",
   "faq.q5.q": "Stimmen die Gehaltsangaben?",
   "faq.q5.a": "Die Datenquelle liefert in der Regel keine Gehälter. Unser Brutto-Netto-Rechner ist eine unverbindliche Schätzung und ersetzt keine Steuerberatung.",
 
