@@ -173,17 +173,15 @@ export function SiteHeader() {
                 href={href}
                 aria-current={active ? "page" : undefined}
                 className={[
-                  "relative rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200",
+                  "relative flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-all duration-200",
                   active
                     ? "bg-accent text-white shadow-[0_2px_8px_-2px_var(--accent)]"
-                    : isAccent
-                    ? "border border-orange-200/80 bg-orange-50/80 text-orange-600 hover:bg-orange-100 dark:border-orange-400/20 dark:bg-orange-500/10 dark:text-orange-400"
                     : "text-muted hover:bg-surface hover:text-ink",
                 ].join(" ")}
               >
                 {t(labelKey)}
                 {isAccent && !active && (
-                  <span className="ml-1 rounded-full bg-orange-500 px-1.5 py-px text-[9px] font-bold text-white align-middle">NEW</span>
+                  <span className="rounded-full bg-orange-500/90 px-1.5 py-px text-[9px] font-bold text-white leading-tight">NEW</span>
                 )}
               </Link>
             );

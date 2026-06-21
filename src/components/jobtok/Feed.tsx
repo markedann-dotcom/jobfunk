@@ -130,24 +130,28 @@ export function JobTokFeed() {
     }
   }, [current, jobs.length, loading, done, page, fetchJobs]);
 
-  // Track active card via scroll snap
+  // Track active card via IntersectionObserver — reliable across all browsers/devices
+  const slideRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    let raf = 0;
-    const handler = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const idx = Math.round(el.scrollTop / el.clientHeight);
-        setCurrent((c) => (c === idx ? c : idx));
-      });
-    };
-    el.addEventListener("scroll", handler, { passive: true });
-    return () => {
-      el.removeEventListener("scroll", handler);
-      cancelAnimationFrame(raf);
-    };
-  }, []);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+            const idx = Number((entry.target as HTMLElement).dataset.idx);
+            if (!isNaN(idx)) setCurrent(idx);
+          }
+        }
+      },
+      { root: el, threshold: 0.5 }
+    );
+    // Observe all currently rendered slides
+    slideRefs.current.forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  // Re-run when jobs list changes so new slides get observed
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [jobs.length]);
 
   const landEntry = BUNDESLAENDER.find((b) => b.code === land);
   const landLabel = landEntry ? landEntry[lang === "uk" ? "uk" : "de"] : (land ?? "");
@@ -285,7 +289,15 @@ export function JobTokFeed() {
           className="jobtok-scroll jobtok-card-pane"
         >
           {jobs.map((job, i) => (
-            <div key={job.refnr} className="jobtok-slide w-full">
+            <div
+              key={job.refnr}
+              className="jobtok-slide w-full"
+              data-idx={i}
+              ref={(node) => {
+                if (node) slideRefs.current.set(i, node);
+                else slideRefs.current.delete(i);
+              }}
+            >
               <JobCard job={job} active={i === current} index={i} />
             </div>
           ))}

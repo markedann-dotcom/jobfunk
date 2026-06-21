@@ -20,12 +20,12 @@ export function JobTokPromo() {
         }}
         aria-hidden
       />
-      {/* Overlay gradient for readability */}
+      {/* Overlay — light left fade so text reads cleanly, dark mode gets more opacity */}
       <div
         className="absolute inset-0 z-0"
         style={{
           background:
-            "linear-gradient(100deg, color-mix(in srgb, var(--color-page) 92%, transparent) 0%, color-mix(in srgb, var(--color-page) 70%, transparent) 45%, color-mix(in srgb, var(--color-page) 10%, transparent) 100%)",
+            "linear-gradient(105deg, color-mix(in srgb, var(--color-page) 88%, transparent) 0%, color-mix(in srgb, var(--color-page) 55%, transparent) 50%, transparent 100%)",
         }}
         aria-hidden
       />
