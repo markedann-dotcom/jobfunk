@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation"; // Используем роутер Next.js вместо window.location
 import { JobCard } from "./Card";
 import { LandSelect, BUNDESLAENDER } from "./LandSelect";
 import type { JobListItem } from "@/lib/api";
@@ -18,6 +19,7 @@ function loadLand(): string | null {
 
 export function JobTokFeed() {
   const { lang } = useT();
+  const router = useRouter();
   const [land, setLand] = useState<string | null>(null);
   const [showPicker, setShowPicker] = useState(false);
   const [jobs, setJobs] = useState<JobListItem[]>([]);
@@ -27,6 +29,9 @@ export function JobTokFeed() {
   const [current, setCurrent] = useState(0);
   const [totalJobs, setTotalJobs] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Храним стейт загрузки в рефе для мгновенной блокировки гонок условий
+  const isFetchingRef = useRef(false);
   const lastFetched = useRef<string>("");
 
   // On mount — restore land from localStorage, else show picker
@@ -48,8 +53,8 @@ export function JobTokFeed() {
 
   // Keyboard navigation: Arrow Up/Down or J/K
   useEffect(() => {
+    if (showPicker) return;
     const handler = (e: KeyboardEvent) => {
-      if (showPicker) return;
       const el = containerRef.current;
       if (!el) return;
       if (e.key === "ArrowDown" || e.key === "j") {
@@ -61,12 +66,12 @@ export function JobTokFeed() {
         const prev = Math.max(current - 1, 0);
         el.scrollTo({ top: prev * el.clientHeight, behavior: "smooth" });
       } else if (e.key === "Escape") {
-        window.location.href = "/";
+        router.push("/");
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [current, jobs.length, showPicker]);
+  }, [current, jobs.length, showPicker, router]);
 
   const handleSelectLand = useCallback((code: string) => {
     saveLand(code);
@@ -79,13 +84,16 @@ export function JobTokFeed() {
 
   const fetchJobs = useCallback(
     async (pageNum: number, reset = false) => {
-      if (!land) return;
+      if (!land || isFetchingRef.current) return;
+      
       const wo = landToWo(land);
       const sig = `${wo}|${pageNum}`;
       if (lastFetched.current === sig && !reset) return;
+      
       lastFetched.current = sig;
-
+      isFetchingRef.current = true;
       setLoading(true);
+
       try {
         const params = new URLSearchParams({ size: "50", page: String(pageNum) });
         if (wo) params.set("wo", wo);
@@ -96,8 +104,6 @@ export function JobTokFeed() {
         const newJobs: JobListItem[] = data.jobs ?? [];
         const apiTotal: number = data.total ?? 0;
 
-        // ФИКС: Обновляем общий счётчик всегда, когда приходят валидные данные, 
-        // чтобы иметь актуальный totalJobs во время инфинит-скролла.
         if (apiTotal > 0) {
           setTotalJobs(apiTotal);
         }
@@ -106,17 +112,24 @@ export function JobTokFeed() {
           const base = reset ? [] : prev;
           const seen = new Set(base.map((j) => j.refnr));
           const merged = [...base, ...newJobs.filter((j) => !seen.has(j.refnr))];
-          // Done if API says no more pages or we got nothing new
           const afterTotal = merged.length;
+          
           if (newJobs.length === 0 || (apiTotal > 0 && afterTotal >= apiTotal)) {
             setDone(true);
           }
           return merged;
         });
-      } catch {
+
+        // Увеличиваем страницу только при успешном фетче
+        setPage(pageNum);
+      } catch (err) {
+        console.error("Failed to load jobs:", err);
+        // Сбрасываем сигнатуру, чтобы юзер мог повторно триггернуть загрузку при скролле
+        lastFetched.current = ""; 
         if (reset) setJobs([]);
       } finally {
         setLoading(false);
+        isFetchingRef.current = false;
       }
     },
     [land]
@@ -134,35 +147,37 @@ export function JobTokFeed() {
     containerRef.current?.scrollTo({ top: 0 });
   }, [land, fetchJobs]);
 
-  // Infinite load: trigger 8 cards before end
-  useEffect(() => {
-    if (loading || done) return;
-    if (jobs.length > 0 && current >= jobs.length - 8) {
-      const next = page + 1;
-      setPage(next);
-      fetchJobs(next);
-    }
-  }, [current, jobs.length, loading, done, page, fetchJobs]);
-
-  // Track active card via IntersectionObserver
-  const slideRefs = useRef<Map<number, HTMLDivElement>>(new Map());
-  useEffect(() => {
+  // Высокопроизводительный пассивный скролл-листенер вместо IntersectionObserver
+  const handleScroll = useCallback(() => {
     const el = containerRef.current;
     if (!el) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
-            const idx = Number((entry.target as HTMLElement).dataset.idx);
-            if (!isNaN(idx)) setCurrent(idx);
-          }
-        }
-      },
-      { root: el, threshold: 0.5 }
-    );
-    slideRefs.current.forEach((node) => observer.observe(node));
-    return () => observer.disconnect();
-  }, [jobs.length]);
+
+    // Вычисляем текущий индекс на основе физического скролла контейнера
+    const index = Math.round(el.scrollTop / el.clientHeight);
+    if (index !== current && index >= 0 && index < jobs.length) {
+      setCurrent(index);
+    }
+
+    // Фикс гонки условий: триггерим подгрузку за 8 карточек до конца, 
+    // строго проверяя атомарный реф `isFetchingRef`
+    if (!isFetchingRef.current && !done && jobs.length > 0 && index >= jobs.length - 8) {
+      fetchJobs(page + 1);
+    }
+  }, [current, jobs.length, done, page, fetchJobs]);
+
+  // Фикс изменения размеров экрана (Mobile Resize / Orientation Change)
+  useEffect(() => {
+    const handleResize = () => {
+      const el = containerRef.current;
+      if (!el || jobs.length === 0) return;
+      // Принудительно выравниваем контейнер на текущую карточку при ресайзе, 
+      // чтобы скролл не съезжал "наполовину"
+      el.scrollTop = current * el.clientHeight;
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [current, jobs.length]);
 
   const landEntry = BUNDESLAENDER.find((b) => b.code === land);
   const landLabel = landEntry ? landEntry[lang === "uk" ? "uk" : "de"] : (land ?? "");
@@ -259,7 +274,6 @@ export function JobTokFeed() {
               color: "color-mix(in srgb, var(--color-ink) 50%, transparent)",
             }}
           >
-            {/* ФИКС ТУТ: Выводим totalJobs вместо jobs.length */}
             {current + 1} / {totalJobs || jobs.length}
           </span>
         )}
@@ -287,19 +301,18 @@ export function JobTokFeed() {
           </div>
         </div>
 
+        {/* Оптимизация: Скролл слушается напрямую через нативный пассивный onScroll */}
         <div
           ref={containerRef}
+          onScroll={handleScroll}
           className="jobtok-scroll jobtok-card-pane"
+          style={{ scrollBehavior: "smooth" }}
         >
           {jobs.map((job, i) => (
             <div
               key={job.refnr}
               className="jobtok-slide w-full"
               data-idx={i}
-              ref={(node) => {
-                if (node) slideRefs.current.set(i, node);
-                else slideRefs.current.delete(i);
-              }}
             >
               <JobCard job={job} active={i === current} index={i} />
             </div>
@@ -346,6 +359,7 @@ export function JobTokFeed() {
           )}
         </div>
 
+        {/* Right sidebar on desktop: progress dots */}
         <div className="jobtok-sidebar-right hidden lg:flex lg:w-[calc((100%-520px)/2)] items-center justify-start pl-6">
           <div className="flex flex-col gap-1.5">
             {jobs.slice(Math.max(0, current - 4), current + 8).map((job, relIdx) => {
