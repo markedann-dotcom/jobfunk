@@ -7,7 +7,7 @@ import { useFavorites } from "@/lib/favorites";
 
 function stripHtml(s: string): string {
   return s
-    .replace(/<br\s*\/?>(?=)/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n") // Очистили пустой lookahead (?=), теперь парсит любые вариации <br>
     .replace(/<\/p>/gi, "\n\n")
     .replace(/<[^>]+>/g, "")
     .replace(/&nbsp;/g, " ")
@@ -47,7 +47,9 @@ export function JobCard({
   const fav = isFav(job.refnr);
   const [desc, setDesc] = useState<string | null>(null);
   const [expanded, setExpanded] = useState(false);
+  const [hasError, setHasError] = useState(false); // Стейт для обработки битых запросов
   const tried = useRef(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const t = tone(job.angebotsart);
 
   const ort = job.ort || job.region || "";
@@ -55,24 +57,49 @@ export function JobCard({
   const location = [plz, ort].filter(Boolean).join(" ") || "Deutschland";
   const applyUrl = jobExternalLink(job);
 
+  // Фикс сброса внутреннего скролла: принудительно возвращаем наверх, 
+  // когда пользователь сворачивает длинное описание
+  useEffect(() => {
+    if (!expanded && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [expanded]);
+
   // Lazily load description when card becomes active
   useEffect(() => {
     if (!active || tried.current) return;
+    
+    // Фикс гонки условий: лочим реф сразу на старте эффекта, 
+    // чтобы при быстром скролле туда-сюда запросы не дублировались
+    tried.current = true; 
     let alive = true;
+
     (async () => {
       try {
+        setHasError(false);
         const res = await fetch(`/api/job/${encodeURIComponent(job.refnr)}`);
-        if (!res.ok) return;
+        if (!res.ok) throw new Error("API error");
+        
         const d = await res.json();
         const raw = d.beschreibung || d.description || "";
-        if (alive && raw) {
-          setDesc(stripHtml(raw));
-          tried.current = true;
+        
+        if (alive) {
+          if (raw) {
+            setDesc(stripHtml(raw));
+          } else {
+            setDesc(job.titel); // Фоллбэк на тайтл, если тело пустое
+          }
         }
-      } catch { /* retry later */ }
+      } catch (err) {
+        if (alive) {
+          setHasError(true);
+          tried.current = false; // Позволяем перевызвать запрос, если это был сбой сети
+        }
+      }
     })();
+
     return () => { alive = false; };
-  }, [active, job.refnr]);
+  }, [active, job.refnr, job.titel]);
 
   const displayDesc = desc
     ? (expanded ? desc : desc.slice(0, 420))
@@ -101,13 +128,12 @@ export function JobCard({
 
       {/* ---- CONTENT SCROLL AREA ---- */}
       <div
+        ref={scrollContainerRef}
         className="jobtok-card-inner relative z-10 flex flex-1 flex-col px-5 sm:px-8 lg:px-10"
         style={{
           overflow: expanded ? "auto" : "hidden",
           paddingTop: "calc(env(safe-area-inset-top) + 4.25rem)",
-          // Увеличили нижний отступ с 5.75rem до 9rem, чтобы контент гарантированно 
-          // не перекрывался снизу PWA-баннером при скролле.
-          paddingBottom: "calc(env(safe-area-inset-bottom) + 9rem)",
+          paddingBottom: "calc(env(safe-area-inset-bottom) + 9rem)", // Фикс: увеличенный отступ под PWA-баннер
         }}
       >
         {/* Type pill + Beruf */}
@@ -216,6 +242,12 @@ export function JobCard({
                 </button>
               )}
             </>
+          ) : hasError ? (
+            // Фикс обработки ошибок: выводим понятную заглушку вместо бесконечного скелетона
+            <div className="flex flex-col gap-2 py-4 opacity-60 text-sm">
+              <p className="font-bold">Beschreibung konnte nicht geladen werden.</p>
+              <p>Bitte nutzen Sie den Button unten, um alle Details zu sehen.</p>
+            </div>
           ) : active ? (
             // Skeleton lines
             <div className="flex flex-col gap-3 pt-1">
@@ -263,7 +295,7 @@ export function JobCard({
       >
         <div className="flex items-center gap-2.5">
           {/* Primary: Mehr erfahren */}
-          {/* ФИКС ТУТ: оборачиваем job.refnr в encodeURIComponent, чтобы слэши в ID не ломали роутер Next.js при переходе на деталь */}
+          {/* Фикс: Оборачиваем job.refnr в encodeURIComponent, закрывая баг слэшей и прямой навигации */}
           <Link
             href={`/job/${encodeURIComponent(job.refnr)}`}
             className="flex flex-1 items-center justify-center gap-2 rounded-2xl py-3.5 text-[15px] font-bold text-white shadow-lg transition active:scale-[0.98]"
