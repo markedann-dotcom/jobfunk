@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation"; // Используем роутер Next.js вместо window.location
+import { useRouter } from "next/navigation";
 import { JobCard } from "./Card";
 import { LandSelect, BUNDESLAENDER } from "./LandSelect";
 import type { JobListItem } from "@/lib/api";
@@ -28,11 +28,11 @@ export function JobTokFeed() {
   const [done, setDone] = useState(false);
   const [current, setCurrent] = useState(0);
   const [totalJobs, setTotalJobs] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
   
-  // Храним стейт загрузки в рефе для мгновенной блокировки гонок условий
+  const containerRef = useRef<HTMLDivElement>(null);
   const isFetchingRef = useRef(false);
   const lastFetched = useRef<string>("");
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null); // Реф для дебаунса скролла
 
   // On mount — restore land from localStorage, else show picker
   useEffect(() => {
@@ -120,11 +120,9 @@ export function JobTokFeed() {
           return merged;
         });
 
-        // Увеличиваем страницу только при успешном фетче
         setPage(pageNum);
       } catch (err) {
         console.error("Failed to load jobs:", err);
-        // Сбрасываем сигнатуру, чтобы юзер мог повторно триггернуть загрузку при скролле
         lastFetched.current = ""; 
         if (reset) setJobs([]);
       } finally {
@@ -147,31 +145,44 @@ export function JobTokFeed() {
     containerRef.current?.scrollTo({ top: 0 });
   }, [land, fetchJobs]);
 
-  // Высокопроизводительный пассивный скролл-листенер вместо IntersectionObserver
+  // Фикс прерывистого скролла: оптимизированный листенер через дебаунс
   const handleScroll = useCallback(() => {
     const el = containerRef.current;
     if (!el) return;
 
-    // Вычисляем текущий индекс на основе физического скролла контейнера
-    const index = Math.round(el.scrollTop / el.clientHeight);
-    if (index !== current && index >= 0 && index < jobs.length) {
-      setCurrent(index);
-    }
-
-    // Фикс гонки условий: триггерим подгрузку за 8 карточек до конца, 
-    // строго проверяя атомарный реф `isFetchingRef`
-    if (!isFetchingRef.current && !done && jobs.length > 0 && index >= jobs.length - 8) {
+    // 1. Проверку на подгрузку страниц делаем мгновенно, не дожидаясь остановки,
+    // чтобы данные успевали докачиваться в фоне «до» того, как юзер доскроллит до тупика.
+    const approximateIndex = Math.round(el.scrollTop / el.clientHeight);
+    if (!isFetchingRef.current && !done && jobs.length > 0 && approximateIndex >= jobs.length - 8) {
       fetchJobs(page + 1);
     }
+
+    // 2. ФИКС ЛАГОВ: Замораживаем обновление стейта [current] во время движения пальца.
+    // Смена индекса и ререндер счетчика сработают через 40мс ПОСЛЕ того, как скролл зафиксируется.
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    
+    scrollTimeoutRef.current = setTimeout(() => {
+      const finalIndex = Math.round(el.scrollTop / el.clientHeight);
+      if (finalIndex !== current && finalIndex >= 0 && finalIndex < jobs.length) {
+        setCurrent(finalIndex);
+      }
+    }, 40); 
   }, [current, jobs.length, done, page, fetchJobs]);
 
-  // Фикс изменения размеров экрана (Mobile Resize / Orientation Change)
+  // Чистим таймауты при демонтаже компонента
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    };
+  }, []);
+
+  // Фикс Mobile Resize / Orientation Change
   useEffect(() => {
     const handleResize = () => {
       const el = containerRef.current;
       if (!el || jobs.length === 0) return;
-      // Принудительно выравниваем контейнер на текущую карточку при ресайзе, 
-      // чтобы скролл не съезжал "наполовину"
       el.scrollTop = current * el.clientHeight;
     };
 
@@ -301,12 +312,13 @@ export function JobTokFeed() {
           </div>
         </div>
 
-        {/* Оптимизация: Скролл слушается напрямую через нативный пассивный onScroll */}
+        {/* ФИКС: убрали scrollBehavior: "smooth" из инлайна, чтобы нативный 
+          scroll-snap в CSS не конфликтовал с плавностью и не вызывал микрорывки пальца.
+        */}
         <div
           ref={containerRef}
           onScroll={handleScroll}
           className="jobtok-scroll jobtok-card-pane"
-          style={{ scrollBehavior: "smooth" }}
         >
           {jobs.map((job, i) => (
             <div
@@ -359,7 +371,6 @@ export function JobTokFeed() {
           )}
         </div>
 
-        {/* Right sidebar on desktop: progress dots */}
         <div className="jobtok-sidebar-right hidden lg:flex lg:w-[calc((100%-520px)/2)] items-center justify-start pl-6">
           <div className="flex flex-col gap-1.5">
             {jobs.slice(Math.max(0, current - 4), current + 8).map((job, relIdx) => {
