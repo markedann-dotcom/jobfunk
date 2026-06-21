@@ -18,6 +18,13 @@ export function JobTokFeed() {
   // guard so the same page is never fetched twice (StrictMode / rapid scroll)
   const lastFetched = useRef<string>("");
 
+  // Lock the page so only the feed scrolls (fixes mobile snap-scroll).
+  useEffect(() => {
+    const html = document.documentElement;
+    html.classList.add("jobtok-open");
+    return () => html.classList.remove("jobtok-open");
+  }, []);
+
   const fetchJobs = useCallback(
     async (pageNum: number, reset = false) => {
       const sig = `${was}|${wo}|${pageNum}`;
@@ -81,22 +88,42 @@ export function JobTokFeed() {
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
+    let raf = 0;
     const handler = () => {
-      const idx = Math.round(el.scrollTop / el.clientHeight);
-      setCurrent((c) => (c === idx ? c : idx));
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const idx = Math.round(el.scrollTop / el.clientHeight);
+        setCurrent((c) => (c === idx ? c : idx));
+      });
     };
     el.addEventListener("scroll", handler, { passive: true });
-    return () => el.removeEventListener("scroll", handler);
+    return () => {
+      el.removeEventListener("scroll", handler);
+      cancelAnimationFrame(raf);
+    };
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col bg-black">
+    <div
+      className="fixed inset-0 z-[100] flex flex-col"
+      style={{ background: "var(--color-page)" }}
+    >
       {/* Top bar: close + filters */}
-      <div className="absolute inset-x-0 top-0 z-20 flex items-center gap-2 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] bg-gradient-to-b from-black/85 via-black/50 to-transparent">
+      <div
+        className="absolute inset-x-0 top-0 z-20 flex items-center gap-2 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]"
+        style={{
+          background:
+            "linear-gradient(to bottom, color-mix(in srgb, var(--color-page) 92%, transparent) 0%, color-mix(in srgb, var(--color-page) 55%, transparent) 55%, transparent 100%)",
+        }}
+      >
         <Link
           href="/"
           aria-label="Schließen"
-          className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/10 text-white backdrop-blur-sm transition active:scale-95"
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-full backdrop-blur-sm transition active:scale-95"
+          style={{
+            background: "color-mix(in srgb, var(--color-ink) 10%, transparent)",
+            color: "var(--color-ink)",
+          }}
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2">
             <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
@@ -106,36 +133,28 @@ export function JobTokFeed() {
       </div>
 
       {/* Feed */}
-      <div
-        ref={containerRef}
-        className="h-full overflow-y-scroll overscroll-contain"
-        style={{ scrollSnapType: "y mandatory", scrollbarWidth: "none" }}
-      >
+      <div ref={containerRef} className="jobtok-scroll">
         {jobs.map((job, i) => (
-          <div
-            key={job.refnr}
-            className="w-full"
-            style={{ scrollSnapAlign: "start", height: "100dvh" }}
-          >
+          <div key={job.refnr} className="jobtok-slide w-full">
             <JobCard job={job} active={i === current} />
           </div>
         ))}
 
-        {/* Empty / loading states get their own full screen so snap stays clean */}
+        {/* Empty / loading states get their own full slide so snap stays clean */}
         {jobs.length === 0 && (
           <div
-            className="flex w-full flex-col items-center justify-center gap-3 px-8 text-center"
-            style={{ height: "100dvh" }}
+            className="jobtok-slide flex w-full flex-col items-center justify-center gap-3 px-8 text-center"
+            style={{ color: "var(--color-ink)" }}
           >
             {loading ? (
               <>
-                <span className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-orange-500" />
-                <p className="text-sm text-white/50">Lade Jobs…</p>
+                <span className="h-8 w-8 animate-spin rounded-full border-2 border-current/20 border-t-orange-500" />
+                <p className="text-sm opacity-50">Lade Jobs…</p>
               </>
             ) : (
               <>
-                <p className="text-lg font-bold text-white">Keine Jobs gefunden</p>
-                <p className="text-sm text-white/50">
+                <p className="text-lg font-bold">Keine Jobs gefunden</p>
+                <p className="text-sm opacity-50">
                   Passe deine Suche an oder versuche es später erneut.
                 </p>
               </>
@@ -144,8 +163,8 @@ export function JobTokFeed() {
         )}
 
         {jobs.length > 0 && loading && (
-          <div className="flex h-20 items-center justify-center text-white/40">
-            <span className="h-6 w-6 animate-spin rounded-full border-2 border-white/20 border-t-orange-500" />
+          <div className="flex h-20 items-center justify-center opacity-40">
+            <span className="h-6 w-6 animate-spin rounded-full border-2 border-current/20 border-t-orange-500" />
           </div>
         )}
       </div>

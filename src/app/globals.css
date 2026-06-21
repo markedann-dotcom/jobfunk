@@ -377,3 +377,40 @@ html.dark .legal-content {
     padding-bottom: 0;
   }
 }
+
+/* ── JobTok fullscreen mode ──────────────────────────────────
+   When the JobTok feed is open we lock the page so only the
+   inner feed scrolls (fixes mobile snap-scroll not working). */
+html.jobtok-open,
+html.jobtok-open body {
+  overflow: hidden !important;
+  height: 100%;
+  scroll-behavior: auto;
+  overscroll-behavior: none;
+}
+html.jobtok-open .mobile-nav-pad {
+  padding-bottom: 0 !important;
+}
+
+/* The scroll container itself — proper TikTok-style snap */
+.jobtok-scroll {
+  height: 100dvh;
+  height: 100svh;
+  overflow-y: scroll;
+  overscroll-behavior-y: contain;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  scrollbar-width: none;
+}
+.jobtok-scroll::-webkit-scrollbar { display: none; }
+.jobtok-input::placeholder {
+  color: color-mix(in srgb, var(--color-ink) 40%, transparent);
+}
+.jobtok-slide {
+  height: 100dvh;
+  height: 100svh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}

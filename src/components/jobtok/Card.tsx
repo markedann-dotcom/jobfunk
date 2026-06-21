@@ -56,36 +56,56 @@ export function JobCard({ job, active }: { job: JobListItem; active: boolean }) 
   }, [active, job.refnr]);
 
   return (
-    <div className="relative flex h-full flex-col bg-gradient-to-b from-zinc-900 via-zinc-950 to-black px-5 pb-[calc(env(safe-area-inset-bottom)+5.5rem)] pt-[calc(env(safe-area-inset-top)+4.5rem)]">
+    <div
+      className="relative flex h-full flex-col px-5 pb-[calc(env(safe-area-inset-bottom)+5.5rem)] pt-[calc(env(safe-area-inset-top)+4.5rem)]"
+      style={{
+        color: "var(--color-ink)",
+        background:
+          "linear-gradient(to bottom, color-mix(in srgb, var(--color-accent) 8%, var(--color-page)) 0%, var(--color-page) 38%, var(--color-page) 100%)",
+      }}
+    >
       {/* Content (scrollable inside the card) */}
       <div className="flex-1 overflow-y-auto overscroll-contain">
-        <span className="mb-2 inline-block rounded-full bg-orange-500/20 px-3 py-1 text-xs font-bold text-orange-400">
+        <span
+          className="mb-2 inline-block rounded-full px-3 py-1 text-xs font-bold"
+          style={{
+            background: "color-mix(in srgb, var(--color-accent) 18%, transparent)",
+            color: "var(--color-accent-strong)",
+          }}
+        >
           {job.beruf ?? "Job"}
         </span>
-        <h2 className="text-[26px] font-extrabold leading-tight text-white">
-          {job.titel}
-        </h2>
+        <h2 className="text-[26px] font-extrabold leading-tight">{job.titel}</h2>
         {job.arbeitgeber && (
-          <p className="mt-1.5 flex items-center gap-1.5 text-base font-semibold text-white/70">
-            <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-white/40" fill="none" stroke="currentColor" strokeWidth="2">
+          <p
+            className="mt-1.5 flex items-center gap-1.5 text-base font-semibold"
+            style={{ color: "color-mix(in srgb, var(--color-ink) 72%, transparent)" }}
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 opacity-50" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M15 9h2a2 2 0 0 1 2 2v10" strokeLinecap="round" />
             </svg>
             {job.arbeitgeber}
           </p>
         )}
-        <p className="mt-1 flex items-center gap-1.5 text-sm text-white/50">
-          <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-white/40" fill="none" stroke="currentColor" strokeWidth="2">
+        <p
+          className="mt-1 flex items-center gap-1.5 text-sm"
+          style={{ color: "color-mix(in srgb, var(--color-ink) 55%, transparent)" }}
+        >
+          <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 opacity-60" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M12 21s-6.5-5.5-6.5-10.5a6.5 6.5 0 1 1 13 0C18.5 15.5 12 21 12 21z" />
             <circle cx="12" cy="10.5" r="2.2" />
           </svg>
           {location}
         </p>
 
-        <div className="mt-5 text-[15px] leading-relaxed text-white/75">
+        <div
+          className="mt-5 text-[15px] leading-relaxed"
+          style={{ color: "color-mix(in srgb, var(--color-ink) 78%, transparent)" }}
+        >
           {desc ? (
             <p className="whitespace-pre-line">{desc}…</p>
           ) : (
-            <p className="text-white/40">{active ? "Beschreibung wird geladen…" : ""}</p>
+            <p className="opacity-40">{active ? "Beschreibung wird geladen…" : ""}</p>
           )}
         </div>
       </div>
@@ -103,9 +123,18 @@ export function JobCard({ job, active }: { job: JobListItem; active: boolean }) 
           onClick={() => toggle(job)}
           aria-pressed={fav}
           aria-label={fav ? "Gespeichert" : "Speichern"}
-          className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl transition active:scale-95 ${
-            fav ? "bg-orange-500/25 text-orange-400" : "bg-white/10 text-white"
-          }`}
+          className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl transition active:scale-95"
+          style={
+            fav
+              ? {
+                  background: "color-mix(in srgb, var(--color-accent) 25%, transparent)",
+                  color: "var(--color-accent-strong)",
+                }
+              : {
+                  background: "color-mix(in srgb, var(--color-ink) 10%, transparent)",
+                  color: "var(--color-ink)",
+                }
+          }
         >
           <svg viewBox="0 0 24 24" className="h-6 w-6" fill={fav ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
             <path d="M12 20s-7-4.5-9.2-8.4A5 5 0 0 1 12 6a5 5 0 0 1 9.2 5.6C19 15.5 12 20 12 20z" strokeLinecap="round" strokeLinejoin="round" />
@@ -117,7 +146,11 @@ export function JobCard({ job, active }: { job: JobListItem; active: boolean }) 
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Bewerben"
-          className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/10 text-white transition active:scale-95"
+          className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl transition active:scale-95"
+          style={{
+            background: "color-mix(in srgb, var(--color-ink) 10%, transparent)",
+            color: "var(--color-ink)",
+          }}
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.2">
             <path d="M7 17 17 7M9 7h8v8" strokeLinecap="round" strokeLinejoin="round" />
