@@ -415,3 +415,8 @@ html.jobtok-open .mobile-nav-pad {
   scroll-snap-stop: always;
   touch-action: pan-y;
 }
+
+/* Dark theme feed bg: slightly more visible */
+html.dark .jobtok-feed-bg {
+  opacity: 0.35 !important;
+}

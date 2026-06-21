@@ -10,6 +10,7 @@ import { CategoryTiles } from "@/components/category-tiles";
 import { FaqSection } from "@/components/faq-section";
 import { Onboarding } from "@/components/onboarding";
 import { Reveal } from "@/components/reveal";
+import { JobTokPromo } from "@/components/jobtok-promo";
 
 export default function HomePage() {
   const { t } = useT();
@@ -125,6 +126,11 @@ export default function HomePage() {
             </div>
           ))}
         </div>
+      </Reveal>
+
+      {/* JobTok promo */}
+      <Reveal as="section" className="mx-auto max-w-6xl px-4 pt-14 sm:px-6">
+        <JobTokPromo />
       </Reveal>
 
       {/* FAQ */}
