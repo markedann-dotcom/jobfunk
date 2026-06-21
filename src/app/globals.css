@@ -378,9 +378,7 @@ html.dark .legal-content {
   }
 }
 
-/* ── JobTok fullscreen mode ──────────────────────────────────
-   When the JobTok feed is open we lock the page so only the
-   inner feed scrolls (fixes mobile snap-scroll not working). */
+/* ── JobTok fullscreen mode ────────────────────────────────── */
 html.jobtok-open,
 html.jobtok-open body {
   overflow: hidden !important;
@@ -398,8 +396,7 @@ html.jobtok-open .mobile-nav-pad {
   height: 100%;
 }
 
-/* Card pane — used together with .jobtok-scroll on the same element */
-/* Only adds desktop width constraint + spacing; height handled by .jobtok-scroll */
+/* Card pane */
 .jobtok-card-pane {
   width: 100%;
   max-width: 100%;
@@ -409,13 +406,12 @@ html.jobtok-open .mobile-nav-pad {
   .jobtok-card-pane {
     width: 480px;
     max-width: 480px;
-    /* height + border-radius + shadow set by .jobtok-scroll@lg */
     margin-top: 56px;
     margin-bottom: 16px;
   }
 }
 
-/* The scroll container itself — proper TikTok-style snap */
+/* ОПТИМИЗИРОВАНО: The scroll container itself — proper TikTok-style snap */
 .jobtok-scroll {
   width: 100%;
   height: 100dvh;
@@ -423,18 +419,17 @@ html.jobtok-open .mobile-nav-pad {
   overscroll-behavior-y: contain;
   scroll-snap-type: y mandatory;
   scroll-behavior: auto;
-  -webkit-overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch; /* Включает инерционный аппаратный скролл в iOS Safari */
   touch-action: pan-y;
   scrollbar-width: none;
-  /* Safety fallback */
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 .jobtok-scroll::-webkit-scrollbar { display: none; }
 
 /* On desktop, constrain the scroll container height + add card chrome */
 @media (min-width: 1024px) {
   .jobtok-scroll {
-    height: calc(100vh - 72px); /* 56px top + 16px bottom margin */
+    height: calc(100vh - 72px);
     min-height: unset;
     border-radius: 24px;
     clip-path: inset(0 round 24px);
@@ -445,10 +440,13 @@ html.jobtok-open .mobile-nav-pad {
   }
 }
 
-/* Inner card content — overflow set dynamically by React (hidden/auto) */
+/* ОПТИМИЗИРОВАНО: Inner card content */
 .jobtok-card-inner {
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  /* Переносим внутренний скролл описания на видеокарту, убирая микрофризы */
+  transform: translateZ(0); 
+  will-change: scroll-position;
 }
 .jobtok-card-inner::-webkit-scrollbar { display: none; }
 
@@ -456,18 +454,22 @@ html.jobtok-open .mobile-nav-pad {
   color: color-mix(in srgb, var(--color-ink) 40%, transparent);
 }
 
-/* Each slide must be EXACTLY one scroll-pane height so snap works */
+/* ОПТИМИЗИРОВАНО: Each slide must be EXACTLY one scroll-pane height so snap works */
 .jobtok-slide {
-  /* mobile: full dynamic viewport height */
   height: 100dvh;
   min-height: 100dvh;
   scroll-snap-align: start;
-  scroll-snap-stop: always;
+  scroll-snap-stop: always; /* Браузер строго фиксирует по одной карточке за свайп */
   touch-action: pan-y;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   flex-shrink: 0;
+  
+  /* Включаем аппаратное ускорение для рендеринга тяжелых блюр-градиентов внутри карточки */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform;
 }
 @media (min-width: 1024px) {
   .jobtok-slide {
