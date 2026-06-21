@@ -71,7 +71,17 @@ export function JobTokFeed() {
   }, []);
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-black">
+    <div
+      className="flex flex-col bg-black"
+      style={{
+        position: "fixed",
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        zIndex: 100,
+      }}
+    >
       {/* Фильтры */}
       <JobTokFilters wo={wo} was={was} onWo={setWo} onWas={setWas} />
 
