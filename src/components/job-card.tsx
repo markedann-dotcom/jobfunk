@@ -44,12 +44,21 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
         aria-hidden
         className="pointer-events-none absolute inset-0 z-0 rounded-2xl bg-gradient-to-tl from-surface/70 via-surface/20 to-transparent dark:from-surface/90 dark:via-surface/40 dark:to-transparent"
       />
-      <span className="pointer-events-none absolute inset-y-0 left-0 z-10 w-1.5 rounded-l-2xl" style={{ background: "var(--cc)" }} />
+      {/* Tone rail — widens slightly on hover so the card's category color asserts itself */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-y-0 left-0 z-10 w-1.5 rounded-l-2xl transition-[width] duration-200 group-hover:w-2"
+        style={{ background: "var(--cc)" }}
+      />
       <div className="pointer-events-none relative z-10 flex flex-1 flex-col p-5 pl-6 sm:p-6 sm:pl-7">
         <div className="flex items-start gap-3">
           <div
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-border bg-page text-base font-black text-ink/70"
-            style={{ fontFamily: "var(--font-fraunces)" }}
+            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-border text-base font-black text-white shadow-sm transition-transform duration-200 group-hover:scale-105"
+            style={{
+              fontFamily: "var(--font-fraunces)",
+              background: "linear-gradient(135deg, var(--cc), color-mix(in srgb, var(--cc) 70%, black))",
+              borderColor: "color-mix(in srgb, var(--cc) 35%, transparent)",
+            }}
             aria-hidden
           >
             {initial}
@@ -60,7 +69,8 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
                 {t(tm.key)}
               </span>
               {recent && (
-                <span className="rounded-full bg-accent px-2.5 py-0.5 text-[11px] font-bold text-white">
+                <span className="flex items-center gap-1 rounded-full bg-accent px-2.5 py-0.5 text-[11px] font-bold text-white shadow-[0_0_0_3px_var(--accent-soft)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-white" aria-hidden />
                   {t("card.new")}
                 </span>
               )}
@@ -71,7 +81,7 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
               )}
             </div>
             <h3
-              className="mt-2 line-clamp-2 text-[17px] font-bold leading-snug text-ink"
+              className="mt-2 line-clamp-2 text-[17px] font-bold leading-snug text-ink transition-colors duration-200 group-hover:[color:var(--cc)]"
               style={{ fontFamily: "var(--font-fraunces)" }}
             >
               {job.titel}
@@ -82,10 +92,10 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggle(job); }}
             aria-label={fav ? t("fav.added") : t("fav.add")}
             aria-pressed={fav}
-            className={`pointer-events-auto relative z-10 grid h-9 w-9 shrink-0 place-items-center rounded-full border transition ${
+            className={`pointer-events-auto relative z-10 grid h-9 w-9 shrink-0 place-items-center rounded-full border transition-all duration-200 active:scale-90 ${
               fav
-                ? "border-accent bg-accent-soft text-accent"
-                : "border-border bg-surface text-muted hover:border-accent hover:text-accent"
+                ? "border-accent bg-accent-soft text-accent scale-105"
+                : "border-border bg-surface text-muted hover:border-accent hover:text-accent hover:scale-105"
             }`}
           >
             <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill={fav ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
@@ -125,7 +135,7 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="pointer-events-auto relative z-10 inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-surface px-4 text-sm font-bold text-ink transition hover:border-accent hover:text-accent"
+            className="pointer-events-auto relative z-10 inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-surface px-4 text-sm font-bold text-ink transition-all duration-200 hover:border-accent hover:bg-accent hover:text-white hover:shadow-[0_4px_12px_-3px_var(--accent)]"
           >
             {t("card.goto")}
             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.5">
