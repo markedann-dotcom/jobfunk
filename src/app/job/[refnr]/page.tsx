@@ -217,6 +217,10 @@ export default async function JobPage({
   params: Promise<{ refnr: string }>;
 }) {
   const { refnr } = await params;
+  
+  // Next.js автоматически декодирует параметры строки запроса.
+  // Вызов decodeURIComponent здесь страхует от повторного/избыточного кодирования,
+  // гарантируя, что в 'decoded' лежит чистая строка ID вакансии (например: "123/456-S").
   const decoded = decodeURIComponent(refnr);
   let jsonLd: Record<string, unknown> | null = null;
 
@@ -240,7 +244,13 @@ export default async function JobPage({
           }}
         />
       )}
-      <JobDetailView refnr={decoded} />
+      
+      {/* Критически важно: передаем в клиентский компонент ENCODED строку refnr.
+        Поскольку JobDetailView внутри себя делает decodeURIComponent, а также склеивает
+        путь к внутреннему API (`/api/job/${refnr}`), строка обязана быть заэкранирована.
+        Это предотвратит разрыв URL-адреса слэшами при прямой навигации.
+      */}
+      <JobDetailView refnr={encodeURIComponent(decoded)} />
     </>
   );
 }
