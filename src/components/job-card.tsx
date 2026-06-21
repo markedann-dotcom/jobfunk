@@ -22,7 +22,6 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
   const location = [job.plz, job.ort].filter(Boolean).join(" ") || job.region || "—";
   const recent = isRecent(job.published);
   const fav = isFav(job.refnr);
-  const initial = (job.arbeitgeber ?? job.titel ?? "?").trim().charAt(0).toUpperCase();
 
   return (
     <article
@@ -53,15 +52,14 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
       <div className="pointer-events-none relative z-10 flex flex-1 flex-col p-5 pl-6 sm:p-6 sm:pl-7">
         <div className="flex items-start gap-3">
           <div
-            className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-border text-base font-black text-white shadow-sm transition-transform duration-200 group-hover:scale-105"
+            className="relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-xl border shadow-sm transition-transform duration-200 group-hover:scale-105"
             style={{
-              fontFamily: "var(--font-fraunces)",
               background: "linear-gradient(135deg, var(--cc), color-mix(in srgb, var(--cc) 70%, black))",
               borderColor: "color-mix(in srgb, var(--cc) 35%, transparent)",
             }}
             aria-hidden
           >
-            {initial}
+            <WaveMark className="absolute inset-0 h-full w-full" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-1.5">
@@ -150,6 +148,15 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
     </article>
   );
 });
+
+function WaveMark({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 56 56" className={className} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <path d="M-5 30 Q15 10 35 25 T75 20 V60 H-5 Z" fill="#fff" opacity="0.16" />
+      <path d="M-5 42 Q20 28 40 40 T75 35 V60 H-5 Z" fill="#fff" opacity="0.22" />
+    </svg>
+  );
+}
 
 function BuildingIcon() {
   return (
