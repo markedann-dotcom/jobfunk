@@ -3,23 +3,23 @@
 import Link from "next/link";
 
 export const BUNDESLAENDER = [
-  { code: "all", de: "Ganz Deutschland", uk: "Вся Німеччина", emoji: "🇩🇪" },
-  { code: "Baden-Württemberg", de: "Baden-Württemberg", uk: "Баден-Вюртемберг", emoji: "🌲" },
-  { code: "Bayern", de: "Bayern", uk: "Баварія", emoji: "⚪" },
-  { code: "Berlin", de: "Berlin", uk: "Берлін", emoji: "🐻" },
-  { code: "Brandenburg", de: "Brandenburg", uk: "Бранденбург", emoji: "🦅" },
-  { code: "Bremen", de: "Bremen", uk: "Бремен", emoji: "🔑" },
-  { code: "Hamburg", de: "Hamburg", uk: "Гамбург", emoji: "⚓" },
-  { code: "Hessen", de: "Hessen", uk: "Гессен", emoji: "🦁" },
-  { code: "Mecklenburg-Vorpommern", de: "Mecklenburg-Vorpommern", uk: "Мекленбург-Передня Померанія", emoji: "🌊" },
-  { code: "Niedersachsen", de: "Niedersachsen", uk: "Нижня Саксонія", emoji: "🐴" },
-  { code: "Nordrhein-Westfalen", de: "Nordrhein-Westfalen", uk: "Північний Рейн-Вестфалія", emoji: "🏭" },
-  { code: "Rheinland-Pfalz", de: "Rheinland-Pfalz", uk: "Рейнланд-Пфальц", emoji: "🍷" },
-  { code: "Saarland", de: "Saarland", uk: "Саарланд", emoji: "🔵" },
-  { code: "Sachsen", de: "Sachsen", uk: "Саксонія", emoji: "🌉" },
-  { code: "Sachsen-Anhalt", de: "Sachsen-Anhalt", uk: "Саксонія-Ангальт", emoji: "🌾" },
-  { code: "Schleswig-Holstein", de: "Schleswig-Holstein", uk: "Шлезвіг-Гольштейн", emoji: "🌊" },
-  { code: "Thüringen", de: "Thüringen", uk: "Тюрингія", emoji: "🌲" },
+  { code: "all",                    de: "Ganz Deutschland",          uk: "Вся Німеччина",                  short: "DE" },
+  { code: "Baden-Württemberg",      de: "Baden-Württemberg",         uk: "Баден-Вюртемберг",               short: "BW" },
+  { code: "Bayern",                 de: "Bayern",                    uk: "Баварія",                        short: "BY" },
+  { code: "Berlin",                 de: "Berlin",                    uk: "Берлін",                         short: "BE" },
+  { code: "Brandenburg",            de: "Brandenburg",               uk: "Бранденбург",                    short: "BB" },
+  { code: "Bremen",                 de: "Bremen",                    uk: "Бремен",                         short: "HB" },
+  { code: "Hamburg",                de: "Hamburg",                   uk: "Гамбург",                        short: "HH" },
+  { code: "Hessen",                 de: "Hessen",                    uk: "Гессен",                         short: "HE" },
+  { code: "Mecklenburg-Vorpommern", de: "Mecklenburg-Vorpommern",    uk: "Мекленбург-Передня Померанія",   short: "MV" },
+  { code: "Niedersachsen",          de: "Niedersachsen",             uk: "Нижня Саксонія",                 short: "NI" },
+  { code: "Nordrhein-Westfalen",    de: "Nordrhein-Westfalen",       uk: "Пн. Рейн-Вестфалія",             short: "NW" },
+  { code: "Rheinland-Pfalz",        de: "Rheinland-Pfalz",           uk: "Рейнланд-Пфальц",                short: "RP" },
+  { code: "Saarland",               de: "Saarland",                  uk: "Саарланд",                       short: "SL" },
+  { code: "Sachsen",                de: "Sachsen",                   uk: "Саксонія",                       short: "SN" },
+  { code: "Sachsen-Anhalt",         de: "Sachsen-Anhalt",            uk: "Саксонія-Ангальт",               short: "ST" },
+  { code: "Schleswig-Holstein",     de: "Schleswig-Holstein",        uk: "Шлезвіг-Гольштейн",              short: "SH" },
+  { code: "Thüringen",              de: "Thüringen",                 uk: "Тюрингія",                       short: "TH" },
 ];
 
 interface Props {
@@ -85,37 +85,41 @@ export function LandSelect({ lang, onSelect }: Props) {
 
       {/* Grid */}
       <div className="grid grid-cols-2 gap-3 px-4 pb-10 sm:grid-cols-3">
-        {BUNDESLAENDER.map((land) => (
-          <button
-            key={land.code}
-            onClick={() => onSelect(land.code)}
-            className="group relative flex flex-col items-center justify-center gap-2 rounded-2xl border px-3 py-5 text-center transition-all duration-200 active:scale-[0.97]"
-            style={{
-              background: land.code === "all"
-                ? "color-mix(in srgb, var(--color-accent) 12%, var(--color-surface))"
-                : "var(--color-surface)",
-              borderColor: land.code === "all"
-                ? "color-mix(in srgb, var(--color-accent) 40%, transparent)"
-                : "var(--color-border)",
-              color: "var(--color-ink)",
-            }}
-          >
-            <span className="text-2xl leading-none" aria-hidden>
-              {land.code === "all" ? "🗺️" : "📍"}
-            </span>
-            <span className="text-[13px] font-bold leading-tight">
-              {lang === "de" ? land.de : land.uk}
-            </span>
-            {land.code === "all" && (
+        {BUNDESLAENDER.map((land) => {
+          const isAll = land.code === "all";
+          return (
+            <button
+              key={land.code}
+              onClick={() => onSelect(land.code)}
+              className="group relative flex flex-col items-center justify-center gap-2.5 rounded-2xl border px-3 py-5 text-center transition-all duration-200 active:scale-[0.97]"
+              style={{
+                background: isAll
+                  ? "color-mix(in srgb, var(--color-accent) 12%, var(--color-surface))"
+                  : "var(--color-surface)",
+                borderColor: isAll
+                  ? "color-mix(in srgb, var(--color-accent) 40%, transparent)"
+                  : "var(--color-border)",
+                color: "var(--color-ink)",
+              }}
+            >
+              {/* Short code badge instead of emoji */}
               <span
-                className="absolute right-2 top-2 rounded-full px-1.5 py-0.5 text-[10px] font-bold"
-                style={{ background: "var(--color-accent)", color: "#fff" }}
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-sm font-black"
+                style={{
+                  background: isAll
+                    ? "var(--color-accent)"
+                    : "color-mix(in srgb, var(--color-accent) 12%, var(--color-surface))",
+                  color: isAll ? "#fff" : "var(--color-accent)",
+                }}
               >
-                ALL
+                {land.short}
               </span>
-            )}
-          </button>
-        ))}
+              <span className="text-[12px] font-semibold leading-tight">
+                {lang === "de" ? land.de : land.uk}
+              </span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

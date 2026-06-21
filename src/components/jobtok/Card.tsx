@@ -99,20 +99,21 @@ export function JobCard({
       {/* Content area */}
       <div className="relative z-10 flex flex-1 flex-col px-5 pb-[calc(env(safe-area-inset-bottom)+5.5rem)] pt-[calc(env(safe-area-inset-top)+4.5rem)]">
 
-        {/* Type pill + new badge */}
-        <div className="flex items-center gap-2">
+        {/* Type pill + beruf (truncated) */}
+        <div className="flex min-w-0 items-center gap-2">
           <span
-            className="rounded-full px-3 py-1 text-[11px] font-extrabold tracking-wide uppercase"
+            className="shrink-0 rounded-full px-3 py-1 text-[11px] font-extrabold tracking-wide uppercase"
             style={{ background: `color-mix(in srgb, ${accent} 15%, transparent)`, color: accent }}
           >
             {label}
           </span>
           {job.beruf && (
             <span
-              className="rounded-full border px-2.5 py-0.5 text-[11px] font-medium"
+              className="min-w-0 truncate rounded-full border px-2.5 py-0.5 text-[11px] font-medium"
               style={{
                 borderColor: "color-mix(in srgb, var(--color-ink) 12%, transparent)",
                 color: "color-mix(in srgb, var(--color-ink) 60%, transparent)",
+                maxWidth: "calc(100% - 70px)",
               }}
             >
               {job.beruf}
