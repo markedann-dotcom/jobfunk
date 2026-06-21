@@ -4,7 +4,6 @@ import Link from "next/link";
 
 export function JobCard({ job, active }: { job: any; active: boolean }) {
   const [saved, setSaved] = useState(false);
-
   return (
     <div className="relative flex h-full flex-col bg-gradient-to-b from-zinc-900 to-black p-5 pt-16">
       {/* Скролл описания внутри карточки */}
@@ -24,7 +23,6 @@ export function JobCard({ job, active }: { job: any; active: boolean }) {
             📍 {job.arbeitsort?.ort ?? "—"}
           </p>
         </div>
-
         {/* Описание */}
         {job.stellenbeschreibung && (
           <p className="whitespace-pre-line text-sm leading-relaxed text-white/75">
@@ -32,7 +30,6 @@ export function JobCard({ job, active }: { job: any; active: boolean }) {
           </p>
         )}
       </div>
-
       {/* Кнопки снизу */}
       <div className="absolute bottom-6 left-5 right-5 flex gap-3">
         <Link
