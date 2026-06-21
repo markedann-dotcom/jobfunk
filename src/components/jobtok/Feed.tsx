@@ -96,7 +96,11 @@ export function JobTokFeed() {
         const newJobs: JobListItem[] = data.jobs ?? [];
         const apiTotal: number = data.total ?? 0;
 
-        if (reset) setTotalJobs(apiTotal);
+        // ФИКС: Обновляем общий счётчик всегда, когда приходят валидные данные, 
+        // чтобы иметь актуальный totalJobs во время инфинит-скролла.
+        if (apiTotal > 0) {
+          setTotalJobs(apiTotal);
+        }
 
         setJobs((prev) => {
           const base = reset ? [] : prev;
@@ -140,7 +144,7 @@ export function JobTokFeed() {
     }
   }, [current, jobs.length, loading, done, page, fetchJobs]);
 
-  // Track active card via IntersectionObserver — reliable across all browsers/devices
+  // Track active card via IntersectionObserver
   const slideRefs = useRef<Map<number, HTMLDivElement>>(new Map());
   useEffect(() => {
     const el = containerRef.current;
@@ -156,18 +160,14 @@ export function JobTokFeed() {
       },
       { root: el, threshold: 0.5 }
     );
-    // Observe all currently rendered slides
     slideRefs.current.forEach((node) => observer.observe(node));
     return () => observer.disconnect();
-  // Re-run when jobs list changes so new slides get observed
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [jobs.length]);
 
   const landEntry = BUNDESLAENDER.find((b) => b.code === land);
   const landLabel = landEntry ? landEntry[lang === "uk" ? "uk" : "de"] : (land ?? "");
   const landShort = landEntry?.short ?? "DE";
 
-  // Show picker
   if (showPicker || !land) {
     return <LandSelect lang={lang} onSelect={handleSelectLand} />;
   }
@@ -177,7 +177,6 @@ export function JobTokFeed() {
       className="jobtok-root fixed inset-0 z-[100] flex flex-col"
       style={{ background: "var(--color-page)" }}
     >
-      {/* Subtle feed background */}
       <div
         className="jobtok-feed-bg pointer-events-none absolute inset-0 z-0"
         style={{
@@ -197,7 +196,6 @@ export function JobTokFeed() {
             "linear-gradient(to bottom, color-mix(in srgb, var(--color-page) 94%, transparent) 0%, color-mix(in srgb, var(--color-page) 60%, transparent) 70%, transparent 100%)",
         }}
       >
-        {/* Close */}
         <Link
           href="/"
           aria-label="Schließen"
@@ -212,7 +210,6 @@ export function JobTokFeed() {
           </svg>
         </Link>
 
-        {/* Brand */}
         <span
           className="text-[17px] font-black tracking-tight"
           style={{ color: "var(--color-ink)", fontFamily: "var(--font-fraunces)" }}
@@ -220,7 +217,6 @@ export function JobTokFeed() {
           Job<span style={{ color: "var(--color-accent)" }}>Tok</span>
         </span>
 
-        {/* Keyboard hint — desktop only */}
         <span
           className="hidden items-center gap-1 rounded-lg px-2 py-1 text-[11px] font-medium lg:flex"
           style={{
@@ -233,7 +229,6 @@ export function JobTokFeed() {
 
         <div className="flex-1" />
 
-        {/* Land chip */}
         <button
           onClick={() => setShowPicker(true)}
           className="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold backdrop-blur-sm transition active:scale-95"
@@ -264,15 +259,14 @@ export function JobTokFeed() {
               color: "color-mix(in srgb, var(--color-ink) 50%, transparent)",
             }}
           >
-            {current + 1}/{jobs.length}
+            {/* ФИКС ТУТ: Выводим totalJobs вместо jobs.length */}
+            {current + 1} / {totalJobs || jobs.length}
           </span>
         )}
       </div>
 
       {/* ---- FEED CONTAINER ---- */}
-      {/* Desktop: center the cards with a nice max-width */}
       <div className="jobtok-desktop-frame relative z-10 flex h-full w-full items-stretch justify-center">
-        {/* Left sidebar hint on desktop */}
         <div className="jobtok-sidebar-left hidden lg:flex lg:w-[calc((100%-520px)/2)] items-center justify-end pr-6">
           <div
             className="flex flex-col items-center gap-3 rounded-2xl p-5 text-center"
@@ -293,7 +287,6 @@ export function JobTokFeed() {
           </div>
         </div>
 
-        {/* Scroll container — constrained on desktop */}
         <div
           ref={containerRef}
           className="jobtok-scroll jobtok-card-pane"
@@ -346,7 +339,6 @@ export function JobTokFeed() {
             </div>
           )}
 
-          {/* Load more spinner */}
           {jobs.length > 0 && loading && (
             <div className="flex h-24 items-center justify-center">
               <span className="h-6 w-6 animate-spin rounded-full border-2 border-current/15 border-t-orange-500 opacity-50" />
@@ -354,7 +346,6 @@ export function JobTokFeed() {
           )}
         </div>
 
-        {/* Right sidebar on desktop: progress dots */}
         <div className="jobtok-sidebar-right hidden lg:flex lg:w-[calc((100%-520px)/2)] items-center justify-start pl-6">
           <div className="flex flex-col gap-1.5">
             {jobs.slice(Math.max(0, current - 4), current + 8).map((job, relIdx) => {
@@ -382,8 +373,6 @@ export function JobTokFeed() {
           </div>
         </div>
       </div>
-
-      {/* Scroll hint removed — was too annoying */}
     </div>
   );
 }
