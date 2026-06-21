@@ -241,31 +241,65 @@ function DetailBody({
       doc.line(mL, subjectTop + subjectH, mL + 50, subjectTop + subjectH);
 
       // ── Тело письма ─────────────────────────────────────────
+      // Бэкенд отдаёт письмо абзацами, разделёнными ПУСТОЙ строкой
+      // (формат: parts.join("\n\n")). Парсим именно по этому разделителю,
+      // чтобы абзацы не слипались и подпись не отрывалась от приветствия.
+      const rawParagraphs = letter
+        .split(/\n\s*\n/)
+        .map((p) => p.trim())
+        .filter((p) => p.length > 0);
+
+      // Шапку получателя (фирма/город/тема/реф.номер) мы уже отрисовали
+      // вручную выше через job.arbeitgeber и subjectLines, поэтому
+      // в самом тексте письма начинаем с приветствия — без дублирования.
+      const greetingIdx = rawParagraphs.findIndex((p) =>
+        /^(sehr geehrte|liebe|hallo|guten tag)/i.test(p)
+      );
+      const bodyParagraphs =
+        greetingIdx >= 0 ? rawParagraphs.slice(greetingIdx) : rawParagraphs;
+
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
       doc.setTextColor(35, 35, 35);
       const lineH = 5.6;
+      const paraGap = 4.5;
       let curY = subjectTop + subjectH + 9;
 
-      for (const para of letter.split(/\n/)) {
-        const lines = para.trim().length
-          ? doc.splitTextToSize(para, usable)
-          : [""];
+      const ensureSpace = (needed: number) => {
+        if (curY + needed > H - 20) {
+          doc.addPage();
+          // сайдбар на новой странице
+          doc.setFillColor(23, 37, 84);
+          doc.rect(0, 0, sidebarW, H, "F");
+          doc.setFillColor(59, 130, 246);
+          doc.rect(sidebarW, 0, 2.5, H, "F");
+          curY = 24;
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10);
+          doc.setTextColor(35, 35, 35);
+        }
+      };
+
+      bodyParagraphs.forEach((para, idx) => {
+        // "Mit freundlichen Grüßen" и подпись держим неразрывно вместе
+        const isSignatureLine =
+          idx === bodyParagraphs.length - 1 && bodyParagraphs.length > 1;
+        const isGrussformel =
+          idx === bodyParagraphs.length - 2 &&
+          /^mit freundlichen grüßen/i.test(para);
+
+        if (isGrussformel || isSignatureLine) {
+          ensureSpace(lineH * 2 + paraGap);
+        }
+
+        const lines = doc.splitTextToSize(para, usable);
         for (const line of lines) {
-          if (curY + lineH > H - 20) {
-            doc.addPage();
-            // сайдбар на новой странице
-            doc.setFillColor(23, 37, 84);
-            doc.rect(0, 0, sidebarW, H, "F");
-            doc.setFillColor(59, 130, 246);
-            doc.rect(sidebarW, 0, 2.5, H, "F");
-            curY = 24;
-          }
+          ensureSpace(lineH);
           doc.text(line, mL, curY);
           curY += lineH;
         }
-        if (para.trim().length) curY += 2;
-      }
+        curY += paraGap;
+      });
 
       // ── Нижний колонтитул ────────────────────────────────────
       doc.setDrawColor(220, 220, 220);
@@ -613,13 +647,18 @@ function DetailBody({
                   <div className="mt-1.5 h-0.5 w-20 bg-blue-500 rounded-full" />
                 </div>
 
-                {/* Тело письма — редактируемое */}
+                {/* Тело письма — редактируемое, с явным разделением абзацев */}
                 <div className="flex-1 relative">
                   <textarea
                     value={letter}
                     onChange={(e) => setLetter(e.target.value)}
-                    className="absolute inset-0 w-full h-full resize-none border-none outline-none bg-transparent text-gray-800 leading-relaxed"
-                    style={{ fontSize: "10px", fontFamily: "Arial, sans-serif", lineHeight: "1.75" }}
+                    className="absolute inset-0 w-full h-full resize-none border-none outline-none bg-transparent text-gray-800"
+                    style={{
+                      fontSize: "10px",
+                      fontFamily: "Arial, sans-serif",
+                      lineHeight: "1.9",
+                      whiteSpace: "pre-wrap",
+                    }}
                     spellCheck
                     lang="de"
                   />
