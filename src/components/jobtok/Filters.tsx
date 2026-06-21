@@ -6,7 +6,7 @@ export function JobTokFilters({ wo, was, onWo, onWas }: {
   onWas: (v: string) => void;
 }) {
   return (
-    <div className="absolute top-0 left-0 right-0 z-10 flex gap-2 px-4 pt-3 pb-2 bg-gradient-to-b from-black/80 to-transparent">
+    <div className="flex flex-1 gap-2">
       <input
         value={was}
         onChange={e => onWas(e.target.value)}
