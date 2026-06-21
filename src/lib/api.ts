@@ -285,7 +285,8 @@ export async function searchJobs(p: SearchParams): Promise<SearchResult> {
         return { stellenangebote: [], maxErgebnisse: 0 };
       }) as Promise<{ stellenangebote?: RawListItem[]; maxErgebnisse?: number; }>,
     
-    fetchArbeitnowJobs(p)
+    // Only fetch arbeitnow on page 1 to avoid duplicating the same jobs every page
+    page === 1 ? fetchArbeitnowJobs(p) : Promise.resolve([] as JobListItem[])
   ]);
 
   const bundesJobs = (bundesRes.stellenangebote ?? []).map(normalizeList);
@@ -293,7 +294,7 @@ export async function searchJobs(p: SearchParams): Promise<SearchResult> {
 
   const result: SearchResult = {
     jobs: combinedJobs,
-    total: (bundesRes.maxErgebnisse ?? 0) + arbeitnowJobs.length,
+    total: bundesRes.maxErgebnisse ?? 0,
     page,
     size,
   };

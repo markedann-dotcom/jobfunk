@@ -25,6 +25,7 @@ export function JobTokFeed() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [current, setCurrent] = useState(0);
+  const [totalJobs, setTotalJobs] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastFetched = useRef<string>("");
 
@@ -86,20 +87,28 @@ export function JobTokFeed() {
 
       setLoading(true);
       try {
-        const params = new URLSearchParams({ size: "15", page: String(pageNum) });
+        const params = new URLSearchParams({ size: "50", page: String(pageNum) });
         if (wo) params.set("wo", wo);
 
         const res = await fetch(`/api/search?${params}`);
         if (!res.ok) throw new Error("fetch_failed");
         const data = await res.json();
         const newJobs: JobListItem[] = data.jobs ?? [];
+        const apiTotal: number = data.total ?? 0;
+
+        if (reset) setTotalJobs(apiTotal);
 
         setJobs((prev) => {
-          if (reset) return newJobs;
-          const seen = new Set(prev.map((j) => j.refnr));
-          return [...prev, ...newJobs.filter((j) => !seen.has(j.refnr))];
+          const base = reset ? [] : prev;
+          const seen = new Set(base.map((j) => j.refnr));
+          const merged = [...base, ...newJobs.filter((j) => !seen.has(j.refnr))];
+          // Done if API says no more pages or we got nothing new
+          const afterTotal = merged.length;
+          if (newJobs.length === 0 || (apiTotal > 0 && afterTotal >= apiTotal)) {
+            setDone(true);
+          }
+          return merged;
         });
-        if (newJobs.length < 15) setDone(true);
       } catch {
         if (reset) setJobs([]);
       } finally {
@@ -115,15 +124,16 @@ export function JobTokFeed() {
     setPage(1);
     setCurrent(0);
     setDone(false);
+    setTotalJobs(0);
     lastFetched.current = "";
     fetchJobs(1, true);
     containerRef.current?.scrollTo({ top: 0 });
   }, [land, fetchJobs]);
 
-  // Infinite load: 4 cards from end
+  // Infinite load: trigger 8 cards before end
   useEffect(() => {
     if (loading || done) return;
-    if (jobs.length > 0 && current >= jobs.length - 4) {
+    if (jobs.length > 0 && current >= jobs.length - 8) {
       const next = page + 1;
       setPage(next);
       fetchJobs(next);
