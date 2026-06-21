@@ -49,7 +49,7 @@ export function JobCard({ job, active }: { job: any; active: boolean }) {
           {saved ? "♥" : "♡"}
         </button>
         {job.externeUrl && (
-          
+          <a
             href={job.externeUrl}
             target="_blank"
             rel="noopener noreferrer"
