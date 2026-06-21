@@ -1,9 +1,28 @@
 "use client";
+
 import { useState } from "react";
 import Link from "next/link";
+import { jobExternalLink } from "@/lib/api";
 
-export function JobCard({ job, active }: { job: any; active: boolean }) {
+type Job = {
+  refnr: string;
+  titel: string;
+  arbeitgeber: string;
+  plz?: string;
+  ort?: string;
+  region?: string;
+  beruf?: string;
+  stellenbeschreibung?: string;
+};
+
+export function JobCard({ job, active }: { job: Job; active: boolean }) {
   const [saved, setSaved] = useState(false);
+
+  const location =
+    [job.plz, job.ort].filter(Boolean).join(" ") || job.region || "—";
+
+  const applyUrl = jobExternalLink(job);
+
   return (
     <div className="relative flex h-full flex-col bg-gradient-to-b from-zinc-900 to-black p-5 pt-16">
       {/* Скролл описания внутри карточки */}
@@ -19,10 +38,9 @@ export function JobCard({ job, active }: { job: any; active: boolean }) {
           <p className="mt-1 text-base font-semibold text-white/60">
             {job.arbeitgeber}
           </p>
-          <p className="text-sm text-white/40">
-            📍 {job.arbeitsort?.ort ?? "—"}
-          </p>
+          <p className="text-sm text-white/40">📍 {location}</p>
         </div>
+
         {/* Описание */}
         {job.stellenbeschreibung && (
           <p className="whitespace-pre-line text-sm leading-relaxed text-white/75">
@@ -30,16 +48,18 @@ export function JobCard({ job, active }: { job: any; active: boolean }) {
           </p>
         )}
       </div>
+
       {/* Кнопки снизу */}
       <div className="absolute bottom-6 left-5 right-5 flex gap-3">
         <Link
-          href={`/jobs/${job.hashId}`}
+          href={`/job/${job.refnr}`}
           className="flex-1 rounded-xl bg-orange-500 py-3 text-center text-sm font-bold text-white"
         >
           Mehr erfahren
         </Link>
+
         <button
-          onClick={() => setSaved(s => !s)}
+          onClick={() => setSaved((s) => !s)}
           className={`rounded-xl px-4 py-3 text-sm font-bold transition-colors ${
             saved
               ? "bg-orange-500/30 text-orange-400"
@@ -48,9 +68,10 @@ export function JobCard({ job, active }: { job: any; active: boolean }) {
         >
           {saved ? "♥" : "♡"}
         </button>
-        {job.externeUrl && (
+
+        {applyUrl && (
           <a
-            href={job.externeUrl}
+            href={applyUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="rounded-xl bg-white/10 px-4 py-3 text-sm font-bold text-white"
