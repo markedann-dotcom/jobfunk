@@ -2,30 +2,27 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { jobExternalLink } from "@/lib/api";
+import { jobExternalLink, type JobListItem } from "@/lib/api";
 
-type Job = {
-  refnr: string;
-  titel: string;
-  arbeitgeber: string;
-  plz?: string;
-  ort?: string;
-  region?: string;
-  beruf?: string;
-  stellenbeschreibung?: string;
-};
-
-export function JobCard({ job, active }: { job: Job; active: boolean }) {
+export function JobCard({
+  job,
+  active,
+}: {
+  job: JobListItem;
+  active: boolean;
+}) {
   const [saved, setSaved] = useState(false);
 
   const location =
     [job.plz, job.ort].filter(Boolean).join(" ") || job.region || "—";
 
+  // jobExternalLink всегда возвращает строку (либо externeUrl, либо ссылку
+  // на детальную страницу вакансии на arbeitsagentur.de)
   const applyUrl = jobExternalLink(job);
 
   return (
     <div className="relative flex h-full flex-col bg-gradient-to-b from-zinc-900 to-black p-5 pt-16">
-      {/* Скролл описания внутри карточки */}
+      {/* Скролл контента внутри карточки */}
       <div className="flex-1 overflow-y-auto pb-24">
         {/* Заголовок */}
         <div className="mb-4">
@@ -41,11 +38,14 @@ export function JobCard({ job, active }: { job: Job; active: boolean }) {
           <p className="text-sm text-white/40">📍 {location}</p>
         </div>
 
-        {/* Описание */}
-        {job.stellenbeschreibung && (
-          <p className="whitespace-pre-line text-sm leading-relaxed text-white/75">
-            {job.stellenbeschreibung}
-          </p>
+        {/*
+          В JobListItem нет полного описания вакансии (оно есть только
+          в JobDetail / getJobDetail(refnr)). Если нужно показывать
+          описание прямо в карточке ленты — подгружай его лениво по refnr,
+          либо покажи здесь то немногое, что есть в списке (entfernung и т.п.)
+        */}
+        {job.entfernung && (
+          <p className="mt-2 text-xs text-white/40">{job.entfernung}</p>
         )}
       </div>
 
@@ -69,16 +69,14 @@ export function JobCard({ job, active }: { job: Job; active: boolean }) {
           {saved ? "♥" : "♡"}
         </button>
 
-        {applyUrl && (
-          <a
-            href={applyUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-xl bg-white/10 px-4 py-3 text-sm font-bold text-white"
-          >
-            Bewerben →
-          </a>
-        )}
+        <a
+          href={applyUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-xl bg-white/10 px-4 py-3 text-sm font-bold text-white"
+        >
+          Bewerben →
+        </a>
       </div>
     </div>
   );
