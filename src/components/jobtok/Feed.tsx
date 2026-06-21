@@ -1,18 +1,20 @@
 "use client";
+
 import { useEffect, useRef, useState, useCallback } from "react";
 import { JobCard } from "./Card";
 import { JobTokFilters } from "./Filters";
 
 type Job = {
-  hashId: string;
+  refnr: string;
   titel: string;
   arbeitgeber: string;
-  arbeitsort: { ort: string; plz: string };
+  plz?: string;
+  ort?: string;
+  region?: string;
   beruf: string;
   eintrittsdatum: string;
   aktuelleVeroeffentlichungsdatum: string;
   stellenbeschreibung: string;
-  externeUrl: string;
 };
 
 export function JobTokFeed() {
@@ -24,23 +26,26 @@ export function JobTokFeed() {
   const [was, setWas] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const fetchJobs = useCallback(async (pageNum: number, reset = false) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        size: "10",
-        page: String(pageNum),
-        ...(wo && { wo }),
-        ...(was && { was }),
-      });
-      const res = await fetch(`/api/jobs?${params}`);
-      const data = await res.json();
-      const newJobs = data.stellenangebote ?? [];
-      setJobs(prev => reset ? newJobs : [...prev, ...newJobs]);
-    } finally {
-      setLoading(false);
-    }
-  }, [wo, was]);
+  const fetchJobs = useCallback(
+    async (pageNum: number, reset = false) => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          size: "10",
+          page: String(pageNum),
+          ...(wo && { wo }),
+          ...(was && { was }),
+        });
+        const res = await fetch(`/api/jobs?${params}`);
+        const data = await res.json();
+        const newJobs: Job[] = data.stellenangebote ?? [];
+        setJobs((prev) => (reset ? newJobs : [...prev, ...newJobs]));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [wo, was]
+  );
 
   // Сброс при смене фильтров
   useEffect(() => {
@@ -93,12 +98,13 @@ export function JobTokFeed() {
       >
         {jobs.map((job, i) => (
           <div
-            key={job.hashId}
+            key={job.refnr}
             style={{ scrollSnapAlign: "start", height: "100dvh" }}
           >
             <JobCard job={job} active={i === current} />
           </div>
         ))}
+
         {loading && (
           <div className="flex h-24 items-center justify-center text-white/50">
             Laden…
