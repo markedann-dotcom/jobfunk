@@ -80,6 +80,14 @@ const de: Dict = {
   "detail.salary": "Vergütung",
   "detail.worktime": "Arbeitszeit",
 
+  // job description: translate / copy actions
+  "jobdesc.translate": "Übersetzen",
+  "jobdesc.translating": "Übersetze…",
+  "jobdesc.showOriginal": "Original",
+  "jobdesc.translateError": "Übersetzung fehlgeschlagen, bitte erneut versuchen",
+  "jobdesc.copy": "Text kopieren",
+  "jobdesc.copied": "Kopiert!",
+
   "footer.disclaimer":
     "JobFunke ist ein kostenloser, unabhängiger Service und nutzt offene Daten der Bundesagentur für Arbeit. Wir sind nicht mit der Bundesagentur für Arbeit verbunden.",
   "footer.rights": "Alle Rechte vorbehalten.",
@@ -370,6 +378,14 @@ const uk: Dict = {
   "detail.contact": "Контакт",
   "detail.salary": "Оплата",
   "detail.worktime": "Робочий час",
+
+  // job description: translate / copy actions
+  "jobdesc.translate": "Перекласти",
+  "jobdesc.translating": "Переклад…",
+  "jobdesc.showOriginal": "Оригінал",
+  "jobdesc.translateError": "Переклад не вдався, спробуйте ще раз",
+  "jobdesc.copy": "Копіювати текст",
+  "jobdesc.copied": "Скопійовано!",
 
   "footer.disclaimer":
     "JobFunke — це безкоштовний незалежний сервіс, що використовує відкриті дані Bundesagentur für Arbeit. Ми не пов'язані з Bundesagentur für Arbeit.",
