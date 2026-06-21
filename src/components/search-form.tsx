@@ -11,12 +11,12 @@ type BerufEntry = { label: string };
 
 const RADII = ["0", "5", "10", "25", "50", "100", "200"];
 const TYPES: Angebotsart[] = ["", "1", "4", "34", "2"];
-const ARBEITSZEIT: { v: string; key: string }[] = [
-  { v: "vz", key: "az.vz" },
-  { v: "tz", key: "az.tz" },
-  { v: "ho", key: "az.ho" },
-  { v: "snw", key: "az.snw" },
-  { v: "mj", key: "az.mj" },
+const ARBEITSZEIT: { v: string; key: string; label: string }[] = [
+  { v: "vz", key: "az.vz", label: "Vollzeit" },
+  { v: "tz", key: "az.tz", label: "Teilzeit" },
+  { v: "ho", key: "az.ho", label: "Homeoffice" },
+  { v: "snw", key: "az.snw", label: "Schicht / Nacht / Wochenende" },
+  { v: "mj", key: "az.mj", label: "Minijob" },
 ];
 const SINCE = ["", "1", "3", "7", "14", "30"];
 
@@ -455,7 +455,7 @@ export function SearchForm({
                           <path d="M5 12l5 5L20 6" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       )}
-                      {t(a.key)}
+                      {(() => { const tr = t(a.key); return tr && tr !== a.key ? tr : a.label; })()}
                     </button>
                   );
                 })}
