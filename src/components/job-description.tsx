@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useT } from "@/lib/i18n";
 
 /**
  * Renders a plain-text job description (from the Bundesagentur API) as
@@ -8,6 +9,7 @@ import React, { useState } from "react";
  * paragraphs and clickable links (including emails).
  */
 export function JobDescription({ text }: { text: string }) {
+  const { t } = useT();
   const [copied, setCopied] = useState(false);
   const [showTranslation, setShowTranslation] = useState(false);
   const [translatedText, setTranslatedText] = useState<string | null>(null);
@@ -63,7 +65,7 @@ export function JobDescription({ text }: { text: string }) {
       <div className="mb-6 flex flex-wrap items-center justify-end gap-2">
         {translateError && (
           <span className="text-[12px] font-semibold text-red-600">
-            Переклад не вдався, спробуйте ще раз
+            {t("jobdesc.translateError")}
           </span>
         )}
         <button
@@ -77,7 +79,11 @@ export function JobDescription({ text }: { text: string }) {
           }`}
         >
           {translating ? <SpinnerIcon /> : <TranslateIcon />}
-          {translating ? "Переклад…" : showTranslation ? "Оригінал" : "Перекласти"}
+          {translating
+            ? t("jobdesc.translating")
+            : showTranslation
+              ? t("jobdesc.showOriginal")
+              : t("jobdesc.translate")}
         </button>
         <button
           onClick={handleCopy}
@@ -88,7 +94,7 @@ export function JobDescription({ text }: { text: string }) {
           }`}
         >
           {copied ? <CheckIcon /> : <CopyIcon />}
-          {copied ? "Kopiert!" : "Text kopieren"}
+          {copied ? t("jobdesc.copied") : t("jobdesc.copy")}
         </button>
       </div>
 
