@@ -398,7 +398,8 @@ html.jobtok-open .mobile-nav-pad {
   height: 100%;
 }
 
-/* Card pane: on mobile = full width, on desktop = 520px centered column */
+/* Card pane — used together with .jobtok-scroll on the same element */
+/* Only adds desktop width constraint + spacing; height handled by .jobtok-scroll */
 .jobtok-card-pane {
   width: 100%;
   max-width: 100%;
@@ -406,22 +407,18 @@ html.jobtok-open .mobile-nav-pad {
 }
 @media (min-width: 1024px) {
   .jobtok-card-pane {
-    width: 520px;
-    max-width: 520px;
-    border-radius: 24px;
-    overflow: hidden;
-    margin-top: 60px;
+    width: 480px;
+    max-width: 480px;
+    /* height + border-radius + shadow set by .jobtok-scroll@lg */
+    margin-top: 56px;
     margin-bottom: 16px;
-    box-shadow: 0 32px 80px -16px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.06);
-  }
-  html.dark .jobtok-card-pane {
-    box-shadow: 0 32px 80px -16px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.25);
   }
 }
 
 /* The scroll container itself — proper TikTok-style snap */
 .jobtok-scroll {
-  height: 100%;
+  width: 100%;
+  height: 100dvh;
   overflow-y: scroll;
   overscroll-behavior-y: contain;
   scroll-snap-type: y mandatory;
@@ -429,36 +426,53 @@ html.jobtok-open .mobile-nav-pad {
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
   scrollbar-width: none;
-}
-/* Mobile: full viewport height slides */
-@media (max-width: 1023px) {
-  .jobtok-scroll {
-    height: 100dvh;
-    height: 100svh;
-  }
+  /* Safety fallback */
+  min-height: 100vh;
 }
 .jobtok-scroll::-webkit-scrollbar { display: none; }
-/* Inner card scroll — hide scrollbar */
-.jobtok-card-inner { scrollbar-width: none; }
+
+/* On desktop, constrain the scroll container height + add card chrome */
+@media (min-width: 1024px) {
+  .jobtok-scroll {
+    height: calc(100vh - 72px); /* 56px top + 16px bottom margin */
+    min-height: unset;
+    border-radius: 24px;
+    clip-path: inset(0 round 24px);
+    box-shadow: 0 32px 80px -16px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.06);
+  }
+  html.dark .jobtok-scroll {
+    box-shadow: 0 32px 80px -16px rgba(0,0,0,0.52), 0 4px 16px rgba(0,0,0,0.28);
+  }
+}
+
+/* Inner card content — overflow set dynamically by React (hidden/auto) */
+.jobtok-card-inner {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
 .jobtok-card-inner::-webkit-scrollbar { display: none; }
+
 .jobtok-input::placeholder {
   color: color-mix(in srgb, var(--color-ink) 40%, transparent);
 }
+
+/* Each slide must be EXACTLY one scroll-pane height so snap works */
 .jobtok-slide {
-  height: 100%;
+  /* mobile: full dynamic viewport height */
+  height: 100dvh;
+  min-height: 100dvh;
   scroll-snap-align: start;
   scroll-snap-stop: always;
   touch-action: pan-y;
-}
-@media (max-width: 1023px) {
-  .jobtok-slide {
-    height: 100dvh;
-    height: 100svh;
-  }
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 @media (min-width: 1024px) {
   .jobtok-slide {
-    height: calc(100vh - 60px - 16px);
+    height: calc(100vh - 72px);
+    min-height: unset;
   }
 }
 

@@ -81,8 +81,8 @@ export function JobCard({
 
   return (
     <div
-      className="relative flex h-full w-full flex-col overflow-hidden"
-      style={{ background: "var(--color-page)", color: "var(--color-ink)" }}
+      className="relative flex h-full w-full flex-col"
+      style={{ background: "var(--color-page)", color: "var(--color-ink)", overflow: "hidden" }}
     >
       {/* Soft top gradient blob */}
       <div
@@ -101,8 +101,9 @@ export function JobCard({
 
       {/* ---- CONTENT SCROLL AREA ---- */}
       <div
-        className="jobtok-card-inner relative z-10 flex flex-1 flex-col overflow-y-auto px-5 sm:px-8 lg:px-10"
+        className="jobtok-card-inner relative z-10 flex flex-1 flex-col px-5 sm:px-8 lg:px-10"
         style={{
+          overflow: expanded ? "auto" : "hidden",
           paddingTop: "calc(env(safe-area-inset-top) + 4.25rem)",
           paddingBottom: "calc(env(safe-area-inset-bottom) + 5.75rem)",
         }}

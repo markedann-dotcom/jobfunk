@@ -361,21 +361,7 @@ export function JobTokFeed() {
         </div>
       </div>
 
-      {/* Scroll hint — only first slide, mobile, inside action bar area */}
-      {current === 0 && jobs.length > 1 && (
-        <div
-          className="pointer-events-none absolute inset-x-0 z-20 flex items-center justify-center gap-1.5 lg:hidden"
-          style={{ bottom: "calc(env(safe-area-inset-bottom) + 5.25rem)" }}
-          aria-hidden
-        >
-          <span className="text-[11px] font-medium opacity-30" style={{ color: "var(--color-ink)" }}>
-            {lang === "de" ? "Weiter scrollen" : "Гортай далі"}
-          </span>
-          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 opacity-25 animate-bounce" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ color: "var(--color-ink)" }}>
-            <path d="M12 5v14M5 12l7 7 7-7" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-      )}
+      {/* Scroll hint removed — was too annoying */}
     </div>
   );
 }
