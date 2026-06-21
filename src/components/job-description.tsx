@@ -26,12 +26,12 @@ export function JobDescription({ text }: { text: string }) {
   return (
     <div className="mt-4">
       {/* Кнопка копирования */}
-      <div className="mb-5 flex justify-end">
+      <div className="mb-6 flex justify-end">
         <button
           onClick={handleCopy}
-          className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[13px] font-bold transition-all active:scale-[0.97] ${
+          className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[13px] font-bold transition-all duration-200 active:scale-[0.97] ${
             copied
-              ? "border-green-500/40 bg-green-50 text-green-700"
+              ? "border-accent/40 bg-accent-soft text-accent-strong"
               : "border-border bg-surface text-muted hover:border-accent hover:text-accent hover:shadow-sm"
           }`}
         >
@@ -41,7 +41,7 @@ export function JobDescription({ text }: { text: string }) {
       </div>
 
       {/* Текст вакансии */}
-      <div className="space-y-4">
+      <div className="space-y-5">
         {blocks.map((b, i) => {
           const blockKey = `${i}-${b.type}`;
 
@@ -49,15 +49,16 @@ export function JobDescription({ text }: { text: string }) {
             return (
               <h3
                 key={blockKey}
-                className="pt-1 text-[15px] font-extrabold uppercase tracking-wide text-accent-strong"
+                className="flex items-center gap-2 pt-2 text-[13px] font-extrabold uppercase tracking-wider text-accent-strong first:pt-0"
               >
+                <span aria-hidden className="h-3.5 w-1 shrink-0 rounded-full bg-accent" />
                 {b.text}
               </h3>
             );
           }
           if (b.type === "list") {
             return (
-              <ul key={blockKey} className="space-y-2">
+              <ul key={blockKey} className="space-y-2.5 rounded-xl bg-page/60 p-4">
                 {b.items.map((it, j) => (
                   <li key={`${blockKey}-item-${j}`} className="flex gap-2.5">
                     <span
@@ -200,7 +201,7 @@ function inline(text: string): React.ReactNode {
 function linkify(text: string): React.ReactNode {
   // First, isolate URLs
   const urlParts = text.split(URL_RE);
-  
+
   return urlParts.map((urlPart, i) => {
     if (URL_RE.test(urlPart)) {
       URL_RE.lastIndex = 0; // reset regex state
@@ -210,7 +211,7 @@ function linkify(text: string): React.ReactNode {
           href={urlPart}
           target="_blank"
           rel="noopener noreferrer"
-          className="break-all font-semibold text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
+          className="break-all font-semibold text-accent underline decoration-accent/40 underline-offset-2 transition-colors hover:text-accent-strong hover:decoration-accent"
         >
           {urlPart}
         </a>
@@ -226,7 +227,7 @@ function linkify(text: string): React.ReactNode {
           <a
             key={`email-${i}-${j}`}
             href={`mailto:${emailPart}`}
-            className="font-semibold text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
+            className="font-semibold text-accent underline decoration-accent/40 underline-offset-2 transition-colors hover:text-accent-strong hover:decoration-accent"
           >
             {emailPart}
           </a>
