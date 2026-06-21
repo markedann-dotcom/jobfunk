@@ -80,7 +80,6 @@ const de: Dict = {
   "detail.salary": "Vergütung",
   "detail.worktime": "Arbeitszeit",
 
-  // job description: translate / copy actions
   "jobdesc.translate": "Übersetzen",
   "jobdesc.translating": "Übersetze…",
   "jobdesc.showOriginal": "Original",
@@ -137,9 +136,9 @@ const de: Dict = {
 
   "pwa.title": "JobFunke installieren",
   "pwa.sub": "Füge die App zum Startbildschirm hinzu — schneller Zugriff, auch offline.",
-  "pwa.ios": "Tippe in Safari auf „Teilen“ (Symbol unten) und dann „Zum Home-Bildschirm“, um JobFunke zu installieren.",
-  "pwa.android": "Öffne das Browser-Menü (⋮ oben rechts) und tippe auf „App installieren“ bzw. „Zum Startbildschirm hinzufügen“.",
-  "pwa.desktop": "Klicke in der Adressleiste auf das Installations-Symbol (⊕) oder öffne das Browser-Menü und wähle „JobFunke installieren“.",
+  "pwa.ios": "Tippe in Safari auf „Teilen" (Symbol unten) und dann „Zum Home-Bildschirm", um JobFunke zu installieren.",
+  "pwa.android": "Öffne das Browser-Menü (⋮ oben rechts) und tippe auf „App installieren" bzw. „Zum Startbildschirm hinzufügen".",
+  "pwa.desktop": "Klicke in der Adressleiste auf das Installations-Symbol (⊕) oder öffne das Browser-Menü und wähle „JobFunke installieren".",
   "pwa.howto": "So installierst du die App:",
   "pwa.install": "Installieren",
   "pwa.later": "Später",
@@ -170,7 +169,6 @@ const de: Dict = {
   "disc.jobs":
     "Die Stellenangebote stammen von Dritten (Bundesagentur für Arbeit / inserierende Unternehmen). JobFunke übernimmt keine Haftung für deren Inhalt, Richtigkeit oder Verfügbarkeit. Zahle niemals Geld, um eine Stelle zu erhalten.",
 
-  // advanced filters
   "filt.toggle": "Weitere Filter",
   "filt.arbeitszeit": "Arbeitszeit",
   "filt.az.vz": "Vollzeit",
@@ -190,13 +188,11 @@ const de: Dict = {
   "filt.befr.1": "Befristet",
   "filt.befr.2": "Unbefristet",
 
-  // sorting
   "sort.label": "Sortieren",
   "sort.relevance": "Relevanz",
   "sort.date": "Datum",
   "sort.distance": "Entfernung",
 
-  // saved searches
   "saved.save": "Suche speichern",
   "saved.saved": "Gespeichert",
   "saved.title": "Gespeicherte Suchen",
@@ -204,14 +200,11 @@ const de: Dict = {
   "saved.run": "Öffnen",
   "saved.delete": "Löschen",
 
-  // recently viewed
   "recent.title": "Zuletzt angesehen",
   "recent.clear": "Leeren",
 
-  // similar jobs
   "similar.title": "Ähnliche Stellen",
 
-  // map
   "map.list": "Liste",
   "map.map": "Karte",
   "map.pins": "Stellen auf der Karte",
@@ -219,7 +212,6 @@ const de: Dict = {
   "map.none": "Für diese Suche liegen keine Standortdaten vor.",
   "map.tolist": "Zur Liste ↓",
 
-  // netto calculator
   "netto.title": "Brutto-Netto-Rechner",
   "netto.sub": "Schätze dein Nettogehalt (2026)",
   "netto.brutto": "Brutto / Monat",
@@ -239,14 +231,11 @@ const de: Dict = {
   "netto.page.sub":
     "Berechne überschlägig, wie viel von deinem Bruttogehalt netto übrig bleibt — nach Steuern und Sozialabgaben (Stand 2026).",
 
-  // categories
   "cat.title": "Beliebte Berufsfelder",
   "cat.sub": "Finde Jobs in deinem Bereich — mit einem Klick.",
 
-  // related berufe
   "rel.title": "Ähnliche Berufe",
 
-  // bewerbung tips
   "tips.title": "Bewerbungs-Checkliste",
   "tips.sub": "So überzeugst du in Deutschland",
   "tips.for": "Tipps für",
@@ -257,11 +246,9 @@ const de: Dict = {
   "tips.s5": "Sprachniveau (z. B. B1/B2) ehrlich angeben",
   "tips.s6": "Innerhalb weniger Tage bewerben — frühe Bewerber haben Vorteile",
 
-  // search history
   "hist.title": "Zuletzt gesucht",
   "hist.clear": "Löschen",
 
-  // faq
   "faq.title": "Häufige Fragen",
   "faq.sub": "Alles Wichtige zur Jobsuche mit JobFunke",
   "faq.q1.q": "Ist JobFunke kostenlos?",
@@ -271,11 +258,10 @@ const de: Dict = {
   "faq.q3.q": "Muss ich mich registrieren?",
   "faq.q3.a": "Nein. Merkliste, gespeicherte Suchen und Verlauf werden nur lokal in deinem Browser gespeichert — kein Konto nötig.",
   "faq.q4.q": "Wie bewerbe ich mich auf eine Stelle?",
-  "faq.q4.a": "Auf der Detailseite findest du den Link „Zur Stelle“, der dich zur Originalanzeige bzw. zum Arbeitgeber führt. Die Bewerbung erfolgt dort direkt.",
+  "faq.q4.a": "Auf der Detailseite findest du den Link „Zur Stelle", der dich zur Originalanzeige bzw. zum Arbeitgeber führt. Die Bewerbung erfolgt dort direkt.",
   "faq.q5.q": "Stimmen die Gehaltsangaben?",
   "faq.q5.a": "Die Datenquelle liefert in der Regel keine Gehälter. Unser Brutto-Netto-Rechner ist eine unverbindliche Schätzung und ersetzt keine Steuerberatung.",
 
-  // onboarding
   "onb.badge": "Willkommen",
   "onb.title": "Willkommen bei JobFunke",
   "onb.sub": "Deine kostenlose Jobsuche für Deutschland — in 3 Schritten.",
@@ -290,6 +276,7 @@ const de: Dict = {
   // mobile nav
   "mnav.home": "Start",
   "mnav.search": "Suchen",
+  "mnav.jobtok": "JobTok",
   "mnav.fav": "Merkliste",
   "mnav.netto": "Rechner",
   "mnav.wiki": "Ratgeber",
@@ -307,8 +294,7 @@ const de: Dict = {
   "wiki.cta.title": "Bereit für den nächsten Schritt?",
   "wiki.cta.sub": "Finde jetzt passende Stellen in ganz Deutschland.",
   "wiki.cta.btn": "Jobs suchen",
-  "wiki.note":
-    "Allgemeine Informationen, keine Rechts- oder Steuerberatung.",
+  "wiki.note": "Allgemeine Informationen, keine Rechts- oder Steuerberatung.",
 };
 
 const uk: Dict = {
@@ -379,7 +365,6 @@ const uk: Dict = {
   "detail.salary": "Оплата",
   "detail.worktime": "Робочий час",
 
-  // job description: translate / copy actions
   "jobdesc.translate": "Перекласти",
   "jobdesc.translating": "Переклад…",
   "jobdesc.showOriginal": "Оригінал",
@@ -469,7 +454,6 @@ const uk: Dict = {
   "disc.jobs":
     "Вакансії надані третіми сторонами (Bundesagentur für Arbeit / роботодавці). JobFunke не несе відповідальності за їхній зміст, точність чи доступність. Ніколи не платіть гроші, щоб отримати роботу.",
 
-  // advanced filters
   "filt.toggle": "Більше фільтрів",
   "filt.arbeitszeit": "Зайнятість",
   "filt.az.vz": "Повна",
@@ -489,13 +473,11 @@ const uk: Dict = {
   "filt.befr.1": "Тимчасова",
   "filt.befr.2": "Безстрокова",
 
-  // sorting
   "sort.label": "Сортувати",
   "sort.relevance": "Релевантність",
   "sort.date": "Дата",
   "sort.distance": "Відстань",
 
-  // saved searches
   "saved.save": "Зберегти пошук",
   "saved.saved": "Збережено",
   "saved.title": "Збережені пошуки",
@@ -503,14 +485,11 @@ const uk: Dict = {
   "saved.run": "Відкрити",
   "saved.delete": "Видалити",
 
-  // recently viewed
   "recent.title": "Нещодавно переглянуті",
   "recent.clear": "Очистити",
 
-  // similar jobs
   "similar.title": "Схожі вакансії",
 
-  // map
   "map.list": "Список",
   "map.map": "Карта",
   "map.pins": "Вакансії на карті",
@@ -518,7 +497,6 @@ const uk: Dict = {
   "map.none": "Для цього пошуку немає даних про місцезнаходження.",
   "map.tolist": "До списку ↓",
 
-  // netto calculator
   "netto.title": "Калькулятор брутто-нетто",
   "netto.sub": "Оцініть свою зарплату на руки (2026)",
   "netto.brutto": "Брутто / місяць",
@@ -538,14 +516,11 @@ const uk: Dict = {
   "netto.page.sub":
     "Розрахуйте приблизно, скільки від вашої зарплати-брутто залишиться на руки — після податків і соціальних внесків (станом на 2026).",
 
-  // categories
   "cat.title": "Популярні сфери",
   "cat.sub": "Знайдіть роботу у своїй сфері — одним кліком.",
 
-  // related berufe
   "rel.title": "Схожі професії",
 
-  // bewerbung tips
   "tips.title": "Чек-лист для заявки",
   "tips.sub": "Як справити враження в Німеччині",
   "tips.for": "Поради для",
@@ -556,11 +531,9 @@ const uk: Dict = {
   "tips.s5": "Чесно вкажіть рівень мови (напр. B1/B2)",
   "tips.s6": "Подавайтеся протягом кількох днів — ранні кандидати мають перевагу",
 
-  // search history
   "hist.title": "Останні пошуки",
   "hist.clear": "Очистити",
 
-  // faq
   "faq.title": "Часті запитання",
   "faq.sub": "Усе важливе про пошук роботи з JobFunke",
   "faq.q1.q": "JobFunke безкоштовний?",
@@ -574,7 +547,6 @@ const uk: Dict = {
   "faq.q5.q": "Чи правильні дані про зарплату?",
   "faq.q5.a": "Джерело даних зазвичай не надає зарплат. Наш калькулятор брутто-нетто — це орієнтовна оцінка й не замінює податкової консультації.",
 
-  // onboarding
   "onb.badge": "Ласкаво просимо",
   "onb.title": "Ласкаво просимо до JobFunke",
   "onb.sub": "Ваш безкоштовний пошук роботи в Німеччині — за 3 кроки.",
@@ -589,6 +561,7 @@ const uk: Dict = {
   // mobile nav
   "mnav.home": "Головна",
   "mnav.search": "Пошук",
+  "mnav.jobtok": "JobTok",
   "mnav.fav": "Збережені",
   "mnav.netto": "Калькулятор",
   "mnav.wiki": "Поради",
@@ -606,8 +579,7 @@ const uk: Dict = {
   "wiki.cta.title": "Готовий до наступного кроку?",
   "wiki.cta.sub": "Знайди відповідні вакансії по всій Німеччині.",
   "wiki.cta.btn": "Шукати роботу",
-  "wiki.note":
-    "Загальна інформація, не є юридичною чи податковою консультацією.",
+  "wiki.note": "Загальна інформація, не є юридичною чи податковою консультацією.",
 };
 
 const dicts: Record<Lang, Dict> = { de, uk };
