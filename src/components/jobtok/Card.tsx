@@ -105,7 +105,9 @@ export function JobCard({
         style={{
           overflow: expanded ? "auto" : "hidden",
           paddingTop: "calc(env(safe-area-inset-top) + 4.25rem)",
-          paddingBottom: "calc(env(safe-area-inset-bottom) + 5.75rem)",
+          // Увеличили нижний отступ с 5.75rem до 9rem, чтобы контент гарантированно 
+          // не перекрывался снизу PWA-баннером при скролле.
+          paddingBottom: "calc(env(safe-area-inset-bottom) + 9rem)",
         }}
       >
         {/* Type pill + Beruf */}
@@ -261,8 +263,9 @@ export function JobCard({
       >
         <div className="flex items-center gap-2.5">
           {/* Primary: Mehr erfahren */}
+          {/* ФИКС ТУТ: оборачиваем job.refnr в encodeURIComponent, чтобы слэши в ID не ломали роутер Next.js при переходе на деталь */}
           <Link
-            href={`/job/${job.refnr}`}
+            href={`/job/${encodeURIComponent(job.refnr)}`}
             className="flex flex-1 items-center justify-center gap-2 rounded-2xl py-3.5 text-[15px] font-bold text-white shadow-lg transition active:scale-[0.98]"
             style={{
               background: `linear-gradient(135deg, ${t.accent}, color-mix(in srgb, ${t.accent} 80%, #000))`,
