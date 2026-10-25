@@ -123,6 +123,8 @@ export function SiteFooter() {
             <a href="https://www.arbeitnow.com/" target="_blank" rel="noopener noreferrer" className="font-semibold text-accent hover:underline">Arbeitnow</a>
             <a href="https://jobicy.com/" target="_blank" rel="noopener noreferrer" className="font-semibold text-accent hover:underline">Jobicy</a>
             <a href="https://remotive.com/" target="_blank" rel="noopener noreferrer" className="font-semibold text-accent hover:underline">Remotive</a>
+            <a href="https://himalayas.app/" target="_blank" rel="noopener noreferrer" className="font-semibold text-accent hover:underline">Himalayas</a>
+            <a href="https://www.nomado24.de/" target="_blank" rel="noopener noreferrer" className="font-semibold text-accent hover:underline">Nomado24</a>
           </p>
         </div>
       </div>

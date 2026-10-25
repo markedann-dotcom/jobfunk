@@ -9,7 +9,7 @@ import { formatDate, typeMeta, toneVar } from "@/lib/display";
 import { useFavorites } from "@/lib/favorites";
 import { recordRecent } from "@/lib/recent";
 import { ShareMenu } from "@/components/share-menu";
-import { JobDescription } from "@/components/job-description";
+import { JobTranslation } from "@/components/job-translation";
 import { JobCard } from "@/components/job-card";
 import { NettoCalculator } from "@/components/netto-calculator";
 import { BewerbungTips } from "@/components/bewerbung-tips";
@@ -205,7 +205,7 @@ function DetailBody({
           {t("detail.description")}
         </h2>
         {job.beschreibung ? (
-          <JobDescription text={job.beschreibung} />
+          <JobTranslation refnr={job.refnr} title={job.titel} description={job.beschreibung} />
         ) : (
           <p className="mt-4 text-muted">{t("detail.nodesc")}</p>
         )}

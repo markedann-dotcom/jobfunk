@@ -1,6 +1,6 @@
-// Unified server-side adapters for the public Arbeitnow, Jobicy and Remotive feeds.
+// Unified server-side adapters for free public job feeds.
 export type Angebotsart = "" | "1" | "2" | "4" | "34";
-export type JobSource = "Arbeitnow" | "Jobicy" | "Remotive";
+export type JobSource = "Arbeitnow" | "Jobicy" | "Remotive" | "Himalayas" | "Nomado24";
 export interface SearchParams {
   was?: string; wo?: string; umkreis?: string; angebotsart?: Angebotsart;
   arbeitszeit?: string; veroeffentlichtseit?: string; befristung?: string;
@@ -29,6 +29,17 @@ type Jobicy = { id?: number; url?: string; jobTitle?: string; companyName?: stri
 type Remotive = { id?: number; url?: string; title?: string; company_name?: string;
   candidate_required_location?: string; job_type?: string; description?: string;
   publication_date?: string; salary?: string };
+type Himalayas = { guid?: string; title?: string; companyName?: string; excerpt?: string;
+  description?: string; applicationLink?: string; pubDate?: number; expiryDate?: number;
+  locationRestrictions?: { alpha2?: string; name?: string }[]; employmentType?: string;
+  minSalary?: number; maxSalary?: number; currency?: string; salaryPeriod?: string };
+type Nomado = { slug?: string; title?: string; companyName?: string; location?: string;
+  remote?: boolean; workArrangement?: string; publishedAt?: string; url?: string;
+  tags?: string[]; salaryMin?: number; salaryMax?: number; currency?: string;
+  source?: string; description?: string };
+type NomadoV2 = { id?: string; canonicalUrl?: string; title?: string;
+  company?: { name?: string }; location?: { raw?: string }; workArrangement?: string;
+  publishedAt?: string; description?: string; status?: string };
 
 const index = new Map<string, { pair: Pair; expires: number }>();
 function remember(pair: Pair): Pair {
@@ -79,6 +90,47 @@ function remotiveItem(j: Remotive): Pair | null {
   return remember({ summary, detail: { ...summary, beschreibung: str(j.description, 30000),
     arbeitszeit: str(j.job_type), verguetung: str(j.salary) } });
 }
+function himalayasItem(j: Himalayas): Pair | null {
+  const url = safeExternalUrl(j.applicationLink), title = str(j.title);
+  const id = str(j.guid, 600);
+  if (!id || !url || !title || (j.expiryDate && j.expiryDate * 1000 < Date.now())) return null;
+  // Stable opaque hash avoids exposing arbitrary upstream URL characters in route paths.
+  const refnr = "hm-" + stableHash(id);
+  const regions = (j.locationRestrictions || []).map(x => str(x.name, 60));
+  const summary: JobListItem = { refnr, titel: title, beruf: title,
+    arbeitgeber: str(j.companyName), ort: regions.join(", ") || "Worldwide Remote",
+    published: j.pubDate ? new Date(j.pubDate * 1000).toISOString() : undefined,
+    externeUrl: url, source: "Himalayas", remote: true,
+    angebotsart: /intern|trainee|apprentice/i.test(title) ? "4" : "1" };
+  const salary = j.currency && j.minSalary ? `${j.minSalary}–${j.maxSalary || ""} ${j.currency} / ${j.salaryPeriod || "year"}` : undefined;
+  return remember({ summary, detail: { ...summary, beschreibung: str(j.description || j.excerpt, 30000),
+    arbeitszeit: str(j.employmentType), verguetung: salary } });
+}
+function nomadoItem(j: Nomado): Pair | null {
+  const slug = str(j.slug, 200), title = str(j.title), url = safeExternalUrl(j.url);
+  if (!slug || !title || !url || !/^[a-z\d_-]+$/i.test(slug) ||
+    !["nomado24.de", "www.nomado24.de", "nomado24.com", "www.nomado24.com"].includes(new URL(url).hostname)) return null;
+  const summary: JobListItem = { refnr: "nm-" + slug, titel: title, beruf: title,
+    arbeitgeber: str(j.companyName), ort: str(j.location, 120) || "Remote",
+    published: str(j.publishedAt, 40), externeUrl: url, source: "Nomado24",
+    remote: j.remote === true || j.workArrangement === "remote", angebotsart: "1" };
+  return remember({ summary, detail: { ...summary, beschreibung: str(j.description, 30000) ||
+    `Mehr Informationen zur Stelle findest du in der Originalanzeige bei Nomado24.`,
+    arbeitszeit: str(j.workArrangement), verguetung: j.currency && j.salaryMin ?
+      `${j.salaryMin}–${j.salaryMax || ""} ${j.currency}` : undefined } });
+}
+function nomadoV2Item(j: NomadoV2): Pair | null {
+  const slug = str(j.id, 220).replace(/^job_/, "");
+  return nomadoItem({ slug, title: j.title, companyName: j.company?.name,
+    location: j.location?.raw, remote: j.workArrangement === "remote",
+    workArrangement: j.workArrangement, publishedAt: j.publishedAt,
+    url: j.canonicalUrl, description: j.description });
+}
+function stableHash(value: string): string {
+  let h = 2166136261;
+  for (let i = 0; i < value.length; i++) h = Math.imul(h ^ value.charCodeAt(i), 16777619);
+  return (h >>> 0).toString(36);
+}
 async function readJson(url: string, seconds: number): Promise<unknown> {
   const response = await fetch(url, { headers: { Accept: "application/json" },
     next: { revalidate: seconds }, signal: AbortSignal.timeout(12000) });
@@ -86,7 +138,7 @@ async function readJson(url: string, seconds: number): Promise<unknown> {
   return response.json();
 }
 async function getArbeitnow(): Promise<Pair[]> {
-  const pages = await Promise.allSettled([1, 2, 3].map(n =>
+  const pages = await Promise.allSettled([1, 2, 3, 4, 5, 6, 7, 8].map(n =>
     readJson("https://www.arbeitnow.com/api/job-board-api?page=" + n, 1800)));
   const good = pages.filter((r): r is PromiseFulfilledResult<unknown> => r.status === "fulfilled");
   if (!good.length) throw new Error("Arbeitnow unavailable");
@@ -94,6 +146,38 @@ async function getArbeitnow(): Promise<Pair[]> {
     const data = r.value as { data?: Arbeitnow[] };
     return Array.isArray(data.data) ? data.data.map(arbeitnowItem).filter((j): j is Pair => !!j) : [];
   });
+}
+async function getHimalayas(): Promise<Pair[]> {
+  // Country search includes jobs open to German applicants, with server-side pagination.
+  const pages = await Promise.allSettled([1, 2, 3, 4, 5].map(page =>
+    readJson(`https://himalayas.app/jobs/api/search?country=DE&sort=recent&page=${page}`, 86400)));
+  const good = pages.filter((r): r is PromiseFulfilledResult<unknown> => r.status === "fulfilled");
+  if (!good.length) throw new Error("Himalayas unavailable");
+  return good.flatMap(r => {
+    const data = r.value as { jobs?: Himalayas[] };
+    return Array.isArray(data.jobs) ? data.jobs.map(himalayasItem).filter((j): j is Pair => !!j) : [];
+  });
+}
+async function getNomado(): Promise<Pair[]> {
+  const jobs: Pair[] = [];
+  let cursor: string | undefined;
+  let success = false;
+  for (let page = 0; page < 5; page++) {
+    try {
+      const url = new URL("https://api.nomado24.de/api/public/v2/jobs");
+      if (cursor) url.searchParams.set("cursor", cursor);
+      else { url.searchParams.set("applicant_region", "DE"); url.searchParams.set("limit", "100"); }
+      const data = await readJson(url.toString(), 3600) as {
+        data?: NomadoV2[]; nextCursor?: string | null; hasNext?: boolean;
+        pagination?: { nextCursor?: string | null; hasNext?: boolean };
+      };
+      success = true;
+      if (Array.isArray(data.data)) jobs.push(...data.data.map(nomadoV2Item).filter((j): j is Pair => !!j));
+      cursor = data.nextCursor || data.pagination?.nextCursor || undefined;
+      if (!cursor || (data.hasNext === false || data.pagination?.hasNext === false)) break;
+    } catch { if (!success) throw new Error("Nomado24 unavailable"); break; }
+  }
+  return jobs;
 }
 async function getJobicy(): Promise<Pair[]> {
   const responses = await Promise.allSettled(["germany", "europe"].map(geo =>
@@ -115,13 +199,21 @@ async function getRemotive(): Promise<Pair[]> {
     .map(remotiveItem).filter((j): j is Pair => !!j) : [];
 }
 async function loadFeeds(): Promise<{ items: Pair[]; unavailable: JobSource[] }> {
-  const outcomes = await Promise.allSettled([getArbeitnow(), getJobicy(), getRemotive()]);
-  const sources: JobSource[] = ["Arbeitnow", "Jobicy", "Remotive"];
+  const outcomes = await Promise.allSettled([getArbeitnow(), getJobicy(), getRemotive(), getHimalayas(), getNomado()]);
+  const sources: JobSource[] = ["Arbeitnow", "Jobicy", "Remotive", "Himalayas", "Nomado24"];
   const unavailable = sources.filter((_, i) => outcomes[i].status === "rejected");
-  if (unavailable.length === 3) throw new Error("All feeds unavailable");
+  if (unavailable.length === sources.length) throw new Error("All feeds unavailable");
   const found = new Map<string, Pair>();
+  const duplicates = new Set<string>();
   for (const result of outcomes) if (result.status === "fulfilled")
-    for (const item of result.value) found.set(item.summary.refnr, item);
+    for (const item of result.value) {
+      const j = item.summary;
+      // Cross-provider deduplication: same company, role and place; keep first source.
+      const key = [norm(j.arbeitgeber || ""), norm(j.titel), norm(j.ort || "")].join("|");
+      if (found.has(j.refnr) || (j.arbeitgeber && duplicates.has(key))) continue;
+      found.set(j.refnr, item);
+      if (j.arbeitgeber) duplicates.add(key);
+    }
   return { items: [...found.values()], unavailable };
 }
 const norm = (s: string) => s.toLocaleLowerCase("de-DE").normalize("NFKD")

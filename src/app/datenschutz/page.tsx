@@ -139,14 +139,22 @@ export default function DatenschutzPage() {
         Browsers löschen.
       </p>
 
-      <h2>4. Externe Schnittstellen: Arbeitnow, Jobicy und Remotive</h2>
+      <h2>4. Externe Schnittstellen und Übersetzung</h2>
       <p>
         Zur Bereitstellung der Stellenangebote nutzen wir die öffentlich
-        zugänglichen APIs von Arbeitnow, Jobicy und Remotive. Beim
+        zugänglichen APIs von Arbeitnow, Jobicy, Remotive, Himalayas und Nomado24. Beim
         Abruf von Stellendaten verbindet sich unser Server mit den Anbietern.
         Suchparameter werden intern auf den bereits abgerufenen Datensätzen
         angewendet. Es gelten ergänzend die Datenschutzhinweise der
         jeweiligen Anbieter.
+      </p>
+      <p>
+        Wenn du aktiv eine Stellenanzeige übersetzen lässt, überträgt unser Server
+        den öffentlich sichtbaren Stellentitel und einen begrenzten Teil der
+        Beschreibung an MyMemory (Translated). Es werden keine Profil- oder
+        Kontodaten an den Übersetzungsdienst gesendet. Übersetzungen werden
+        zeitweise im Browser (localStorage) und im Server-Cache gespeichert.
+        Bitte beachte die Datenschutzhinweise von MyMemory.
       </p>
 
       <h2>5. Externe Links / Bewerbung</h2>

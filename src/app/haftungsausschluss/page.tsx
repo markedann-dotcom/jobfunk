@@ -11,8 +11,8 @@ export default function HaftungsausschlussPage() {
     <LegalShell titleKey="legal.disclaimer.title">
       <p className="lead">
         JobFunke ist ein kostenloser, privat betriebener Such-Dienst, der
-        öffentlich zugängliche Stellenangebote von Arbeitnow, Jobicy
-        und Remotive technisch aufbereitet und durchsuchbar macht.
+        öffentlich zugängliche Stellenangebote von Arbeitnow, Jobicy,
+        Remotive, Himalayas und Nomado24 technisch aufbereitet und durchsuchbar macht.
         JobFunke ist <strong>kein Arbeitgeber, kein Personalvermittler und kein
         Urheber der angezeigten Stellenangebote</strong>.
       </p>
@@ -23,7 +23,7 @@ export default function HaftungsausschlussPage() {
         Gehaltsangaben, Arbeitgeberangaben, Kontaktdaten und sonstigen
         Informationen stammen <strong>ausschließlich von Dritten</strong> – den
         inserierenden Unternehmen, Personaldienstleistern und Jobportalen
-        Arbeitnow, Jobicy und Remotive – und werden über öffentliche Schnittstellen automatisiert
+        Arbeitnow, Jobicy, Remotive, Himalayas und Nomado24 – und werden über öffentliche Schnittstellen automatisiert
         übernommen. JobFunke erstellt, prüft, redigiert oder verifiziert diese
         Inhalte <strong>nicht</strong>.
       </p>
@@ -101,7 +101,7 @@ export default function HaftungsausschlussPage() {
       <h2>6. Externe Links</h2>
       <p>
         JobFunke verweist über Links auf externe Websites Dritter (z. B.
-        Bewerbungsseiten, Arbeitnow, Jobicy und Remotive). Auf deren Gestaltung und Inhalte
+        Bewerbungsseiten, Arbeitnow, Jobicy, Remotive, Himalayas und Nomado24). Auf deren Gestaltung und Inhalte
         haben wir keinen Einfluss; hierfür ist ausschließlich der jeweilige
         Anbieter verantwortlich. Zum Zeitpunkt der Verlinkung waren keine
         rechtswidrigen Inhalte erkennbar.
