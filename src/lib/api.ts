@@ -1,4 +1,4 @@
-// Server-side client for the Bundesagentur für Arbeit Jobsuche API & Arbeitnow.
+// Server-side client for the Bundesagentur für Arbeit Jobsuche API.
 // All calls go through Next.js route handlers (never the browser directly).
 
 const BASE = "https://rest.arbeitsagentur.de/jobboerse/jobsuche-service/pc/v4";
@@ -13,10 +13,10 @@ export interface SearchParams {
   wo?: string;
   umkreis?: string;
   angebotsart?: Angebotsart;
-  arbeitszeit?: string;
-  veroeffentlichtseit?: string;
-  befristung?: string;
-  sort?: string;
+  arbeitszeit?: string; // "vz" | "tz" | "ho" | "mj" | "snw", multiple joined with ";"
+  veroeffentlichtseit?: string; // days, e.g. "7"
+  befristung?: string; // "1" befristet | "2" unbefristet
+  sort?: string; // "" relevance | "aktualitaet" | "entfernung"
   page?: number;
   size?: number;
 }
@@ -62,20 +62,7 @@ export interface JobDetail {
   branche?: string;
 }
 
-export interface ArbeitnowJob {
-  slug: string;
-  company_name: string;
-  title: string;
-  description: string;
-  remote: boolean;
-  url: string;
-  tags: string[];
-  job_types: string[];
-  location: string;
-  created_at: number;
-}
-
-// ---- Simple in-memory cache ------------------------------------------------
+// ---- Simple in-memory cache (per server instance, a few minutes) -----------
 
 interface CacheEntry {
   value: unknown;
@@ -102,6 +89,7 @@ async function fetchApi(url: string): Promise<unknown> {
   const res = await fetch(url, {
     headers: { "X-API-Key": API_KEY, Accept: "application/json" },
     cache: "no-store",
+    signal: AbortSignal.timeout(10000),
   });
   if (!res.ok) {
     throw new Error(`API ${res.status}`);
@@ -111,6 +99,12 @@ async function fetchApi(url: string): Promise<unknown> {
 
 // ---- Beruf (occupation) suggestions ----------------------------------------
 
+/**
+ * Live occupation suggestions for the "Was?" field. Uses the Bundesagentur
+ * job search with facetten=beruf — the beruf facet returns matching official
+ * occupation titles plus a count of open positions, which is exactly what we
+ * want for an autocomplete.
+ */
 export async function suggestBerufe(was: string, limit = 8): Promise<{ label: string; count: number }[]> {
   const q = was.trim();
   if (q.length < 2) return [];
@@ -134,6 +128,7 @@ export async function suggestBerufe(was: string, limit = 8): Promise<{ label: st
   const lower = q.toLowerCase();
   const out = Object.entries(counts)
     .map(([label, count]) => ({ label, count: Number(count) || 0 }))
+    // prefer titles that actually contain the typed text, then by volume
     .sort((a, b) => {
       const am = a.label.toLowerCase().includes(lower) ? 0 : 1;
       const bm = b.label.toLowerCase().includes(lower) ? 0 : 1;
@@ -178,81 +173,12 @@ function normalizeList(raw: RawListItem): JobListItem {
     plz: ao.plz,
     region: ao.region,
     published: raw.aktuelleVeroeffentlichungsdatum,
-    externeUrl: raw.externeUrl ?? null,
+    externeUrl: safeExternalUrl(raw.externeUrl),
     angebotsart: raw.angebotsart,
     entfernung: ao.entfernung ?? null,
     lat: ao.koordinaten?.lat ?? null,
     lon: ao.koordinaten?.lon ?? null,
   };
-}
-
-// ---- Arbeitnow Fetcher -----------------------------------------------------
-
-async function fetchArbeitnowJobs(p: SearchParams): Promise<JobListItem[]> {
-  try {
-    const page = p.page ?? 1;
-    const res = await fetch(`https://www.arbeitnow.com/api/job-board-api?page=${page}`, {
-      cache: "no-store",
-    });
-    
-    if (!res.ok) return [];
-    const data = await res.json();
-    let jobs: ArbeitnowJob[] = data.data || [];
-
-    if (p.was) {
-      const q = p.was.toLowerCase();
-      jobs = jobs.filter(j => 
-        j.title.toLowerCase().includes(q) || 
-        j.company_name.toLowerCase().includes(q)
-      );
-    }
-    if (p.wo) {
-      const loc = p.wo.toLowerCase();
-      jobs = jobs.filter(j => 
-        j.location.toLowerCase().includes(loc) || 
-        (loc === "remote" && j.remote)
-      );
-    }
-
-    return jobs.map(job => {
-      const refnr = `arbeitnow-${job.slug}`;
-      const published = new Date(job.created_at * 1000).toISOString().split('T')[0];
-      const ort = job.remote ? `${job.location} (Remote)` : job.location;
-
-      // 💥 МАГИЯ ЗДЕСЬ: Мы сразу кладем полные детали в кэш
-      const detail: JobDetail = {
-        refnr,
-        titel: job.title,
-        beruf: job.tags?.join(", ") || undefined,
-        arbeitgeber: job.company_name,
-        ort,
-        published,
-        beschreibung: job.description, // Полное HTML описание от Arbeitnow
-        externeUrl: job.url,
-        arbeitszeit: job.job_types?.join(", ") || undefined,
-      };
-      cacheSet(`detail:${refnr}`, detail);
-
-      return {
-        refnr,
-        titel: job.title,
-        beruf: job.tags?.join(", "),
-        arbeitgeber: job.company_name,
-        ort,
-        plz: undefined,
-        region: undefined,
-        published,
-        externeUrl: job.url,
-        angebotsart: "Arbeitnow",
-        entfernung: null,
-        lat: null,
-        lon: null,
-      };
-    });
-  } catch (error) {
-    console.error("Ошибка при загрузке Arbeitnow:", error);
-    return [];
-  }
 }
 
 // ---- Search ----------------------------------------------------------------
@@ -278,27 +204,17 @@ export async function searchJobs(p: SearchParams): Promise<SearchResult> {
   const cached = cacheGet<SearchResult>(key);
   if (cached) return cached;
 
-  const [bundesRes, arbeitnowJobs] = await Promise.all([
-    fetchApi(`${BASE}/jobs?${qs.toString()}`)
-      .catch((e) => {
-        console.error("Bundesagentur API error:", e);
-        return { stellenangebote: [], maxErgebnisse: 0 };
-      }) as Promise<{ stellenangebote?: RawListItem[]; maxErgebnisse?: number; }>,
-    
-    // Only fetch arbeitnow on page 1 to avoid duplicating the same jobs every page
-    page === 1 ? fetchArbeitnowJobs(p) : Promise.resolve([] as JobListItem[])
-  ]);
-
-  const bundesJobs = (bundesRes.stellenangebote ?? []).map(normalizeList);
-  const combinedJobs = [...bundesJobs, ...arbeitnowJobs];
+  const data = (await fetchApi(`${BASE}/jobs?${qs.toString()}`)) as {
+    stellenangebote?: RawListItem[];
+    maxErgebnisse?: number;
+  };
 
   const result: SearchResult = {
-    jobs: combinedJobs,
-    total: bundesRes.maxErgebnisse ?? 0,
+    jobs: (data.stellenangebote ?? []).map(normalizeList),
+    total: data.maxErgebnisse ?? 0,
     page,
     size,
   };
-  
   cacheSet(key, result);
   return result;
 }
@@ -375,42 +291,7 @@ export async function getJobDetail(refnr: string): Promise<JobDetail> {
   const cached = cacheGet<JobDetail>(key);
   if (cached) return cached;
 
-  // 💥 Обработка деталей для Arbeitnow, если их нет в кэше
-  if (refnr.startsWith('arbeitnow-')) {
-    const slug = refnr.replace('arbeitnow-', '');
-    
-    // Ищем вакансию на 3 последних страницах API
-    for (let page = 1; page <= 3; page++) {
-      try {
-        const res = await fetch(`https://www.arbeitnow.com/api/job-board-api?page=${page}`, { cache: "no-store" });
-        if (!res.ok) continue;
-        const data = await res.json();
-        const jobs: ArbeitnowJob[] = data.data || [];
-        const job = jobs.find(j => j.slug === slug);
-        
-        if (job) {
-          const detail: JobDetail = {
-            refnr,
-            titel: job.title,
-            beruf: job.tags?.join(", ") || undefined,
-            arbeitgeber: job.company_name,
-            ort: job.remote ? `${job.location} (Remote)` : job.location,
-            published: new Date(job.created_at * 1000).toISOString().split('T')[0],
-            beschreibung: job.description,
-            externeUrl: job.url,
-            arbeitszeit: job.job_types?.join(", ") || undefined,
-          };
-          cacheSet(key, detail);
-          return detail;
-        }
-      } catch (e) {
-        continue;
-      }
-    }
-    throw new Error("Stelle konnte nicht geladen werden (Arbeitnow)");
-  }
-
-  // Обычная загрузка деталей для Bundesagentur
+  // refnr must be base64-encoded — server side only.
   const encoded = Buffer.from(refnr, "utf-8").toString("base64");
   const raw = (await fetchApi(`${BASE}/jobdetails/${encoded}`)) as RawDetail;
 
@@ -434,11 +315,7 @@ export async function getJobDetail(refnr: string): Promise<JobDetail> {
     published: raw.datumErsteVeroeffentlichung,
     eintrittsdatum: raw.eintrittszeitraum?.von,
     beschreibung: raw.stellenangebotsBeschreibung,
-    externeUrl: raw.allianzpartnerUrl
-      ? raw.allianzpartnerUrl.startsWith("http")
-        ? raw.allianzpartnerUrl
-        : `https://${raw.allianzpartnerUrl}`
-      : null,
+    externeUrl: safeExternalUrl(raw.allianzpartnerUrl),
     arbeitszeit: buildArbeitszeit(raw),
     verguetung: buildVerguetung(raw),
     branche: raw.istGeringfuegigeBeschaeftigung ? "Minijob" : undefined,
@@ -456,7 +333,7 @@ export async function getSimilarJobs(detail: JobDetail, limit = 4): Promise<JobL
   const { jobs } = await searchJobs({
     was,
     wo: detail.ort,
-    size: limit + 5,
+    size: limit + 5, // запас на случай, если в выдаче встретится сама вакансия
   });
 
   return jobs.filter((j) => j.refnr !== detail.refnr).slice(0, limit);
@@ -464,6 +341,15 @@ export async function getSimilarJobs(detail: JobDetail, limit = 4): Promise<JobL
 
 // External link helper.
 export function jobExternalLink(j: { externeUrl?: string | null; refnr: string }): string {
-  if (j.externeUrl) return j.externeUrl;
+  const external = safeExternalUrl(j.externeUrl);
+  if (external) return external;
   return `https://www.arbeitsagentur.de/jobsuche/jobdetail/${encodeURIComponent(j.refnr)}`;
+}
+
+export function safeExternalUrl(value?: string | null): string | null {
+  if (!value || typeof value !== "string") return null;
+  try {
+    const url = new URL(/^[a-z][a-z\d+.-]*:/i.test(value) ? value : `https://${value}`);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.href : null;
+  } catch { return null; }
 }

@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import { useT } from "@/lib/i18n";
+import React from "react";
 
 /**
  * Renders a plain-text job description (from the Bundesagentur API) as
@@ -9,138 +8,49 @@ import { useT } from "@/lib/i18n";
  * paragraphs and clickable links (including emails).
  */
 export function JobDescription({ text }: { text: string }) {
-  const { t } = useT();
-  const [copied, setCopied] = useState(false);
-  const [showTranslation, setShowTranslation] = useState(false);
-  const [translatedText, setTranslatedText] = useState<string | null>(null);
-  const [translating, setTranslating] = useState(false);
-  const [translateError, setTranslateError] = useState(false);
-
-  const blocks = parse(showTranslation && translatedText ? translatedText : text);
-
-  const handleCopy = async () => {
-    try {
-      // Очищаем текст от HTML-тегов перед копированием, чтобы в буфере обмена был красивый plain-text
-      const sourceText = showTranslation && translatedText ? translatedText : text;
-      const cleanText = decodeHtml(sourceText);
-      await navigator.clipboard.writeText(cleanText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy text", err);
-    }
-  };
-
-  const handleToggleTranslation = async () => {
-    // Уже переведено — просто переключаем обратно на оригинал/перевод
-    if (translatedText) {
-      setShowTranslation((v) => !v);
-      return;
-    }
-
-    setTranslating(true);
-    setTranslateError(false);
-    try {
-      const res = await fetch("/api/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: decodeHtml(text), target: "uk" }),
-      });
-      if (!res.ok) throw new Error("Translation request failed");
-      const data = await res.json();
-      setTranslatedText(data.translated);
-      setShowTranslation(true);
-    } catch (err) {
-      console.error("Failed to translate text", err);
-      setTranslateError(true);
-      setTimeout(() => setTranslateError(false), 2500);
-    } finally {
-      setTranslating(false);
-    }
-  };
+  const blocks = parse(text);
 
   return (
-    <div className="mt-4">
-      {/* Кнопки копирования и перевода */}
-      <div className="mb-6 flex flex-wrap items-center justify-end gap-2">
-        {translateError && (
-          <span className="text-[12px] font-semibold text-red-600">
-            {t("jobdesc.translateError")}
-          </span>
-        )}
-        <button
-          onClick={handleToggleTranslation}
-          disabled={translating}
-          aria-pressed={showTranslation}
-          className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[13px] font-bold transition-all duration-200 active:scale-[0.97] disabled:cursor-wait disabled:opacity-70 ${
-            showTranslation
-              ? "border-accent bg-accent text-white shadow-sm"
-              : "border-border bg-surface text-muted hover:border-accent hover:text-accent hover:shadow-sm"
-          }`}
-        >
-          {translating ? <SpinnerIcon /> : <TranslateIcon />}
-          {translating
-            ? t("jobdesc.translating")
-            : showTranslation
-              ? t("jobdesc.showOriginal")
-              : t("jobdesc.translate")}
-        </button>
-        <button
-          onClick={handleCopy}
-          className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[13px] font-bold transition-all duration-200 active:scale-[0.97] ${
-            copied
-              ? "border-accent/40 bg-accent-soft text-accent-strong"
-              : "border-border bg-surface text-muted hover:border-accent hover:text-accent hover:shadow-sm"
-          }`}
-        >
-          {copied ? <CheckIcon /> : <CopyIcon />}
-          {copied ? t("jobdesc.copied") : t("jobdesc.copy")}
-        </button>
-      </div>
+    <div className="mt-5 space-y-4">
+      {blocks.map((b, i) => {
+        const blockKey = `${i}-${b.type}`;
 
-      {/* Текст вакансии */}
-      <div className="space-y-5">
-        {blocks.map((b, i) => {
-          const blockKey = `${i}-${b.type}`;
-
-          if (b.type === "heading") {
-            return (
-              <h3
-                key={blockKey}
-                className="flex items-center gap-2 pt-2 text-[13px] font-extrabold uppercase tracking-wider text-accent-strong first:pt-0"
-              >
-                <span aria-hidden className="h-3.5 w-1 shrink-0 rounded-full bg-accent" />
-                {b.text}
-              </h3>
-            );
-          }
-          if (b.type === "list") {
-            return (
-              <ul key={blockKey} className="space-y-2.5 rounded-xl bg-page/60 p-4">
-                {b.items.map((it, j) => (
-                  <li key={`${blockKey}-item-${j}`} className="flex gap-2.5">
-                    <span
-                      aria-hidden
-                      className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-accent"
-                    />
-                    <span className="text-[15.5px] font-medium leading-relaxed text-ink/90">
-                      {inline(it)}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            );
-          }
+        if (b.type === "heading") {
           return (
-            <p
+            <h3
               key={blockKey}
-              className="text-[15.5px] font-medium leading-[1.75] text-ink/90"
+              className="pt-1 text-[15px] font-extrabold uppercase tracking-wide text-accent-strong"
             >
-              {inline(b.text)}
-            </p>
+              {b.text}
+            </h3>
           );
-        })}
-      </div>
+        }
+        if (b.type === "list") {
+          return (
+            <ul key={blockKey} className="space-y-2">
+              {b.items.map((it, j) => (
+                <li key={`${blockKey}-item-${j}`} className="flex gap-2.5">
+                  <span
+                    aria-hidden
+                    className="mt-[9px] h-1.5 w-1.5 shrink-0 rounded-full bg-accent"
+                  />
+                  <span className="text-[15.5px] font-medium leading-relaxed text-ink/90">
+                    {inline(it)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          );
+        }
+        return (
+          <p
+            key={blockKey}
+            className="text-[15.5px] font-medium leading-[1.75] text-ink/90"
+          >
+            {inline(b.text)}
+          </p>
+        );
+      })}
     </div>
   );
 }
@@ -259,7 +169,7 @@ function inline(text: string): React.ReactNode {
 function linkify(text: string): React.ReactNode {
   // First, isolate URLs
   const urlParts = text.split(URL_RE);
-
+  
   return urlParts.map((urlPart, i) => {
     if (URL_RE.test(urlPart)) {
       URL_RE.lastIndex = 0; // reset regex state
@@ -269,7 +179,7 @@ function linkify(text: string): React.ReactNode {
           href={urlPart}
           target="_blank"
           rel="noopener noreferrer"
-          className="break-all font-semibold text-accent underline decoration-accent/40 underline-offset-2 transition-colors hover:text-accent-strong hover:decoration-accent"
+          className="break-all font-semibold text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
         >
           {urlPart}
         </a>
@@ -285,7 +195,7 @@ function linkify(text: string): React.ReactNode {
           <a
             key={`email-${i}-${j}`}
             href={`mailto:${emailPart}`}
-            className="font-semibold text-accent underline decoration-accent/40 underline-offset-2 transition-colors hover:text-accent-strong hover:decoration-accent"
+            className="font-semibold text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
           >
             {emailPart}
           </a>
@@ -294,40 +204,4 @@ function linkify(text: string): React.ReactNode {
       return <React.Fragment key={`text-${i}-${j}`}>{emailPart}</React.Fragment>;
     });
   });
-}
-
-// --- Icons ---
-
-function CopyIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-    </svg>
-  );
-}
-
-function TranslateIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 5h7M7 3v2M4 19l5-12 5 12M5.5 15h7" />
-      <path d="M13 9h7l-3.5 5.5M16.5 14.5 20 19" />
-    </svg>
-  );
-}
-
-function SpinnerIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-      <path d="M21 12a9 9 0 1 1-9-9" />
-    </svg>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 6L9 17l-5-5" />
-    </svg>
-  );
 }

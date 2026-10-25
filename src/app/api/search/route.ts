@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchJobs, type Angebotsart } from "@/lib/api";
-import { rateLimit, clientIp, rateLimitHeaders } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -25,14 +24,6 @@ function intIn(v: string | null, def: number, min: number, max: number): number 
 }
 
 export async function GET(req: NextRequest) {
-  const rl = rateLimit(`search:${clientIp(req)}`, 40, 60_000);
-  if (!rl.ok) {
-    return NextResponse.json(
-      { error: "rate_limited" },
-      { status: 429, headers: rateLimitHeaders(rl) }
-    );
-  }
-
   const sp = req.nextUrl.searchParams;
 
   const angebotsartRaw = sp.get("angebotsart") ?? "";
@@ -67,7 +58,7 @@ export async function GET(req: NextRequest) {
     });
     return NextResponse.json(result, {
       status: 200,
-      headers: { "Cache-Control": "public, max-age=120", ...rateLimitHeaders(rl) },
+      headers: { "Cache-Control": "public, max-age=120" },
     });
   } catch {
     // Do not leak upstream/internal error details to the client.

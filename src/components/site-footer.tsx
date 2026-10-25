@@ -57,25 +57,8 @@ export function SiteFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="/ratgeber" className="text-muted transition hover:text-accent">
-                  {t("nav.wiki")}
-                </Link>
-              </li>
-              <li>
                 <Link href="/merkliste" className="text-muted transition hover:text-accent">
                   {t("nav.favorites")}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/jobtok"
-                  className="inline-flex items-center gap-1.5 font-semibold transition hover:text-accent"
-                  style={{ color: "var(--color-accent)" }}
-                >
-                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.2">
-                    <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  JobTok ✦ Neu
                 </Link>
               </li>
             </ul>
@@ -110,28 +93,16 @@ export function SiteFooter() {
                   {t("cookie.settings")}
                 </button>
               </li>
-              <li className="pt-2">
-                <span className="block text-xs text-muted mb-1">{t("footer.data")}:</span>
-                <div className="flex flex-col gap-1.5">
-                  <a
-                    href="https://www.arbeitsagentur.de/jobsuche/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-muted transition hover:text-accent inline-flex items-center gap-1"
-                  >
-                    Bundesagentur für Arbeit
-                    <ExternalLinkIcon />
-                  </a>
-                  <a
-                    href="https://www.arbeitnow.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-muted transition hover:text-accent inline-flex items-center gap-1"
-                  >
-                    Arbeitnow
-                    <ExternalLinkIcon />
-                  </a>
-                </div>
+              <li>
+                <a
+                  href="https://www.arbeitsagentur.de/jobsuche/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted transition hover:text-accent inline-flex items-center gap-1"
+                >
+                  {t("footer.data")}
+                  <ExternalLinkIcon />
+                </a>
               </li>
             </ul>
           </div>
@@ -147,30 +118,18 @@ export function SiteFooter() {
           <p>
             © {year} JobFunke. {t("footer.rights")}
           </p>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span>Datenquellen:</span>
-            <div className="flex items-center gap-2">
-              <a
-                href="https://www.arbeitsagentur.de/jobsuche/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 font-semibold text-accent hover:underline"
-              >
-                Bundesagentur für Arbeit
-                <ExternalLinkIcon />
-              </a>
-              <span className="text-muted/40">&bull;</span>
-              <a
-                href="https://www.arbeitnow.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 font-semibold text-accent hover:underline"
-              >
-                Arbeitnow
-                <ExternalLinkIcon />
-              </a>
-            </div>
-          </div>
+          <p className="flex items-center gap-1">
+            Datenquelle:{" "}
+            <a
+              href="https://www.arbeitsagentur.de/jobsuche/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 font-semibold text-accent hover:underline"
+            >
+              Bundesagentur für Arbeit
+              <ExternalLinkIcon />
+            </a>
+          </p>
         </div>
       </div>
     </footer>

@@ -44,8 +44,10 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(RUNTIME_CACHE).then((c) => c.put(request, copy));
+          if (res.ok && res.type === "basic") {
+            const copy = res.clone();
+            caches.open(RUNTIME_CACHE).then((c) => c.put(request, copy)).catch(() => {});
+          }
           return res;
         })
         .catch(() =>
@@ -55,24 +57,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Next.js build assets: network-first so fresh code always wins (hashed
-  // filenames make this safe), fall back to cache only when offline.
-  if (url.pathname.startsWith("/_next/")) {
-    event.respondWith(
-      fetch(request)
-        .then((res) => {
-          if (res && res.status === 200) {
-            const copy = res.clone();
-            caches.open(RUNTIME_CACHE).then((c) => c.put(request, copy));
-          }
-          return res;
-        })
-        .catch(() => caches.match(request))
-    );
-    return;
-  }
-
-  // Other static assets: stale-while-revalidate
+  // Static assets: stale-while-revalidate
   event.respondWith(
     caches.match(request).then((cached) => {
       const fetched = fetch(request)

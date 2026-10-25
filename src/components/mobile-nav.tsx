@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useT } from "@/lib/i18n";
@@ -7,7 +8,6 @@ import { useFavorites } from "@/lib/favorites";
 const ITEMS = [
   { href: "/", key: "mnav.home", icon: "home" },
   { href: "/suche", key: "mnav.search", icon: "search" },
-  { href: "/jobtok", key: "mnav.jobtok", icon: "flame" },
   { href: "/merkliste", key: "mnav.fav", icon: "heart" },
   { href: "/netto-rechner", key: "mnav.netto", icon: "calc" },
 ] as const;
@@ -62,18 +62,11 @@ function Icon({ name, active }: { name: string; active: boolean }) {
     strokeLinecap: "round" as const,
     strokeLinejoin: "round" as const,
   };
-
   switch (name) {
     case "home":
       return <svg viewBox="0 0 24 24" className={cls} {...p}><path d="M3 11l9-8 9 8M5 10v10h14V10" /></svg>;
     case "search":
       return <svg viewBox="0 0 24 24" className={cls} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><circle cx="11" cy="11" r="7" /><path d="m20 20-3-3" /></svg>;
-    case "flame":
-      return (
-        <svg viewBox="0 0 24 24" className={cls} {...p}>
-          <path d="M12 2c0 0-5 5.5-5 10a5 5 0 0 0 10 0c0-3-2-5.5-2-5.5s0 3-3 3c0-3 0-7.5 0-7.5z" />
-        </svg>
-      );
     case "heart":
       return <svg viewBox="0 0 24 24" className={cls} {...p}><path d="M12 20s-7-4.5-9.2-8.4A5 5 0 0 1 12 6a5 5 0 0 1 9.2 5.6C19 15.5 12 20 12 20z" /></svg>;
     case "calc":

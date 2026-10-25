@@ -9,6 +9,8 @@ import {
   type ReactNode,
 } from "react";
 import type { JobListItem } from "./api";
+import { useAuth } from "./auth";
+import { supabaseClient } from "./supabase";
 
 const KEY = "jf_favorites";
 const MAX = 200;
@@ -62,12 +64,15 @@ type Ctx = {
   toggle: (job: JobListItem | FavJob) => void;
   remove: (refnr: string) => void;
   count: number;
+  syncError: string;
 };
 
 const FavContext = createContext<Ctx | null>(null);
 
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [favorites, setFavorites] = useState<FavJob[]>([]);
+  const [syncError, setSyncError] = useState("");
+  const { user, ready } = useAuth();
 
   useEffect(() => {
     setFavorites(load());
@@ -78,12 +83,51 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
+  useEffect(() => {
+    if (!ready) return;
+    const client = supabaseClient();
+    if (!user || !client) { setFavorites(load()); return; }
+    let active = true;
+    (async () => {
+      const { data, error } = await client.from("saved_jobs")
+        .select("job").eq("user_id", user.id).order("saved_at", { ascending: false }).limit(MAX);
+      if (!active) return;
+      if (error) { setSyncError("Merkliste konnte nicht synchronisiert werden."); return; }
+      const remote = (data || []).map((row) => sanitize(row.job as FavJob)).filter(Boolean) as FavJob[];
+      const guest = load();
+      const missing = guest.filter((j) => !remote.some((r) => r.refnr === j.refnr));
+      if (missing.length) {
+        const result = await client.from("saved_jobs").upsert(
+          missing.map((job) => ({ user_id: user.id, refnr: job.refnr, job, saved_at: new Date(job.savedAt).toISOString() })),
+          { onConflict: "user_id,refnr" }
+        );
+        if (!active) return;
+        if (result.error) { setSyncError("Lokale Favoriten konnten nicht übertragen werden."); return; }
+      }
+      try { localStorage.removeItem(KEY); } catch {}
+      setSyncError("");
+      setFavorites([...missing, ...remote].slice(0, MAX));
+    })();
+    return () => { active = false; };
+  }, [user?.id, ready]);
+
   const persist = useCallback((next: FavJob[]) => {
     setFavorites(next);
-    try {
-      localStorage.setItem(KEY, JSON.stringify(next.slice(0, MAX)));
-    } catch {}
-  }, []);
+    if (!user) {
+      try { localStorage.setItem(KEY, JSON.stringify(next.slice(0, MAX))); } catch {}
+    }
+  }, [user]);
+
+  const cloudWrite = useCallback(async (job: FavJob, add: boolean) => {
+    if (!user) return;
+    const client = supabaseClient();
+    if (!client) return;
+    const result = add
+      ? await client.from("saved_jobs").upsert({ user_id: user.id, refnr: job.refnr, job }, { onConflict: "user_id,refnr" })
+      : await client.from("saved_jobs").delete().eq("user_id", user.id).eq("refnr", job.refnr);
+    if (result.error) setSyncError("Änderung konnte nicht gespeichert werden. Bitte Seite neu laden.");
+    else setSyncError("");
+  }, [user]);
 
   const isFav = useCallback(
     (refnr: string) => favorites.some((f) => f.refnr === refnr),
@@ -94,30 +138,28 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     (job: JobListItem | FavJob) => {
       const clean = sanitize({ ...job, savedAt: Date.now() });
       if (!clean) return;
-      setFavorites((prev) => {
-        const exists = prev.some((f) => f.refnr === clean.refnr);
-        const next = exists
-          ? prev.filter((f) => f.refnr !== clean.refnr)
-          : [clean, ...prev].slice(0, MAX);
-        try {
-          localStorage.setItem(KEY, JSON.stringify(next));
-        } catch {}
-        return next;
-      });
+      const exists = favorites.some((f) => f.refnr === clean.refnr);
+      const next = exists
+        ? favorites.filter((f) => f.refnr !== clean.refnr)
+        : [clean, ...favorites].slice(0, MAX);
+      persist(next);
+      if (user) void cloudWrite(clean, !exists);
     },
-    []
+    [user, cloudWrite, favorites, persist]
   );
 
   const remove = useCallback(
     (refnr: string) => {
+      const job = favorites.find((f) => f.refnr === refnr);
+      if (job) void cloudWrite(job, false);
       persist(favorites.filter((f) => f.refnr !== refnr));
     },
-    [favorites, persist]
+    [favorites, persist, cloudWrite]
   );
 
   return (
     <FavContext.Provider
-      value={{ favorites, isFav, toggle, remove, count: favorites.length }}
+      value={{ favorites, isFav, toggle, remove, count: favorites.length, syncError }}
     >
       {children}
     </FavContext.Provider>

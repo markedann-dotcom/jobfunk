@@ -266,18 +266,12 @@ html.dark .site-bg::after {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background-image: url("/jobs-bg-wide.jpg");
+  background-image: url("/jobs-bg.jpg");
   background-size: cover;
-  background-position: center 20%;
+  background-position: center top;
   background-repeat: no-repeat;
   opacity: 1;
-  filter: saturate(1.08) contrast(1.02) brightness(1.01);
-}
-/* On phones the portrait crop reads better focused near the top */
-@media (max-width: 640px) {
-  .jobs-bg {
-    background-position: 70% top;
-  }
+  filter: saturate(1.12) contrast(1.04) brightness(1.02);
 }
 .jobs-bg ~ * .site-bg,
 body:has(.jobs-bg) .site-bg {
@@ -376,109 +370,4 @@ html.dark .legal-content {
   .mobile-nav-pad {
     padding-bottom: 0;
   }
-}
-
-/* ── JobTok fullscreen mode ────────────────────────────────── */
-html.jobtok-open,
-html.jobtok-open body {
-  overflow: hidden !important;
-  height: 100%;
-  scroll-behavior: auto;
-  overscroll-behavior: none;
-}
-html.jobtok-open .mobile-nav-pad {
-  padding-bottom: 0 !important;
-}
-
-/* Desktop frame: flex row with sidebars */
-.jobtok-desktop-frame {
-  width: 100%;
-  height: 100%;
-}
-
-/* Card pane */
-.jobtok-card-pane {
-  width: 100%;
-  max-width: 100%;
-  flex-shrink: 0;
-}
-@media (min-width: 1024px) {
-  .jobtok-card-pane {
-    width: 480px;
-    max-width: 480px;
-    margin-top: 56px;
-    margin-bottom: 16px;
-  }
-}
-
-/* ОПТИМИЗИРОВАНО: The scroll container itself — proper TikTok-style snap */
-.jobtok-scroll {
-  width: 100%;
-  height: 100dvh;
-  overflow-y: scroll;
-  overscroll-behavior-y: contain;
-  scroll-snap-type: y mandatory;
-  scroll-behavior: auto;
-  -webkit-overflow-scrolling: touch; /* Включает инерционный аппаратный скролл в iOS Safari */
-  touch-action: pan-y;
-  scrollbar-width: none;
-  min-height: 100dvh;
-}
-.jobtok-scroll::-webkit-scrollbar { display: none; }
-
-/* On desktop, constrain the scroll container height + add card chrome */
-@media (min-width: 1024px) {
-  .jobtok-scroll {
-    height: calc(100vh - 72px);
-    min-height: unset;
-    border-radius: 24px;
-    clip-path: inset(0 round 24px);
-    box-shadow: 0 32px 80px -16px rgba(0,0,0,0.18), 0 4px 16px rgba(0,0,0,0.06);
-  }
-  html.dark .jobtok-scroll {
-    box-shadow: 0 32px 80px -16px rgba(0,0,0,0.52), 0 4px 16px rgba(0,0,0,0.28);
-  }
-}
-
-/* ОПТИМИЗИРОВАНО: Inner card content */
-.jobtok-card-inner {
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  /* Переносим внутренний скролл описания на видеокарту, убирая микрофризы */
-  transform: translateZ(0); 
-  will-change: scroll-position;
-}
-.jobtok-card-inner::-webkit-scrollbar { display: none; }
-
-.jobtok-input::placeholder {
-  color: color-mix(in srgb, var(--color-ink) 40%, transparent);
-}
-
-/* ОПТИМИЗИРОВАНО: Each slide must be EXACTLY one scroll-pane height so snap works */
-.jobtok-slide {
-  height: 100dvh;
-  min-height: 100dvh;
-  scroll-snap-align: start;
-  scroll-snap-stop: always; /* Браузер строго фиксирует по одной карточке за свайп */
-  touch-action: pan-y;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  flex-shrink: 0;
-  
-  /* Включаем аппаратное ускорение для рендеринга тяжелых блюр-градиентов внутри карточки */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  will-change: transform;
-}
-@media (min-width: 1024px) {
-  .jobtok-slide {
-    height: calc(100vh - 72px);
-    min-height: unset;
-  }
-}
-
-/* Dark theme feed bg */
-html.dark .jobtok-feed-bg {
-  opacity: 0.28 !important;
 }

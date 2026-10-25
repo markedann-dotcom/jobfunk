@@ -28,7 +28,8 @@ export function SearchResults() {
   const veroeffentlichtseit = sp.get("veroeffentlichtseit") ?? "";
   const befristung = sp.get("befristung") ?? "";
   const sort = sp.get("sort") ?? "";
-  const page = Math.max(1, Number(sp.get("page") ?? "1"));
+  const parsedPage = Number(sp.get("page") ?? "1");
+  const page = Number.isSafeInteger(parsedPage) ? Math.max(1, Math.min(parsedPage, 100)) : 1;
 
   const [data, setData] = useState<SearchResult | null>(null);
   const [status, setStatus] = useState<"idle" | "loading" | "ok" | "error">("loading");

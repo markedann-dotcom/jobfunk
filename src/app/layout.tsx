@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 import "./globals.css";
 import { I18nProvider } from "@/lib/i18n";
 import { FavoritesProvider } from "@/lib/favorites";
+import { AuthProvider } from "@/lib/auth";
 import { ThemeProvider } from "@/lib/theme";
 import { PwaProvider } from "@/lib/pwa";
 import { SiteHeader } from "@/components/site-header";
@@ -92,7 +93,7 @@ export default function RootLayout({
         <ThemeProvider>
           <I18nProvider>
             <PwaProvider>
-              <FavoritesProvider>
+              <AuthProvider><FavoritesProvider>
                 <div className="mobile-nav-pad flex min-h-screen flex-col lg:[padding-bottom:0]">
                   <SiteHeader />
                   <main className="flex-1">{children}</main>
@@ -102,7 +103,7 @@ export default function RootLayout({
                 <MobileNav />
                 <PwaRegister />
                 <CookieBanner />
-              </FavoritesProvider>
+              </FavoritesProvider></AuthProvider>
             </PwaProvider>
           </I18nProvider>
         </ThemeProvider>
