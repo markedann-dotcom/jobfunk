@@ -1,5 +1,5 @@
 /* JobFunke service worker — offline shell + runtime caching */
-const VERSION = "jf-v2";
+const VERSION = "jf-v3";
 const STATIC_CACHE = `${VERSION}-static`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 

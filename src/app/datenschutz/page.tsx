@@ -11,8 +11,8 @@ export default function DatenschutzPage() {
     <LegalShell titleKey="legal.privacy.title">
       <p className="lead">
         Der Schutz deiner Daten ist uns wichtig. JobFunke ist datensparsam
-        aufgebaut: Es gibt <strong>keine Registrierung, kein Nutzerkonto und
-        kein Tracking zu Werbezwecken</strong>. Im Folgenden informieren wir dich
+        aufgebaut: Eine Anmeldung über Google ist optional; es gibt
+        <strong> kein Tracking zu Werbezwecken</strong>. Im Folgenden informieren wir dich
         gemäß Art. 13 DSGVO über die Verarbeitung personenbezogener Daten.
       </p>
 
@@ -42,9 +42,8 @@ export default function DatenschutzPage() {
 
       <h3>b) Jobsuche-Anfragen</h3>
       <p>
-        Deine Suchbegriffe (z. B. Beruf, Ort, Postleitzahl) werden zur
-        Verarbeitung deiner Suchanfrage an unseren Server und von dort an die
-        Schnittstelle der Bundesagentur für Arbeit übermittelt. Wir{" "}
+        Deine Suchbegriffe (z. B. Beruf, Ort, Postleitzahl) werden an unseren
+        Server übermittelt und auf den abgerufenen Stellenfeeds angewendet. Wir{" "}
         <strong>speichern keine personenbezogenen Suchprofile</strong>.
         Suchergebnisse werden lediglich für wenige Minuten serverseitig
         zwischengespeichert (Cache), um die Schnittstelle zu entlasten.
@@ -55,9 +54,9 @@ export default function DatenschutzPage() {
       <p>
         Eine Reihe von Komfort- und Einstellungsdaten wird ausschließlich{" "}
         <strong>lokal in deinem Browser</strong> (localStorage) gespeichert.
-        Diese Daten verlassen dein Gerät nicht, werden nicht an uns oder Dritte
-        übertragen und können von dir jederzeit durch Löschen der Browserdaten
-        entfernt werden. Im Einzelnen sind dies:
+        Bei Nutzung ohne Konto bleiben diese Daten auf deinem Gerät. Wenn du
+        dich anmeldest, wird deine Merkliste mit dem Nutzerkonto synchronisiert.
+        Die lokalen Daten kannst du durch Löschen der Browserdaten entfernen:
       </p>
       <ul>
         <li>gewählte Sprache (<code>jf_lang</code>) und Designmodus hell/dunkel (<code>jf_theme</code>);</li>
@@ -81,11 +80,25 @@ export default function DatenschutzPage() {
         stellt keine Steuerberatung dar.
       </p>
 
+      <h3>e) Optionales Google-Konto und Cloud-Merkliste</h3>
+      <p>
+        Bei der freiwilligen Google-Anmeldung verarbeitet Supabase Auth
+        die für die Anmeldung erforderlichen Kontodaten (z. B. E-Mail,
+        Name und eine technische Nutzer-ID). Google ist für die Authentifizierung
+        eingebunden. Deine gespeicherten Stellenangebote werden bei Nutzung
+        des Kontos in einer Supabase-Datenbank deinem Nutzerkonto zugeordnet.
+        Zum Abmelden nutze die Konto-Seite. Informationen zu Datenlöschung
+        und Anfragen erhältst du beim oben genannten Verantwortlichen.
+        Die Anmeldung wird erst aktiviert, wenn der Betreiber Supabase
+        entsprechend konfiguriert hat.
+      </p>
+
       <h2>3. Cookies und lokale Speicherung</h2>
       <p>
         JobFunke setzt <strong>keine Tracking- oder Werbe-Cookies</strong> ein.
         Es werden lediglich technisch notwendige Speichermechanismen
-        (localStorage, Service-Worker-Cache) für Spracheinstellung, Designmodus,
+        (localStorage, Service-Worker-Cache und bei angemeldeten Nutzern
+        technisch notwendige Sitzungsspeicherung) für Einstellungen,
         Merkliste und Offline-Funktionalität verwendet, die keiner Einwilligung
         bedürfen (§ 25 Abs. 2 TDDDG). Deine Cookie-/Speicher-Auswahl kannst du
         jederzeit über den Link „Cookie-Einstellungen“ im Footer erneut öffnen.
@@ -126,20 +139,20 @@ export default function DatenschutzPage() {
         Browsers löschen.
       </p>
 
-      <h2>4. Externe Schnittstelle: Bundesagentur für Arbeit</h2>
+      <h2>4. Externe Schnittstellen: Arbeitnow, Jobicy und Remotive</h2>
       <p>
         Zur Bereitstellung der Stellenangebote nutzen wir die öffentlich
-        zugängliche Jobsuche-Schnittstelle der Bundesagentur für Arbeit. Beim
-        Abruf von Stellendaten wird eine Verbindung zu deren Servern hergestellt.
-        Es werden dabei nur die für die Suche notwendigen, nicht
-        personenbezogenen Parameter übertragen. Es gelten ergänzend die
-        Datenschutzhinweise der Bundesagentur für Arbeit.
+        zugänglichen APIs von Arbeitnow, Jobicy und Remotive. Beim
+        Abruf von Stellendaten verbindet sich unser Server mit den Anbietern.
+        Suchparameter werden intern auf den bereits abgerufenen Datensätzen
+        angewendet. Es gelten ergänzend die Datenschutzhinweise der
+        jeweiligen Anbieter.
       </p>
 
       <h2>5. Externe Links / Bewerbung</h2>
       <p>
         Wenn du auf „Zur Stelle“ bzw. „Jetzt bewerben“ klickst, wirst du auf die
-        Website des inserierenden Unternehmens oder auf arbeitsagentur.de
+        Website des inserierenden Unternehmens oder zum ursprünglichen Jobportal
         weitergeleitet. Für die dortige Datenverarbeitung sind ausschließlich die
         jeweiligen Betreiber verantwortlich.
       </p>

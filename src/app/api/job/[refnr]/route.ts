@@ -16,10 +16,10 @@ export async function GET(
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
 
-  // Validate: Bundesagentur refnr — alphanumeric + a few separators, bounded length.
+  // Provider-namespaced reference IDs.
   // eslint-disable-next-line no-control-regex
   refnr = refnr.replace(/[\u0000-\u001f\u007f]/g, "").trim();
-  if (!refnr || refnr.length > 120 || !/^[A-Za-z0-9._\-/]+$/.test(refnr)) {
+  if (!refnr || refnr.length > 240 || !/^[A-Za-z0-9._\-/]+$/.test(refnr)) {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
 

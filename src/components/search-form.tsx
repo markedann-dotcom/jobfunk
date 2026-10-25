@@ -340,9 +340,10 @@ export function SearchForm({
             {t("form.radius.label")}
           </span>
           <select
-            value={umkreis}
-            onChange={(e) => setUmkreis(e.target.value)}
-            className={`${fieldBase} cursor-pointer appearance-none bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b6259%22 stroke-width=%222%22><path d=%22M6 9l6 6 6-6%22/></svg>')] bg-[length:18px] bg-[right_14px_center] bg-no-repeat pr-10`}
+            value="0"
+            disabled
+            title="Kilometer-Radius ist bei diesen Datenquellen derzeit nicht verfügbar."
+            className={`${fieldBase} cursor-not-allowed opacity-60 appearance-none pr-10`}
           >
             {RADII.map((r) => (
               <option key={r} value={r}>
@@ -350,6 +351,7 @@ export function SearchForm({
               </option>
             ))}
           </select>
+          <span className="mt-1 block text-[11px] text-muted">Nur Ortssuche, Radius derzeit nicht verfügbar.</span>
         </label>
 
         <label className="block">

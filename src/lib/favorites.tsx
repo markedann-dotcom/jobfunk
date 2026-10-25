@@ -33,7 +33,7 @@ function sanitize(j: Partial<FavJob>): FavJob | null {
   const s = (v: unknown, max = 300) =>
     typeof v === "string" ? v.slice(0, max) : undefined;
   return {
-    refnr: j.refnr.slice(0, 120),
+    refnr: j.refnr.slice(0, 240),
     titel: s(j.titel) ?? "—",
     arbeitgeber: s(j.arbeitgeber),
     ort: s(j.ort, 120),

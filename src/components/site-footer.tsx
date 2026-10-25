@@ -95,7 +95,7 @@ export function SiteFooter() {
               </li>
               <li>
                 <a
-                  href="https://www.arbeitsagentur.de/jobsuche/"
+                  href="https://www.arbeitnow.com/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted transition hover:text-accent inline-flex items-center gap-1"
@@ -118,17 +118,11 @@ export function SiteFooter() {
           <p>
             © {year} JobFunke. {t("footer.rights")}
           </p>
-          <p className="flex items-center gap-1">
-            Datenquelle:{" "}
-            <a
-              href="https://www.arbeitsagentur.de/jobsuche/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 font-semibold text-accent hover:underline"
-            >
-              Bundesagentur für Arbeit
-              <ExternalLinkIcon />
-            </a>
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            Datenquellen:
+            <a href="https://www.arbeitnow.com/" target="_blank" rel="noopener noreferrer" className="font-semibold text-accent hover:underline">Arbeitnow</a>
+            <a href="https://jobicy.com/" target="_blank" rel="noopener noreferrer" className="font-semibold text-accent hover:underline">Jobicy</a>
+            <a href="https://remotive.com/" target="_blank" rel="noopener noreferrer" className="font-semibold text-accent hover:underline">Remotive</a>
           </p>
         </div>
       </div>

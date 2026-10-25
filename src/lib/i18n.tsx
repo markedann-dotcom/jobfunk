@@ -20,7 +20,7 @@ const de: Dict = {
   "nav.favorites": "Merkliste",
   "lang.label": "Sprache",
 
-  "hero.kicker": "Kostenlose Jobsuche · Daten der Bundesagentur für Arbeit",
+  "hero.kicker": "Kostenlose Jobsuche · Arbeitnow, Jobicy & Remotive",
   "hero.title.1": "Finde deinen nächsten",
   "hero.title.2": "Job in Deutschland",
   "hero.sub":
@@ -45,7 +45,7 @@ const de: Dict = {
   "type.2": "Selbstständigkeit",
 
   "results.title": "Ergebnisse",
-  "results.count": "Stellen gefunden",
+  "results.count": "Stellen im aktuellen Feed",
   "results.empty.title": "Keine Stellen gefunden",
   "results.empty.sub":
     "Versuch es mit einem anderen Stichwort, einem größeren Umkreis oder einer anderen Stadt.",
@@ -73,7 +73,7 @@ const de: Dict = {
   "detail.description": "Stellenbeschreibung",
   "detail.nodesc": "Für diese Stelle liegt keine ausführliche Beschreibung vor.",
   "detail.apply": "Jetzt bewerben",
-  "detail.goto": "Zur Stelle bei der Bundesagentur",
+  "detail.goto": "Originalanzeige ansehen",
   "detail.loading": "Stelle wird geladen …",
   "detail.error": "Diese Stelle konnte nicht geladen werden.",
   "detail.contact": "Kontakt",
@@ -81,7 +81,7 @@ const de: Dict = {
   "detail.worktime": "Arbeitszeit",
 
   "footer.disclaimer":
-    "JobFunke ist ein kostenloser, unabhängiger Service und nutzt offene Daten der Bundesagentur für Arbeit. Wir sind nicht mit der Bundesagentur für Arbeit verbunden.",
+    "JobFunke ist ein kostenloser, unabhängiger Service mit Stellenanzeigen von Arbeitnow, Jobicy und Remotive. Alle Quellen werden angegeben.",
   "footer.rights": "Alle Rechte vorbehalten.",
   "footer.data": "Datenquelle",
 
@@ -92,7 +92,7 @@ const de: Dict = {
   "feat.1.t": "100 % kostenlos",
   "feat.1.d": "Keine Anmeldung, keine versteckten Kosten. Einfach suchen und finden.",
   "feat.2.t": "Echte Stellen",
-  "feat.2.d": "Direkt aus der offiziellen Jobbörse der Bundesagentur für Arbeit.",
+  "feat.2.d": "Stellenangebote aus mehreren unabhängigen Jobportalen.",
   "feat.3.t": "Einfach & klar",
   "feat.3.d": "Übersichtlich gestaltet — auch wenn dein Deutsch noch nicht perfekt ist.",
 
@@ -157,10 +157,10 @@ const de: Dict = {
   "legal.disclaimer.title": "Haftungsausschluss",
 
   "footer.independence":
-    "Wichtiger Hinweis: JobFunke ist ein unabhängiges, privates Angebot und steht in keiner Verbindung zur Bundesagentur für Arbeit. Alle Stellenangebote stammen von Dritten; für deren Inhalt, Richtigkeit und Verfügbarkeit übernehmen wir keine Haftung. Siehe Haftungsausschluss.",
+    "Wichtiger Hinweis: JobFunke ist ein unabhängiges, privates Angebot. Die Stellenangebote stammen von Arbeitnow, Jobicy und Remotive; für deren Inhalt, Richtigkeit und Verfügbarkeit übernehmen wir keine Haftung. Siehe Haftungsausschluss.",
 
   "disc.jobs":
-    "Die Stellenangebote stammen von Dritten (Bundesagentur für Arbeit / inserierende Unternehmen). JobFunke übernimmt keine Haftung für deren Inhalt, Richtigkeit oder Verfügbarkeit. Zahle niemals Geld, um eine Stelle zu erhalten.",
+    "Die Stellenangebote stammen von Arbeitnow, Jobicy, Remotive und inserierenden Unternehmen. JobFunke übernimmt keine Haftung für deren Inhalt, Richtigkeit oder Verfügbarkeit. Zahle niemals Geld, um eine Stelle zu erhalten.",
 
   // advanced filters
   "filt.toggle": "Weitere Filter",
@@ -259,7 +259,7 @@ const de: Dict = {
   "faq.q1.q": "Ist JobFunke kostenlos?",
   "faq.q1.a": "Ja, JobFunke ist komplett kostenlos. Du kannst ohne Anmeldung suchen, Stellen merken und Suchen speichern.",
   "faq.q2.q": "Woher kommen die Stellenangebote?",
-  "faq.q2.a": "Die Stellen stammen aus der offiziellen Jobsuche-Schnittstelle der Bundesagentur für Arbeit. JobFunke ist ein unabhängiger Dienst und nicht mit der Bundesagentur verbunden.",
+  "faq.q2.a": "Die Stellen stammen aus den öffentlichen Jobfeeds von Arbeitnow, Jobicy und Remotive. JobFunke ist ein unabhängiger Dienst. Die Trefferzahl bezieht sich auf die abgerufenen Feeds und nicht auf alle Stellen in Deutschland.",
   "faq.q3.q": "Muss ich mich registrieren?",
   "faq.q3.a": "Nein. Merkliste, gespeicherte Suchen und Verlauf werden nur lokal in deinem Browser gespeichert — kein Konto nötig.",
   "faq.q4.q": "Wie bewerbe ich mich auf eine Stelle?",
@@ -294,7 +294,7 @@ const uk: Dict = {
   "nav.favorites": "Збережені",
   "lang.label": "Мова",
 
-  "hero.kicker": "Безкоштовний пошук · Дані Bundesagentur für Arbeit",
+  "hero.kicker": "Безкоштовний пошук · Arbeitnow, Jobicy та Remotive",
   "hero.title.1": "Знайди свою наступну",
   "hero.title.2": "роботу в Німеччині",
   "hero.sub":
@@ -319,7 +319,7 @@ const uk: Dict = {
   "type.2": "Самозайнятість",
 
   "results.title": "Результати",
-  "results.count": "вакансій знайдено",
+  "results.count": "вакансій у поточній вибірці",
   "results.empty.title": "Вакансій не знайдено",
   "results.empty.sub":
     "Спробуйте інше ключове слово, більший радіус або інше місто.",
@@ -347,7 +347,7 @@ const uk: Dict = {
   "detail.description": "Опис вакансії",
   "detail.nodesc": "Для цієї вакансії немає докладного опису.",
   "detail.apply": "Подати заявку",
-  "detail.goto": "До вакансії на Bundesagentur",
+  "detail.goto": "Переглянути оригінальну вакансію",
   "detail.loading": "Завантажуємо вакансію …",
   "detail.error": "Не вдалося завантажити цю вакансію.",
   "detail.contact": "Контакт",
@@ -355,7 +355,7 @@ const uk: Dict = {
   "detail.worktime": "Робочий час",
 
   "footer.disclaimer":
-    "JobFunke — це безкоштовний незалежний сервіс, що використовує відкриті дані Bundesagentur für Arbeit. Ми не пов'язані з Bundesagentur für Arbeit.",
+    "JobFunke — це безкоштовний незалежний сервіс із вакансіями від Arbeitnow, Jobicy та Remotive.",
   "footer.rights": "Усі права захищені.",
   "footer.data": "Джерело даних",
 
@@ -366,7 +366,7 @@ const uk: Dict = {
   "feat.1.t": "100 % безкоштовно",
   "feat.1.d": "Без реєстрації та прихованих платежів. Просто шукайте й знаходьте.",
   "feat.2.t": "Реальні вакансії",
-  "feat.2.d": "Безпосередньо з офіційної біржі праці Bundesagentur für Arbeit.",
+  "feat.2.d": "Вакансії з кількох незалежних порталів пошуку роботи.",
   "feat.3.t": "Просто й зрозуміло",
   "feat.3.d": "Зручний інтерфейс — навіть якщо ваша німецька ще не ідеальна.",
 
@@ -431,10 +431,10 @@ const uk: Dict = {
   "legal.disclaimer.title": "Відмова від відповідальності (Haftungsausschluss)",
 
   "footer.independence":
-    "Важливо: JobFunke — незалежний приватний сервіс, не пов'язаний з Bundesagentur für Arbeit. Усі вакансії надані третіми сторонами; ми не несемо відповідальності за їхній зміст, точність чи доступність. Див. Відмову від відповідальності.",
+    "Важливо: JobFunke — незалежний приватний сервіс. Вакансії надходять з Arbeitnow, Jobicy та Remotive; ми не несемо відповідальності за їхній зміст, точність чи доступність. Див. Відмову від відповідальності.",
 
   "disc.jobs":
-    "Вакансії надані третіми сторонами (Bundesagentur für Arbeit / роботодавці). JobFunke не несе відповідальності за їхній зміст, точність чи доступність. Ніколи не платіть гроші, щоб отримати роботу.",
+    "Вакансії надані Arbeitnow, Jobicy, Remotive та роботодавцями. JobFunke не несе відповідальності за їхній зміст, точність чи доступність. Ніколи не платіть гроші, щоб отримати роботу.",
 
   // advanced filters
   "filt.toggle": "Більше фільтрів",
@@ -533,7 +533,7 @@ const uk: Dict = {
   "faq.q1.q": "JobFunke безкоштовний?",
   "faq.q1.a": "Так, JobFunke повністю безкоштовний. Ви можете шукати без реєстрації, зберігати вакансії та пошуки.",
   "faq.q2.q": "Звідки беруться вакансії?",
-  "faq.q2.a": "Вакансії надходять з офіційного інтерфейсу пошуку Bundesagentur für Arbeit. JobFunke — незалежний сервіс і не пов'язаний з Bundesagentur.",
+  "faq.q2.a": "Вакансії надходять з публічних API Arbeitnow, Jobicy та Remotive. Кількість результатів стосується лише завантажених вакансій, а не всього ринку праці Німеччини.",
   "faq.q3.q": "Чи потрібна реєстрація?",
   "faq.q3.a": "Ні. Збережені вакансії, пошуки та історія зберігаються лише локально у вашому браузері — обліковий запис не потрібен.",
   "faq.q4.q": "Як подати заявку на вакансію?",

@@ -48,6 +48,7 @@ export const JobCard = memo(function JobCard({ job, idx = 0 }: { job: JobListIte
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-1.5">
+              {job.source && <span className="rounded-full border border-border bg-page px-2 py-0.5 text-[10px] font-semibold text-muted">{job.source}</span>}
               <span className="rounded-full px-2.5 py-0.5 text-[11px] font-bold" style={{ background: "var(--cc-soft)", color: "var(--cc)" }}>
                 {t(tm.key)}
               </span>

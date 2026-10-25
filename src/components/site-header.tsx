@@ -77,7 +77,7 @@ export function SiteHeader() {
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
               </span>
               <span>
-                <span className="text-ink">{totalJobs.toLocaleString("de-DE")}</span> Jobs online
+                <span className="text-ink">{totalJobs.toLocaleString("de-DE")}</span> Jobs im Feed
               </span>
             </div>
           )}

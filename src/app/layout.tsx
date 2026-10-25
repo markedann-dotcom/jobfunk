@@ -28,11 +28,13 @@ const manrope = Manrope({
 export const metadata: Metadata = {
   title: "JobFunke — Jobs in Deutschland kostenlos finden",
   description:
-    "Kostenlose Jobsuche für Deutschland. Tausende Stellen, Ausbildungen und Minijobs aus der Jobbörse der Bundesagentur für Arbeit — einfach und übersichtlich.",
+    "Kostenlose Jobsuche für Deutschland: Stellenangebote von Arbeitnow, Jobicy und Remotive — einfach und übersichtlich.",
   keywords: [
     "Jobs Deutschland",
     "Jobsuche",
-    "Bundesagentur für Arbeit",
+    "Arbeitnow",
+    "Jobicy",
+    "Remotive",
     "Ausbildung",
     "Minijob",
     "робота в Німеччині",
@@ -40,7 +42,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "JobFunke — Jobs in Deutschland kostenlos finden",
     description:
-      "Kostenlose Jobsuche für Deutschland — einfach, übersichtlich, ohne Anmeldung.",
+    "Kostenlose Jobsuche in Deutschland und Remote-Stellen — einfach, übersichtlich, ohne Anmeldung.",
     type: "website",
   },
   manifest: "/manifest.webmanifest",

@@ -3,7 +3,7 @@
 import React from "react";
 
 /**
- * Renders a plain-text job description (from the Bundesagentur API) as
+ * Renders a job description (from third-party job feeds) as
  * readable, well-structured content: section headings, bullet lists,
  * paragraphs and clickable links (including emails).
  */

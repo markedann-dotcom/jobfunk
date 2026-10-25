@@ -171,8 +171,10 @@ export function SearchResults() {
             </button>
             <button
               onClick={() => setView("map")}
+              disabled={!data.jobs.some((j) => typeof j.lat === "number" && typeof j.lon === "number")}
+              title="Kartenansicht: Quellen liefern derzeit keine Koordinaten."
               className={`inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-sm font-bold transition ${
-                view === "map" ? "bg-accent text-white" : "text-muted hover:text-accent"
+                view === "map" ? "bg-accent text-white" : "text-muted hover:text-accent disabled:cursor-not-allowed disabled:opacity-40"
               }`}
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
@@ -192,7 +194,6 @@ export function SearchResults() {
             >
               <option value="">{t("sort.relevance")}</option>
               <option value="aktualitaet">{t("sort.date")}</option>
-              {wo && <option value="entfernung">{t("sort.distance")}</option>}
             </select>
           </label>
 
@@ -210,6 +211,14 @@ export function SearchResults() {
             {saved ? t("saved.saved") : t("saved.save")}
           </button>
         </div>
+      )}
+
+      {status === "ok" && data && (
+        <p className="mb-4 text-xs text-muted">
+          {total.toLocaleString("de-DE")} Treffer aus den aktuell geladenen Quellen (keine Gesamtzahl für Deutschland).
+          {data.partial && data.unavailable?.length ? ` Vorübergehend nicht erreichbar: ${data.unavailable.join(", ")}.` : ""}
+          {" "}Entfernungsradius und Kartenansicht sind ohne Standortkoordinaten nicht verfügbar.
+        </p>
       )}
 
       {/* third-party data disclaimer */}

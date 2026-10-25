@@ -11,8 +11,8 @@ export default function HaftungsausschlussPage() {
     <LegalShell titleKey="legal.disclaimer.title">
       <p className="lead">
         JobFunke ist ein kostenloser, privat betriebener Such-Dienst, der
-        öffentlich zugängliche Stellenangebote aus der Jobbörse der
-        Bundesagentur für Arbeit technisch aufbereitet und durchsuchbar macht.
+        öffentlich zugängliche Stellenangebote von Arbeitnow, Jobicy
+        und Remotive technisch aufbereitet und durchsuchbar macht.
         JobFunke ist <strong>kein Arbeitgeber, kein Personalvermittler und kein
         Urheber der angezeigten Stellenangebote</strong>.
       </p>
@@ -22,8 +22,8 @@ export default function HaftungsausschlussPage() {
         Sämtliche auf JobFunke angezeigten Stellenangebote, Beschreibungen,
         Gehaltsangaben, Arbeitgeberangaben, Kontaktdaten und sonstigen
         Informationen stammen <strong>ausschließlich von Dritten</strong> – den
-        inserierenden Unternehmen, Personaldienstleistern bzw. der Bundesagentur
-        für Arbeit – und werden über deren öffentliche Schnittstelle automatisiert
+        inserierenden Unternehmen, Personaldienstleistern und Jobportalen
+        Arbeitnow, Jobicy und Remotive – und werden über öffentliche Schnittstellen automatisiert
         übernommen. JobFunke erstellt, prüft, redigiert oder verifiziert diese
         Inhalte <strong>nicht</strong>.
       </p>
@@ -62,7 +62,7 @@ export default function HaftungsausschlussPage() {
         der allgemeinen Information und stellen <strong>keine rechtliche,
         steuerliche, arbeitsrechtliche oder berufliche Beratung</strong> dar. Für
         verbindliche Auskünfte wenden Sie sich bitte an die zuständigen Stellen
-        (z. B. Bundesagentur für Arbeit, Rechts- oder Steuerberatung).
+        (z. B. Jobportale, Rechts- oder Steuerberatung).
       </p>
 
       <h2>4a. Brutto-Netto-Rechner und Bewerbungs-Hinweise</h2>
@@ -101,7 +101,7 @@ export default function HaftungsausschlussPage() {
       <h2>6. Externe Links</h2>
       <p>
         JobFunke verweist über Links auf externe Websites Dritter (z. B.
-        Bewerbungsseiten, arbeitsagentur.de). Auf deren Gestaltung und Inhalte
+        Bewerbungsseiten, Arbeitnow, Jobicy und Remotive). Auf deren Gestaltung und Inhalte
         haben wir keinen Einfluss; hierfür ist ausschließlich der jeweilige
         Anbieter verantwortlich. Zum Zeitpunkt der Verlinkung waren keine
         rechtswidrigen Inhalte erkennbar.
@@ -121,7 +121,7 @@ export default function HaftungsausschlussPage() {
       <p>
         JobFunke ist ein unabhängiges, privates Angebot und steht in{" "}
         <strong>keiner geschäftlichen, behördlichen oder kooperativen
-        Verbindung</strong> zur Bundesagentur für Arbeit. Alle Marken-,
+        Verbindung</strong> zu den genannten Jobportalen. Alle Marken-,
         Namens- und Stellenrechte verbleiben bei den jeweiligen Inhabern.
       </p>
 

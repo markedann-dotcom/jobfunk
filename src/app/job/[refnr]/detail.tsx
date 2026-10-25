@@ -129,6 +129,7 @@ function DetailBody({
             {job.arbeitgeber && (
               <p className="mt-2 text-lg font-semibold text-ink/80">{job.arbeitgeber}</p>
             )}
+            {job.source && <p className="mt-2 text-xs font-semibold text-muted">Quelle: {job.source}</p>}
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <button
@@ -183,13 +184,9 @@ function DetailBody({
               <path d="M7 17 17 7M9 7h8v8" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </a>
-          <a
-            href={`https://www.arbeitsagentur.de/jobsuche/jobdetail/${encodeURIComponent(job.refnr)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex h-12 items-center rounded-full border border-border px-7 text-[15px] font-bold text-ink transition hover:border-accent hover:text-accent"
-          >
-            {t("detail.goto")}
+          <a href={external} target="_blank" rel="noopener noreferrer"
+            className="inline-flex h-12 items-center rounded-full border border-border px-7 text-[15px] font-bold text-ink transition hover:border-accent hover:text-accent">
+            Originalanzeige bei {job.source || "Anbieter"}
           </a>
         </div>
       </header>

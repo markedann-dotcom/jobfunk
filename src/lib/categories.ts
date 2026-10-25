@@ -5,7 +5,7 @@ export type CatColor = "amber" | "coral" | "rose" | "violet" | "blue" | "teal" |
 
 export interface Category {
   id: string;
-  was: string; // search keyword sent to Bundesagentur
+  was: string; // keyword applied to supported job feeds
   de: string;
   uk: string;
   icon: string;

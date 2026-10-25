@@ -38,21 +38,19 @@ export default function ImpressumPage() {
       <h2>Art des Dienstes</h2>
       <p>
         JobFunke ist ein kostenloser, privat betriebener und werbefreier
-        Such-Dienst, der öffentlich zugängliche Stellenangebote der Jobbörse
-        der Bundesagentur für Arbeit aufbereitet und durchsuchbar macht.
-        JobFunke ist ein unabhängiges Angebot und steht in{" "}
-        <strong>keiner geschäftlichen oder behördlichen Verbindung</strong> zur
-        Bundesagentur für Arbeit. Alle Marken- und Stellenrechte verbleiben bei
+        Such-Dienst, der öffentlich zugängliche Stellenangebote von
+        Arbeitnow, Jobicy und Remotive aufbereitet und durchsuchbar macht.
+        JobFunke ist ein unabhängiges Angebot ohne offizielle Partnerschaft
+        mit den Datenanbietern. Alle Marken- und Stellenrechte verbleiben bei
         den jeweiligen Inhabern.
       </p>
 
       <h2>Haftung für Inhalte</h2>
       <p>
-        Die Stelleninhalte stammen aus der offiziellen Schnittstelle der
-        Bundesagentur für Arbeit und werden lediglich technisch aufbereitet
+        Die Stelleninhalte stammen aus öffentlichen Schnittstellen von
+        Arbeitnow, Jobicy und Remotive und werden technisch aufbereitet
         dargestellt. Für die Richtigkeit, Vollständigkeit und Aktualität der
-        einzelnen Stellenangebote sind die jeweils inserierenden Unternehmen
-        bzw. die Bundesagentur für Arbeit verantwortlich. Als Diensteanbieter
+        Stellenangebote sind die jeweiligen Quellen und Inserenten verantwortlich. Als Diensteanbieter
         sind wir gemäß § 7 Abs. 1 DDG für eigene Inhalte auf diesen Seiten nach
         den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 DDG sind wir
         als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder
@@ -62,7 +60,7 @@ export default function ImpressumPage() {
       <h2>Haftung für Links</h2>
       <p>
         Unser Angebot enthält Links zu externen Websites Dritter (z. B. zu
-        Bewerbungsseiten oder zur Bundesagentur für Arbeit), auf deren Inhalte
+        Bewerbungsseiten oder zu den genannten Jobportalen), auf deren Inhalte
         wir keinen Einfluss haben. Für diese fremden Inhalte ist stets der
         jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Zum
         Zeitpunkt der Verlinkung waren keine rechtswidrigen Inhalte erkennbar.
@@ -70,8 +68,8 @@ export default function ImpressumPage() {
 
       <h2>Verwendete Dienste &amp; Nachweise</h2>
       <p>
-        Stellendaten: Jobsuche-Schnittstelle der{" "}
-        <strong>Bundesagentur für Arbeit</strong>.
+        Stellendaten: öffentliche APIs von{" "}
+        <strong>Arbeitnow, Jobicy und Remotive</strong>.
       </p>
       <p>
         Kartendarstellung: Kartenmaterial und -kacheln ©{" "}
@@ -91,7 +89,7 @@ export default function ImpressumPage() {
         Die durch den Seitenbetreiber erstellten Inhalte und Werke auf diesen
         Seiten unterliegen dem deutschen Urheberrecht. Die Stelleninhalte
         unterliegen dem Urheber- und Nutzungsrecht der jeweiligen Inserenten
-        bzw. der Bundesagentur für Arbeit.
+        bzw. der jeweiligen Datenanbieter.
       </p>
 
       <h2>Streitschlichtung</h2>
